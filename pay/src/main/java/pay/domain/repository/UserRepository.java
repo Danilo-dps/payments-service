@@ -16,4 +16,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByCpf(String cpf);
     List<DepositHistory> findDepositByUserId(UUID userId);
     List<TransferHistory> findTransferByUserId(UUID userId);
+    Optional<User> findByUsername(String username);
+    Boolean existsByUsername(String username);
+    Boolean existsByEmail(String email);
 }

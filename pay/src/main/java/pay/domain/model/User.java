@@ -1,12 +1,15 @@
 package pay.domain.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -42,6 +45,15 @@ public class User implements Serializable {
     @Column(nullable = false, unique = true, length = 50)
     private String email;
 
+    @Column(nullable = false, unique = true, length = 80)
+    private String password;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(  name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> role = new HashSet<>();
+
     @Column(nullable = false)
     @Builder.Default
     private BigDecimal balance = BigDecimal.ZERO;
@@ -50,11 +62,18 @@ public class User implements Serializable {
 
     private List<DepositHistory> depositHistory;
 
-    public User(UUID userId, String username, String cpf, String email, BigDecimal balance) {
+    public User(UUID userId, String username, String cpf, String email, String password, Set<Role> role, BigDecimal balance) {
         this.userId = userId;
         this.username = username;
         this.cpf = cpf;
         this.email = email;
+        this.password = password;
+        this.role = role;
         this.balance = BigDecimal.ZERO;
+    }
+
+    public User(String username, String email, String encode) {
+        this.username = username;
+        this.email = email;
     }
 }
