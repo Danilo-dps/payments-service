@@ -66,7 +66,6 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public UserDTO registerUser(UserDTO signUpRequest) {
 
-        // 1. Validações de negócio (continua igual)
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             throw new RuntimeException("Erro: Nome de usuário já está em uso!");
         }
@@ -74,36 +73,28 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Erro: Email já está em uso!");
         }
 
-        // 2. Cria a entidade User (continua igual)
         User user = new User();
         user.setUsername(signUpRequest.getUsername());
         user.setCpf(signUpRequest.getCpf());
         user.setEmail(signUpRequest.getEmail());
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
 
-        // 3. Pega o Set<Role> do DTO (que agora vem preenchido corretamente)
         Set<Role> rolesFromDto = signUpRequest.getRole();
         Set<Role> rolesParaSalvar;
 
-        // 4. A "PONTE" SIMPLIFICADA
         if (rolesFromDto == null || rolesFromDto.isEmpty()) {
-            // Se nenhuma role for enviada, atribui a padrão
             rolesParaSalvar = Set.of(roleRepository.findByName(ERole.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Erro: Perfil padrão ROLE_USER não encontrado.")));
         } else {
-            // Se roles foram enviadas, busca as entidades correspondentes no banco
             rolesParaSalvar = rolesFromDto.stream()
                     .map(role -> {
-                        // Pega o enum 'name' de dentro do objeto Role que o Jackson criou
                         ERole roleEnum = role.getName();
-                        // Busca a entidade Role gerenciada no banco de dados
                         return roleRepository.findByName(roleEnum)
                                 .orElseThrow(() -> new RuntimeException("Erro: Perfil " + roleEnum.name() + " não configurado no banco."));
                     })
                     .collect(Collectors.toSet());
         }
 
-        // 5. Associa os perfis e salva o usuário (continua igual)
         user.setRole(rolesParaSalvar);
         User savedUser = userRepository.save(user);
         return User2UserDTO.convert(savedUser);

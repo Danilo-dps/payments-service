@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pay.domain.model.ERole;
 import pay.domain.model.Role;
-import pay.domain.repository.RoleRepository; // Importe seu repositório de Role
+import pay.domain.repository.RoleRepository;
 
 import java.util.Arrays;
 
