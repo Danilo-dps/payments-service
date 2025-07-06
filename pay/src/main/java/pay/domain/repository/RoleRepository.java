@@ -2,7 +2,7 @@ package pay.domain.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import pay.domain.model.ERole;
+import pay.domain.model.enums.ERole;
 import pay.domain.model.Role;
 
 import java.util.Optional;

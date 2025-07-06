@@ -3,6 +3,7 @@ package pay.domain.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import jakarta.persistence.*;
+import pay.domain.model.enums.ERole;
 
 @Entity
 @Table(name = "roles")
