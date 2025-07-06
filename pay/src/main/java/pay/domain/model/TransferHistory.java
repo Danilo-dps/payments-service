@@ -2,6 +2,7 @@ package pay.domain.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import pay.domain.model.enums.EOperationType;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -28,14 +29,14 @@ public class TransferHistory implements Serializable {
     private UUID transferId;
     private LocalDateTime whenDidItHappen;
     private String destinationEmail;
-    private String operationType;
+    private EOperationType operationType;
     private BigDecimal amount;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    public TransferHistory(LocalDateTime whenDidItHappen, String destinationEmail, String operationType, BigDecimal amount, User user) {
+    public TransferHistory(LocalDateTime whenDidItHappen, String destinationEmail, EOperationType operationType, BigDecimal amount, User user) {
         this.whenDidItHappen = whenDidItHappen;
         this.destinationEmail = destinationEmail;
         this.operationType = operationType;

@@ -12,5 +12,5 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class DepositRequestDTO {
     private BigDecimal amount;
-    private String userEmail;
+    private String email;
 }

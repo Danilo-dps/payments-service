@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pay.domain.adapter.User2UserDTO;
 import pay.domain.dto.UserDTO;
-import pay.domain.model.ERole;
+import pay.domain.model.enums.ERole;
 import pay.domain.model.Role;
 import pay.domain.model.User;
 import pay.domain.payload.request.LoginRequest;

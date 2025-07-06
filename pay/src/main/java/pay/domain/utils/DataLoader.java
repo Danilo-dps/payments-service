@@ -3,7 +3,7 @@ package pay.domain.utils;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import pay.domain.model.ERole;
+import pay.domain.model.enums.ERole;
 import pay.domain.model.Role;
 import pay.domain.repository.RoleRepository;
 

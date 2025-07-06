@@ -2,6 +2,7 @@ package pay.domain.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import pay.domain.model.enums.EOperationType;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -23,18 +24,18 @@ public class DepositHistory implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "UUID", updatable = false, nullable = false)
     private UUID depositId;
     private LocalDateTime whenDidItHappen;
-    private String operationType;
+    private EOperationType operationType;
     private BigDecimal amount;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    public DepositHistory(LocalDateTime whenDidItHappen, String operationType, BigDecimal amount, User user) {
+    public DepositHistory(LocalDateTime whenDidItHappen, EOperationType operationType, BigDecimal amount, User user) {
         this.whenDidItHappen = whenDidItHappen;
         this.operationType = operationType;
         this.amount = amount;

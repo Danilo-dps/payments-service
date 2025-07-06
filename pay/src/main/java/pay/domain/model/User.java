@@ -1,16 +1,12 @@
 package pay.domain.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 @Setter
@@ -58,9 +54,11 @@ public class User implements Serializable {
     @Builder.Default
     private BigDecimal balance = BigDecimal.ZERO;
 
-    private List<TransferHistory> transferHistory;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TransferHistory> transferHistory = new ArrayList<>();
 
-    private List<DepositHistory> depositHistory;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<DepositHistory> depositHistory = new ArrayList<>();
 
     public User(UUID userId, String username, String cpf, String email, String password, Set<Role> role, BigDecimal balance) {
         this.userId = userId;

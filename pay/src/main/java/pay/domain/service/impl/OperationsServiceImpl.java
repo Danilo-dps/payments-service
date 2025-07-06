@@ -10,6 +10,7 @@ import pay.domain.adapter.TransferHistory2TransferResponse;
 import pay.domain.dto.DepositRequestDTO;
 import pay.domain.dto.TransferRequestDTO;
 import pay.domain.model.DepositHistory;
+import pay.domain.model.enums.EOperationType;
 import pay.domain.model.TransferHistory;
 import pay.domain.model.User;
 import pay.domain.record.DepositResponse;
@@ -47,15 +48,28 @@ public class OperationsServiceImpl implements OperationsService {
             throw new InvalidValueException();
         }
 
-        User user = userRepository.findByEmail(requestDeposit.getUserEmail())
-                .orElseThrow(() -> new NotFoundException(requestDeposit.getUserEmail()));
+        User user = userRepository.findByEmail(requestDeposit.getEmail())
+                .orElseThrow(() -> new NotFoundException(requestDeposit.getEmail()));
 
+        // 1. Crie a nova instância de DepositHistory primeiro
+        DepositHistory deposit = new DepositHistory(
+                LocalDateTime.now(),
+                EOperationType.DEPOSIT,
+                requestDeposit.getAmount(),
+                user
+        );
+
+        // 2. Sincronize os dois lados da relação em memória
+        user.getDepositHistory().add(deposit);
+
+        // 3. Atualize o saldo do usuário
         user.setBalance(user.getBalance().add(requestDeposit.getAmount()));
+
+        // 4. Salve APENAS o usuário. O JPA salvará o novo DepositHistory automaticamente
+        // por causa da relação @OneToMany(cascade = CascadeType.ALL).
         userRepository.save(user);
 
-        DepositHistory deposit = new DepositHistory(LocalDateTime.now(), "Depósito", requestDeposit.getAmount(), user);
-        depositHistoryRepository.save(deposit);
-
+        // 5. Retorne a resposta
         return DepositHistory2DepositResponse.convert(deposit);
     }
 
@@ -66,7 +80,7 @@ public class OperationsServiceImpl implements OperationsService {
             throw new InvalidValueException();
         }
 
-        User fromUser = userRepository.findByEmail(requestTransfer.getUserEmail()).orElseThrow(() -> new NotFoundException(requestTransfer.getUserEmail()));
+        User fromUser = userRepository.findByEmail(requestTransfer.getEmail()).orElseThrow(() -> new NotFoundException(requestTransfer.getEmail()));
         User destinationUser = userRepository.findByEmail(requestTransfer.getDestinationEmail()).orElseThrow(() -> new NotFoundException(requestTransfer.getDestinationEmail()));
 
         if (fromUser.getBalance() == null || fromUser.getBalance().compareTo(requestTransfer.getAmount()) < 0) {
@@ -81,7 +95,7 @@ public class OperationsServiceImpl implements OperationsService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        TransferHistory transfer = new TransferHistory(now, destinationUser.getEmail(),"Transferência", requestTransfer.getAmount(), fromUser);
+        TransferHistory transfer = new TransferHistory(now, destinationUser.getEmail(), EOperationType.TRANSFER, requestTransfer.getAmount(), fromUser);
         transferHistoryRepository.save(transfer);
 
         return TransferHistory2TransferResponse.convert(transfer);
