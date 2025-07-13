@@ -3,8 +3,11 @@ package pay.domain.dto;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import pay.domain.model.Role;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -12,6 +15,7 @@ import java.util.UUID;
 @Builder
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
 public class StoreDTO {
 
     private UUID storeId;
@@ -26,15 +30,21 @@ public class StoreDTO {
     @NotBlank(message = "Email é obrigatório")
     private String storeEmail;
 
+    @NotBlank(message = "A senha é obrigatória")
+    private String password;
+
+    private Set<Role> role = new HashSet<>();
+
     @Column(nullable = false)
     @Builder.Default
     private BigDecimal balance = BigDecimal.ZERO;
 
-    public StoreDTO(UUID storeId, String storeName, String cnpj, String storeEmail, BigDecimal balance) {
-        this.storeId = storeId;
+    public StoreDTO(String storeName, String cnpj, String storeEmail, String password, Set<Role> role, BigDecimal balance) {
         this.storeName = storeName;
         this.cnpj = cnpj;
         this.storeEmail = storeEmail;
+        this.password = password;
+        this.role = new HashSet<>();
         this.balance = BigDecimal.ZERO;
     }
 }

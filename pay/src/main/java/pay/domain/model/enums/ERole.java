@@ -7,8 +7,7 @@ import java.util.Arrays;
 
 public enum ERole {
   ROLE_USER("user"),
-  ROLE_MODERATOR("moderator"),
-  ROLE_ADMIN("admin");
+  ROLE_STORE("store");
 
   private final String shortName;
 

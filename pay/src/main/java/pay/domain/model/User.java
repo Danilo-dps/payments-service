@@ -41,13 +41,14 @@ public class User implements Serializable {
     @Column(nullable = false, unique = true, length = 50)
     private String email;
 
-    @Column(nullable = false, unique = true, length = 80)
+    @Column(nullable = false, length = 80)
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(  name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "userId"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    @Builder.Default
     private Set<Role> role = new HashSet<>();
 
     @Column(nullable = false)
@@ -55,9 +56,11 @@ public class User implements Serializable {
     private BigDecimal balance = BigDecimal.ZERO;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<TransferHistory> transferHistory = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<DepositHistory> depositHistory = new ArrayList<>();
 
     public User(UUID userId, String username, String cpf, String email, String password, Set<Role> role, BigDecimal balance) {

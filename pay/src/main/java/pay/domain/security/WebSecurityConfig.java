@@ -1,6 +1,5 @@
 package pay.domain.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,17 +15,17 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import pay.domain.security.jwt.AuthEntryPointJwt;
 import pay.domain.security.jwt.AuthTokenFilter;
-import pay.domain.service.impl.UserDetailsServiceImpl;
+import pay.domain.service.impl.CustomUserDetailsServiceImpl;
 
 @Configuration
 @EnableMethodSecurity
 public class WebSecurityConfig {
 
-	private final UserDetailsServiceImpl userDetailsService;
+	private final CustomUserDetailsServiceImpl customUserDetailsService;
 	private final AuthEntryPointJwt unauthorizedHandler;
 
-	public WebSecurityConfig(UserDetailsServiceImpl userDetailsService, AuthEntryPointJwt unauthorizedHandler) {
-		this.userDetailsService = userDetailsService;
+	public WebSecurityConfig(CustomUserDetailsServiceImpl customUserDetailsService, AuthEntryPointJwt unauthorizedHandler) {
+		this.customUserDetailsService = customUserDetailsService;
 		this.unauthorizedHandler = unauthorizedHandler;
 	}
 
@@ -39,7 +38,7 @@ public class WebSecurityConfig {
 	public DaoAuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
-		authProvider.setUserDetailsService(userDetailsService);
+		authProvider.setUserDetailsService(customUserDetailsService);
 		authProvider.setPasswordEncoder(passwordEncoder());
 
 		return authProvider;
@@ -57,18 +56,22 @@ public class WebSecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.csrf(AbstractHttpConfigurer::disable)
+		http
+				.csrf(AbstractHttpConfigurer::disable)
 				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(auth ->
-						auth.requestMatchers("/auth/**").permitAll()
-								.anyRequest().authenticated()
-				);
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers(
+								"/auth/signup/user",
+								"/auth/signup/store",
+								"/auth/login",
+								"/auth/refresh-token"
+						).permitAll()
+						.anyRequest().authenticated()
+				)
+				.addFilterAfter(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
 		http.authenticationProvider(authenticationProvider());
-
-		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-
 		return http.build();
 	}
 }

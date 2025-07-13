@@ -6,7 +6,9 @@ import lombok.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -42,8 +44,36 @@ public class Store implements Serializable {
     @Column(nullable = false, unique = true, length = 50)
     private String storeEmail;
 
-    private BigDecimal balance;
+    @Column(nullable = false, length = 80)
+    private String password;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "store_roles",
+            joinColumns = @JoinColumn(name = "store_id", referencedColumnName = "storeId"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    @Builder.Default
+    private Set<Role> role = new HashSet<>();
+
+    @Column(nullable = false)
+    @Builder.Default
+    private BigDecimal balance = BigDecimal.ZERO;
 
     private List<TransferHistory> transferHistory;
+
+    public Store(UUID storeId, String storeName, String cnpj, String storeEmail, String password, Set<Role> role, BigDecimal balance) {
+        this.storeId = storeId;
+        this.storeName = storeName;
+        this.cnpj = cnpj;
+        this.storeEmail = storeEmail;
+        this.password = password;
+        this.role = role;
+        this.balance = BigDecimal.ZERO;
+    }
+
+    public Store(String storeName, String storeEmail, String password) {
+        this.storeName = storeName;
+        this.storeEmail = storeEmail;
+        this.password = password;
+    }
 
 }
