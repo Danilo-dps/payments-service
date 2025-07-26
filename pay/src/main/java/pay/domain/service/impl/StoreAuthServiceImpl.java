@@ -21,16 +21,13 @@ import java.util.stream.Collectors;
 @Service("storeAuthService")
 public class StoreAuthServiceImpl extends AbstractAuthService<StoreDTO, StoreDTO> {
 
-    // Dependências para registro de Store (StoreRepository, etc.)
-
     private final StoreRepository storeRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // O construtor chama o 'super' para as dependências comuns e inicializa as suas próprias
     public StoreAuthServiceImpl(AuthenticationManager authenticationManager, JwtUtils jwtUtils,
                                 StoreRepository storeRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
-        super(authenticationManager, jwtUtils); // Passa dependências para a classe pai
+        super(authenticationManager, jwtUtils);
         this.storeRepository = storeRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;

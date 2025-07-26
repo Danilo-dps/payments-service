@@ -11,7 +11,6 @@ import pay.domain.security.jwt.JwtUtils;
 import pay.domain.service.impl.CustomUserDetails;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class AbstractAuthService<R, S> implements AuthService<R, S> {
 
@@ -34,7 +33,7 @@ public abstract class AbstractAuthService<R, S> implements AuthService<R, S> {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+                .toList();
 
         return new JwtResponse(jwt,
                 userDetails.getId(),

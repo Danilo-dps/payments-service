@@ -17,27 +17,21 @@ import pay.domain.service.AbstractAuthService;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Service("userAuthService") // Dê um nome específico ao bean
+@Service("userAuthService")
 public class UserAuthServiceImpl extends AbstractAuthService<UserDTO, UserDTO> {
 
-    // Dependências específicas para o registro de User
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // O construtor chama o 'super' para as dependências comuns e inicializa as suas próprias
     public UserAuthServiceImpl(AuthenticationManager authenticationManager, JwtUtils jwtUtils,
                                UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
-        super(authenticationManager, jwtUtils); // Passa dependências para a classe pai
+        super(authenticationManager, jwtUtils);
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    /**
-     * Implementação específica para registrar um User.
-     * O código aqui é exatamente o que você já tinha.
-     */
     @Override
     @Transactional
     public UserDTO register(UserDTO signUpRequest) {
