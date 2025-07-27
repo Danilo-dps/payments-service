@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,13 +22,16 @@ import java.util.List;
 
 @Component
 public class AuthTokenFilter extends OncePerRequestFilter {
-  @Autowired
-  private JwtUtils jwtUtils;
 
-  @Autowired
-  private CustomUserDetailsServiceImpl userDetailsService;
+  private final JwtUtils jwtUtils;
+  private final CustomUserDetailsServiceImpl userDetailsService;
 
-  private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
+  public AuthTokenFilter(JwtUtils jwtUtils, CustomUserDetailsServiceImpl userDetailsService) {
+    this.jwtUtils = jwtUtils;
+    this.userDetailsService = userDetailsService;
+  }
+
+  private static final Logger log = LoggerFactory.getLogger(AuthTokenFilter.class);
 
   private static final List<String> EXCLUDED_PATHS = Arrays.asList(
           "/auth/signup/user",
@@ -59,7 +61,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
       }
     } catch (Exception e) {
-      logger.error("Não foi possível definir a autenticação do usuário: {}", e.getMessage());
+      log.error("Não foi possível definir a autenticação do usuário: {}", e.getMessage());
     }
 
     filterChain.doFilter(request, response);

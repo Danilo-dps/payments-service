@@ -15,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import pay.domain.security.jwt.AuthEntryPointJwt;
 import pay.domain.security.jwt.AuthTokenFilter;
+import pay.domain.security.jwt.JwtUtils;
 import pay.domain.service.impl.CustomUserDetailsServiceImpl;
 
 @Configuration
@@ -23,15 +24,17 @@ public class WebSecurityConfig {
 
 	private final CustomUserDetailsServiceImpl customUserDetailsService;
 	private final AuthEntryPointJwt unauthorizedHandler;
+	private final JwtUtils jwtUtils;
 
-	public WebSecurityConfig(CustomUserDetailsServiceImpl customUserDetailsService, AuthEntryPointJwt unauthorizedHandler) {
+	public WebSecurityConfig(CustomUserDetailsServiceImpl customUserDetailsService, AuthEntryPointJwt unauthorizedHandler, JwtUtils jwtUtils) {
 		this.customUserDetailsService = customUserDetailsService;
 		this.unauthorizedHandler = unauthorizedHandler;
+		this.jwtUtils = jwtUtils;
 	}
 
 	@Bean
 	public AuthTokenFilter authenticationJwtTokenFilter() {
-		return new AuthTokenFilter();
+		return new AuthTokenFilter(jwtUtils, customUserDetailsService);
 	}
 
 	@Bean
