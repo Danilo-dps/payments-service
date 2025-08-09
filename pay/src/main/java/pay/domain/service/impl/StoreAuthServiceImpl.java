@@ -14,6 +14,7 @@ import pay.domain.repository.RoleRepository;
 import pay.domain.repository.StoreRepository;
 import pay.domain.security.jwt.JwtUtils;
 import pay.domain.service.AbstractAuthService;
+import pay.domain.utils.validator.StoreValidator;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,19 +25,22 @@ public class StoreAuthServiceImpl extends AbstractAuthService<StoreDTO, StoreDTO
     private final StoreRepository storeRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final StoreValidator storeValidator;
 
     public StoreAuthServiceImpl(AuthenticationManager authenticationManager, JwtUtils jwtUtils,
-                                StoreRepository storeRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+                                StoreRepository storeRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, StoreValidator storeValidator) {
         super(authenticationManager, jwtUtils);
         this.storeRepository = storeRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.storeValidator = storeValidator;
     }
 
     @Override
     @Transactional
     public StoreDTO register(StoreDTO signUpRequest) {
 
+        storeValidator.validate(signUpRequest);
         Store store = new Store();
         store.setStoreName(signUpRequest.getStoreName());
         store.setCnpj(signUpRequest.getCnpj());

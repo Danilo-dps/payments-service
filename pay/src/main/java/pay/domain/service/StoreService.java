@@ -9,7 +9,6 @@ import java.util.UUID;
 
 public interface StoreService {
 
-    StoreDTO create(StoreDTO storeDTO);
     StoreResponse getById(UUID storeId);
     StoreResponse getByEmail(String storeEmail);
     StoreDTO update(UUID storeId, StoreResponse storeResponse);
