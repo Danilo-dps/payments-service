@@ -13,6 +13,7 @@ import pay.domain.repository.RoleRepository;
 import pay.domain.repository.UserRepository;
 import pay.domain.security.jwt.JwtUtils;
 import pay.domain.service.AbstractAuthService;
+import pay.domain.utils.validator.UserValidator;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,19 +24,22 @@ public class UserAuthServiceImpl extends AbstractAuthService<UserDTO, UserDTO> {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserValidator userValidator;
 
     public UserAuthServiceImpl(AuthenticationManager authenticationManager, JwtUtils jwtUtils,
-                               UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+                               UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, UserValidator userValidator) {
         super(authenticationManager, jwtUtils);
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userValidator = userValidator;
     }
 
     @Override
     @Transactional
     public UserDTO register(UserDTO signUpRequest) {
 
+        userValidator.validate(signUpRequest);
         User user = new User();
         user.setUsername(signUpRequest.getUsername());
         user.setCpf(signUpRequest.getCpf());
