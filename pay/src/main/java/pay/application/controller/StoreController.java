@@ -33,12 +33,6 @@ public class StoreController {
         return ResponseEntity.ok(storeSearch);
     }
 
-    @PostMapping
-    public ResponseEntity<StoreDTO> createStore(@RequestBody StoreDTO storeDTO){
-        StoreDTO storeCreated = storeService.create(storeDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(storeCreated);
-    }
-
     @PutMapping("/{storeId}")
     public ResponseEntity<StoreDTO> updateStore(@PathVariable UUID storeId, @RequestBody StoreResponse storeResponse){
         StoreDTO storeUpdate = storeService.update(storeId, storeResponse);

@@ -24,39 +24,11 @@ public class StoreServiceImpl implements StoreService {
     private static final Logger logger = Logger.getLogger(StoreServiceImpl.class.getName());
 
     private final StoreRepository storeRepository;
-    private final StoreValidator storeValidator;
     private final EmailValidator emailValidator;
 
-    public StoreServiceImpl(StoreRepository storeRepository, StoreValidator storeValidator, EmailValidator emailValidator){
+    public StoreServiceImpl(StoreRepository storeRepository, EmailValidator emailValidator){
         this.storeRepository = storeRepository;
-        this.storeValidator = storeValidator;
         this.emailValidator = emailValidator;
-    }
-
-    @Override
-    @Transactional
-    public StoreDTO create(StoreDTO storeDTO) {
-        logger.info("Criando login...");
-
-        storeValidator.validate(storeDTO);
-
-        if (storeDTO.getStoreName() == null || storeDTO.getStoreName().trim().isEmpty()) {
-            logger.warning("Erro. Nome está vazio");
-            throw new NameEmptyException();
-        }
-        if (storeRepository.findByCnpj(storeDTO.getCnpj()).isPresent()) {
-            logger.warning("Erro. CPF já cadastrado");
-            throw new DuplicateCNPJException(storeDTO.getCnpj());
-        }
-        if (storeRepository.findByStoreEmail(storeDTO.getStoreEmail()).isPresent()) {
-            logger.warning("Erro. Email já cadastrado");
-            throw new DuplicateEmailException(storeDTO.getStoreEmail());
-        }
-
-        Store store = Store.builder().storeName(storeDTO.getStoreName()).storeEmail(storeDTO.getStoreEmail()).cnpj(storeDTO.getCnpj()).build();
-        logger.info("Usuário criado!");
-        Store savedStore = storeRepository.save(store);
-        return Store2StoreDTO.convert(savedStore);
     }
 
     @Override
