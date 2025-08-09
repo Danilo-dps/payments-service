@@ -34,12 +34,6 @@ public class UserController {
         return ResponseEntity.ok(userSearch);
     }
 
-    @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO){
-        UserDTO userCreated = userService.create(userDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userCreated);
-    }
-
     @PutMapping("/{userId}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable UUID userId, @RequestBody UserResponse userResponse){
         UserDTO userUpdate = userService.update(userId, userResponse);

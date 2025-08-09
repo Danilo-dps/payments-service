@@ -29,39 +29,11 @@ public class UserServiceImpl implements UserService {
     private static final Logger logger = Logger.getLogger(UserServiceImpl.class.getName());
 
     private final UserRepository userRepository;
-    private final UserValidator userValidator;
     private final EmailValidator emailValidator;
 
-    public UserServiceImpl(UserRepository userRepository, UserValidator userValidator, EmailValidator emailValidator){
+    public UserServiceImpl(UserRepository userRepository, EmailValidator emailValidator){
         this.userRepository = userRepository;
-        this.userValidator = userValidator;
         this.emailValidator = emailValidator;
-    }
-
-    @Override
-    @Transactional
-    public UserDTO create(UserDTO userDTO) {
-        logger.info("Criando login...");
-
-        userValidator.validate(userDTO);
-
-        if (userDTO.getUsername() == null || userDTO.getUsername().trim().isEmpty()) {
-            logger.warning("Erro. Nome está vazio");
-            throw new NameEmptyException();
-        }
-        if (userRepository.findByCpf(userDTO.getCpf()).isPresent()) {
-            logger.warning("Erro. CPF já cadastrado");
-            throw new DuplicateCPFException(userDTO.getCpf());
-        }
-        if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
-            logger.warning("Erro. Email já cadastrado");
-            throw new DuplicateEmailException(userDTO.getEmail());
-        }
-
-        User user = User.builder().username(userDTO.getUsername()).email(userDTO.getEmail()).cpf(userDTO.getCpf()).build();
-        logger.info("Usuário criado!");
-        User savedUser = userRepository.save(user);
-        return User2UserDTO.convert(savedUser);
     }
 
     @Override

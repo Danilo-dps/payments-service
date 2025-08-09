@@ -10,7 +10,6 @@ import java.util.UUID;
 
 public interface UserService {
 
-    UserDTO create(UserDTO userDTO);
     UserResponse getById(UUID userId);
     UserResponse getByEmail(String email);
     UserDTO update(UUID userId, UserResponse userResponse);
