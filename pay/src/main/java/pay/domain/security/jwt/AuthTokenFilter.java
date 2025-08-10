@@ -37,7 +37,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
           "/auth/signup/user",
           "/auth/signup/store",
           "/auth/login",
-          "/auth/refresh-token"
+          "/auth/refresh-token",
+          "/actuator/configprops"
   );
 
   @Override

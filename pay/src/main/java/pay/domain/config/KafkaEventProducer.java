@@ -1,0 +1,34 @@
+package pay.domain.config;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+import pay.domain.record.DepositResponse;
+import pay.domain.record.TransferResponse;
+
+@Slf4j
+@Service
+public class KafkaEventProducer {
+
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+
+    public KafkaEventProducer(KafkaTemplate<String, Object> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
+    public void publishKafkaDepositEventNotification(DepositResponse depositResponse){
+        log.info("Enviando comprovante de depósito");
+        kafkaTemplate.send(
+                KafkaConfig.DEPOSIT_NOTIFICATION_TOPIC,
+                depositResponse.depositId().toString(),
+                depositResponse);
+    }
+
+    public void publishKafkaTransferEventNotification(TransferResponse transferResponse){
+        log.info("Enviando comprovante de transferência");
+        kafkaTemplate.send(
+                KafkaConfig.TRANSFER_NOTIFICATION_TOPIC,
+                transferResponse.transferId().toString(),
+                transferResponse);
+    }
+}

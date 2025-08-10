@@ -4,5 +4,5 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record DepositResponse(UUID depositId, String username, BigDecimal amount, LocalDateTime whenDidItHappen) {
+public record DepositResponse(UUID depositId, String username, String userEmail, BigDecimal amount, LocalDateTime whenDidItHappen) {
 }
