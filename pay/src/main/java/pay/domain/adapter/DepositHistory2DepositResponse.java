@@ -11,7 +11,7 @@ public class DepositHistory2DepositResponse {
     private DepositHistory2DepositResponse(){}
 
     public static DepositResponse convert(DepositHistory depositHistory){
-        return new DepositResponse(depositHistory.getDepositId(), depositHistory.getUser().getUsername(), depositHistory.getAmount(), depositHistory.getWhenDidItHappen());
+        return new DepositResponse(depositHistory.getDepositId(), depositHistory.getUser().getUsername(), depositHistory.getUser().getEmail(),depositHistory.getAmount(), depositHistory.getWhenDidItHappen());
     }
 
     public static List<DepositResponse> convertToList(List<DepositHistory> listDepositHistory){

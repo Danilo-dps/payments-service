@@ -2,8 +2,11 @@ package pay.domain.service.impl;
 
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import pay.application.exceptions.*;
-import pay.domain.adapter.*;
+import pay.application.exceptions.DuplicateEmailException;
+import pay.application.exceptions.NotFoundException;
+import pay.domain.adapter.Store2StoreDTO;
+import pay.domain.adapter.Store2StoreResponse;
+import pay.domain.adapter.TransferHistory2TransferResponse;
 import pay.domain.dto.StoreDTO;
 import pay.domain.model.Store;
 import pay.domain.model.TransferHistory;
@@ -12,7 +15,6 @@ import pay.domain.record.TransferResponse;
 import pay.domain.repository.StoreRepository;
 import pay.domain.service.StoreService;
 import pay.domain.utils.validations.EmailValidator;
-import pay.domain.utils.validator.StoreValidator;
 
 import java.util.List;
 import java.util.Objects;

@@ -5,20 +5,25 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import pay.domain.config.KafkaEventProducer;
 import pay.domain.payload.request.LoginRequest;
 import pay.domain.payload.response.JwtResponse;
+import pay.domain.record.SigninResponse;
 import pay.domain.security.jwt.JwtUtils;
 import pay.domain.service.impl.CustomUserDetails;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public abstract class AbstractAuthService<R, S> implements AuthService<R, S> {
 
     private final AuthenticationManager authenticationManager;
+    protected final KafkaEventProducer kafkaEventProducer;
     private final JwtUtils jwtUtils;
 
-    protected AbstractAuthService(AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
+    protected AbstractAuthService(AuthenticationManager authenticationManager, KafkaEventProducer kafkaEventProducer, JwtUtils jwtUtils) {
         this.authenticationManager = authenticationManager;
+        this.kafkaEventProducer = kafkaEventProducer;
         this.jwtUtils = jwtUtils;
     }
 
@@ -35,6 +40,7 @@ public abstract class AbstractAuthService<R, S> implements AuthService<R, S> {
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
+        kafkaEventProducer.publishKafkaSignInNotification(SigninResponse.builder().id(userDetails.getId()).username(userDetails.getUsername()).email(userDetails.getEmail()).now(LocalDateTime.now()).build());
         return new JwtResponse(jwt,
                 userDetails.getId(),
                 userDetails.getUsername(),

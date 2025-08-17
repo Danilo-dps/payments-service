@@ -68,7 +68,8 @@ public class WebSecurityConfig {
 								"/auth/signup/user",
 								"/auth/signup/store",
 								"/auth/login",
-								"/auth/refresh-token"
+								"/auth/refresh-token",
+								"/actuator/configprops"
 						).permitAll()
 						.anyRequest().authenticated()
 				)
