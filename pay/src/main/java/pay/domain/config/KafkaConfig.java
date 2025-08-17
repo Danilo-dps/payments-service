@@ -23,10 +23,20 @@ public class KafkaConfig {
 
     private final KafkaProperties kafkaProperties;
 
-    public static final String TRANSFER_NOTIFICATION_TOPIC = "transfer.created.notification";
     public static final String DEPOSIT_NOTIFICATION_TOPIC = "deposit.created.notification";
+    public static final String TRANSFER_NOTIFICATION_TOPIC = "transfer.created.notification";
+    public static final String SIGN_UP_NOTIFICATION_TOPIC = "signup.notification";
+    public static final String SIGN_IN_NOTIFICATION_TOPIC = "signin.notification";
 
     public KafkaConfig(KafkaProperties kafkaProperties) { this.kafkaProperties = kafkaProperties;}
+
+    @Bean
+    NewTopic depositCreatedNotificationTopic(){
+        return TopicBuilder.name(DEPOSIT_NOTIFICATION_TOPIC)
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
 
     @Bean
     NewTopic transferCreatedNotificationTopic(){
@@ -37,8 +47,16 @@ public class KafkaConfig {
     }
 
     @Bean
-    NewTopic depositCreatedNotificationTopic(){
-        return TopicBuilder.name(DEPOSIT_NOTIFICATION_TOPIC)
+    NewTopic signUpNotificationTopic(){
+        return TopicBuilder.name(SIGN_UP_NOTIFICATION_TOPIC)
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    NewTopic signInNotificationTopic(){
+        return TopicBuilder.name(SIGN_IN_NOTIFICATION_TOPIC)
                 .partitions(1)
                 .replicas(1)
                 .build();

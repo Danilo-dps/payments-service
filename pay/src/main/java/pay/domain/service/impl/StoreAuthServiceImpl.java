@@ -6,16 +6,19 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pay.domain.adapter.Store2StoreDTO;
+import pay.domain.config.KafkaEventProducer;
 import pay.domain.dto.StoreDTO;
 import pay.domain.model.Role;
 import pay.domain.model.Store;
 import pay.domain.model.enums.ERole;
+import pay.domain.record.SignupResponse;
 import pay.domain.repository.RoleRepository;
 import pay.domain.repository.StoreRepository;
 import pay.domain.security.jwt.JwtUtils;
 import pay.domain.service.AbstractAuthService;
 import pay.domain.utils.validator.StoreValidator;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,9 +30,9 @@ public class StoreAuthServiceImpl extends AbstractAuthService<StoreDTO, StoreDTO
     private final PasswordEncoder passwordEncoder;
     private final StoreValidator storeValidator;
 
-    public StoreAuthServiceImpl(AuthenticationManager authenticationManager, JwtUtils jwtUtils,
+    public StoreAuthServiceImpl(AuthenticationManager authenticationManager, KafkaEventProducer kafkaEventProducer, JwtUtils jwtUtils,
                                 StoreRepository storeRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, StoreValidator storeValidator) {
-        super(authenticationManager, jwtUtils);
+        super(authenticationManager, kafkaEventProducer, jwtUtils);
         this.storeRepository = storeRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -65,6 +68,7 @@ public class StoreAuthServiceImpl extends AbstractAuthService<StoreDTO, StoreDTO
 
         store.setRole(rolesParaSalvar);
         Store savedStore = storeRepository.save(store);
+        kafkaEventProducer.publishKafkaSignUpNotification(SignupResponse.builder().id(store.getStoreId()).username(store.getStoreName()).email(store.getStoreEmail()).now(LocalDateTime.now()).build());
         return Store2StoreDTO.convert(savedStore);
     }
 

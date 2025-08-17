@@ -1,7 +1,6 @@
 package pay.domain.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,8 +14,8 @@ import pay.domain.repository.UserRepository;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class CustomUserDetailsServiceImpl implements UserDetailsService {
-  private static final Logger logger = LoggerFactory.getLogger(CustomUserDetailsServiceImpl.class);
 
   private final UserRepository userRepository;
   private final StoreRepository storeRepository;
@@ -30,22 +29,22 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
   @Transactional
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     String trimmedUsername = username.trim();
-    logger.info("Buscando User para: '{}'", trimmedUsername);
+    log.info("Buscando User para: '{}'", trimmedUsername);
 
     Optional<User> user = userRepository.findByUsername(trimmedUsername);
     if (user.isPresent()) {
-      logger.info("User encontrado: {}", user.get().getUsername());
+      log.info("User encontrado: {}", user.get().getUsername());
       return new CustomUserDetails(user.get());
     }
 
-    logger.info("Buscando Store para: '{}'", trimmedUsername);
+    log.info("Buscando Store para: '{}'", trimmedUsername);
     Optional<Store> store = storeRepository.findByStoreName(trimmedUsername);
     if (store.isPresent()) {
-      logger.info("Store encontrada: {}", store.get().getStoreName());
+      log.info("Store encontrada: {}", store.get().getStoreName());
       return new CustomUserDetails(store.get());
     }
 
-    logger.error("NENHUM User ou Store encontrado para: '{}'", trimmedUsername);
+    log.error("NENHUM User ou Store encontrado para: '{}'", trimmedUsername);
     throw new UsernameNotFoundException("Usuário ou Loja não encontrado: " + trimmedUsername);
   }
 

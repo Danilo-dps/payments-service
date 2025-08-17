@@ -5,16 +5,19 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pay.domain.adapter.User2UserDTO;
+import pay.domain.config.KafkaEventProducer;
 import pay.domain.dto.UserDTO;
 import pay.domain.model.Role;
 import pay.domain.model.User;
 import pay.domain.model.enums.ERole;
+import pay.domain.record.SignupResponse;
 import pay.domain.repository.RoleRepository;
 import pay.domain.repository.UserRepository;
 import pay.domain.security.jwt.JwtUtils;
 import pay.domain.service.AbstractAuthService;
 import pay.domain.utils.validator.UserValidator;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,9 +29,9 @@ public class UserAuthServiceImpl extends AbstractAuthService<UserDTO, UserDTO> {
     private final PasswordEncoder passwordEncoder;
     private final UserValidator userValidator;
 
-    public UserAuthServiceImpl(AuthenticationManager authenticationManager, JwtUtils jwtUtils,
+    public UserAuthServiceImpl(AuthenticationManager authenticationManager, KafkaEventProducer kafkaEventProducer, JwtUtils jwtUtils,
                                UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, UserValidator userValidator) {
-        super(authenticationManager, jwtUtils);
+        super(authenticationManager, kafkaEventProducer,jwtUtils);
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -64,6 +67,7 @@ public class UserAuthServiceImpl extends AbstractAuthService<UserDTO, UserDTO> {
 
         user.setRole(rolesParaSalvar);
         User savedUser = userRepository.save(user);
+        kafkaEventProducer.publishKafkaSignUpNotification(SignupResponse.builder().id(user.getUserId()).username(user.getUsername()).email(user.getEmail()).now(LocalDateTime.now()).build());
         return User2UserDTO.convert(savedUser);
     }
 

@@ -12,11 +12,13 @@ import pay.domain.config.KafkaEventProducer;
 import pay.domain.dto.DepositRequestDTO;
 import pay.domain.dto.TransferRequestDTO;
 import pay.domain.model.DepositHistory;
+import pay.domain.model.Store;
 import pay.domain.model.TransferHistory;
 import pay.domain.model.User;
 import pay.domain.model.enums.EOperationType;
 import pay.domain.record.DepositResponse;
 import pay.domain.record.TransferResponse;
+import pay.domain.repository.StoreRepository;
 import pay.domain.repository.UserRepository;
 import pay.domain.service.OperationsService;
 
@@ -29,10 +31,12 @@ import java.util.logging.Logger;
 public class OperationsServiceImpl implements OperationsService {
 
     private final UserRepository userRepository;
+    private final StoreRepository storeRepository;
     private final KafkaEventProducer kafkaEventProducer;
 
-    public OperationsServiceImpl(UserRepository userRepository, KafkaEventProducer kafkaEventProducer){
+    public OperationsServiceImpl(UserRepository userRepository, StoreRepository storeRepository, KafkaEventProducer kafkaEventProducer){
         this.userRepository = userRepository;
+        this.storeRepository = storeRepository;
         this.kafkaEventProducer = kafkaEventProducer;
     }
 
@@ -67,26 +71,45 @@ public class OperationsServiceImpl implements OperationsService {
         }
 
         User fromUser = userRepository.findByEmail(requestTransfer.getEmail()).orElseThrow(() -> new NotFoundException(requestTransfer.getEmail()));
-        User destinationUser = userRepository.findByEmail(requestTransfer.getDestinationEmail()).orElseThrow(() -> new NotFoundException(requestTransfer.getDestinationEmail()));
+
+        // Novo método para buscar o usuário de destino em ambos os repositórios
+        Object destination = findDestination(requestTransfer.getDestinationEmail());
 
         if (fromUser.getBalance() == null || fromUser.getBalance().compareTo(requestTransfer.getAmount()) < 0) {
             throw new InsufficientBalanceException();
         }
 
-        TransferHistory transfer = new TransferHistory(LocalDateTime.now(), destinationUser.getEmail(), EOperationType.TRANSFER, requestTransfer.getAmount(), fromUser);
-
+        TransferHistory transfer = new TransferHistory(LocalDateTime.now(), requestTransfer.getDestinationEmail(), EOperationType.TRANSFER, requestTransfer.getAmount(), fromUser);
         fromUser.getTransferHistory().add(transfer);
 
         fromUser.setBalance(fromUser.getBalance().subtract(requestTransfer.getAmount()));
-        destinationUser.setBalance(destinationUser.getBalance().add(requestTransfer.getAmount()));
+
+        // Lógica para adicionar o valor ao saldo do destino, seja ele User ou Store
+        if (destination instanceof User) {
+            User destinationUser = (User) destination;
+            destinationUser.setBalance(destinationUser.getBalance().add(requestTransfer.getAmount()));
+            userRepository.save(destinationUser);
+        } else if (destination instanceof Store) {
+            Store destinationStore = (Store) destination;
+            destinationStore.setBalance(destinationStore.getBalance().add(requestTransfer.getAmount()));
+            storeRepository.save(destinationStore);
+        }
 
         userRepository.save(fromUser);
-        userRepository.save(destinationUser);
 
         TransferHistory persistedTransfer = fromUser.getTransferHistory().getLast();
-
         kafkaEventProducer.publishKafkaTransferEventNotification(TransferHistory2TransferResponse.convert(persistedTransfer));
         return TransferHistory2TransferResponse.convert(persistedTransfer);
     }
 
+    private Object findDestination(String email) {
+        // Tenta encontrar o usuário no repositório de usuários
+        return userRepository.findByEmail(email)
+                .map(u -> (Object) u) // Converte para Object para ter um tipo de retorno único
+                .orElseGet(() ->
+                        // Se não encontrar, tenta encontrar no repositório de lojas
+                        storeRepository.findByStoreEmail(email)
+                                .orElseThrow(() -> new NotFoundException(email)) // Lança exceção se não encontrar em nenhum
+                );
+    }
 }

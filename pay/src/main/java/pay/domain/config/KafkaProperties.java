@@ -6,4 +6,3 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record KafkaProperties(Bootstrap bootstrap) {
     public record Bootstrap(String servers) {}
 }
-
