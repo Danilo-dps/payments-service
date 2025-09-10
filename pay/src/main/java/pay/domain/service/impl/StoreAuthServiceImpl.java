@@ -5,7 +5,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pay.domain.adapter.Store2StoreDTO;
 import pay.domain.config.KafkaEventProducer;
 import pay.domain.dto.StoreDTO;
 import pay.domain.model.Role;
@@ -23,7 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service("storeAuthService")
-public class StoreAuthServiceImpl extends AbstractAuthService<StoreDTO, StoreDTO> {
+public class StoreAuthServiceImpl extends AbstractAuthService<SignupResponse, StoreDTO> {
 
     private final StoreRepository storeRepository;
     private final RoleRepository roleRepository;
@@ -41,7 +40,7 @@ public class StoreAuthServiceImpl extends AbstractAuthService<StoreDTO, StoreDTO
 
     @Override
     @Transactional
-    public StoreDTO register(StoreDTO signUpRequest) {
+    public SignupResponse register(StoreDTO signUpRequest) {
 
         storeValidator.validate(signUpRequest);
         Store store = new Store();
@@ -67,9 +66,9 @@ public class StoreAuthServiceImpl extends AbstractAuthService<StoreDTO, StoreDTO
         }
 
         store.setRole(rolesParaSalvar);
-        Store savedStore = storeRepository.save(store);
+        storeRepository.save(store);
         kafkaEventProducer.publishKafkaSignUpNotification(SignupResponse.builder().id(store.getStoreId()).username(store.getStoreName()).email(store.getStoreEmail()).now(LocalDateTime.now()).build());
-        return Store2StoreDTO.convert(savedStore);
+        return SignupResponse.builder().id(store.getStoreId()).username(store.getStoreName()).email(store.getStoreEmail()).now(LocalDateTime.now()).build();
     }
 
 }
