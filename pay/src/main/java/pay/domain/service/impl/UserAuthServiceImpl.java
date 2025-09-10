@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pay.domain.adapter.User2UserDTO;
 import pay.domain.config.KafkaEventProducer;
 import pay.domain.dto.UserDTO;
 import pay.domain.model.Role;
@@ -22,7 +21,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service("userAuthService")
-public class UserAuthServiceImpl extends AbstractAuthService<UserDTO, UserDTO> {
+public class UserAuthServiceImpl extends AbstractAuthService<SignupResponse, UserDTO> {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -40,7 +39,7 @@ public class UserAuthServiceImpl extends AbstractAuthService<UserDTO, UserDTO> {
 
     @Override
     @Transactional
-    public UserDTO register(UserDTO signUpRequest) {
+    public SignupResponse register(UserDTO signUpRequest) {
 
         userValidator.validate(signUpRequest);
         User user = new User();
@@ -66,9 +65,9 @@ public class UserAuthServiceImpl extends AbstractAuthService<UserDTO, UserDTO> {
         }
 
         user.setRole(rolesParaSalvar);
-        User savedUser = userRepository.save(user);
+        userRepository.save(user);
         kafkaEventProducer.publishKafkaSignUpNotification(SignupResponse.builder().id(user.getUserId()).username(user.getUsername()).email(user.getEmail()).now(LocalDateTime.now()).build());
-        return User2UserDTO.convert(savedUser);
+        return SignupResponse.builder().id(user.getUserId()).username(user.getUsername()).email(user.getEmail()).now(LocalDateTime.now()).build();
     }
 
 }

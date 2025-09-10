@@ -10,17 +10,18 @@ import pay.domain.dto.StoreDTO;
 import pay.domain.dto.UserDTO;
 import pay.domain.payload.request.LoginRequest;
 import pay.domain.payload.response.JwtResponse;
+import pay.domain.record.SignupResponse;
 import pay.domain.service.AuthService;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthService<UserDTO, UserDTO> userAuthService;
-    private final AuthService<StoreDTO, StoreDTO> storeAuthService;
+    private final AuthService<SignupResponse, UserDTO> userAuthService;
+    private final AuthService<SignupResponse, StoreDTO> storeAuthService;
 
-    public AuthController(@Qualifier("userAuthService") AuthService<UserDTO, UserDTO> userAuthService,
-                          @Qualifier("storeAuthService") AuthService<StoreDTO, StoreDTO> storeAuthService) {
+    public AuthController(@Qualifier("userAuthService") AuthService<SignupResponse, UserDTO> userAuthService,
+                          @Qualifier("storeAuthService") AuthService<SignupResponse, StoreDTO> storeAuthService) {
         this.userAuthService = userAuthService;
         this.storeAuthService = storeAuthService;
     }
@@ -32,14 +33,14 @@ public class AuthController {
     }
 
     @PostMapping("/signup/user")
-    public ResponseEntity<UserDTO> signupUser(@RequestBody UserDTO signUpRequest){
-        UserDTO registeredUser = userAuthService.register(signUpRequest);
+    public ResponseEntity<SignupResponse> signupUser(@RequestBody UserDTO signUpRequest){
+        SignupResponse registeredUser = userAuthService.register(signUpRequest);
         return ResponseEntity.ok(registeredUser);
     }
 
     @PostMapping("/signup/store")
-    public ResponseEntity<StoreDTO> signupStore(@RequestBody StoreDTO signUpRequest){
-        StoreDTO registeredStore = storeAuthService.register(signUpRequest);
+    public ResponseEntity<SignupResponse> signupStore(@RequestBody StoreDTO signUpRequest){
+        SignupResponse registeredStore = storeAuthService.register(signUpRequest);
         return ResponseEntity.ok(registeredStore);
     }
 }
