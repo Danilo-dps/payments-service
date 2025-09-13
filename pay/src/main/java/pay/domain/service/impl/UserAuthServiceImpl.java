@@ -41,7 +41,7 @@ public class UserAuthServiceImpl extends AbstractAuthService<SignupRequest, User
 
     @Override
     @Transactional
-    public SignupResponse register(UserDTO signUpRequest) {
+    public SignupRequest register(UserDTO signUpRequest) {
         log.info("Registrando novo usuário {}", signUpRequest.getUsername());
         userValidator.validate(signUpRequest);
         User user = new User();
