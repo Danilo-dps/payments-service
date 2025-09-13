@@ -10,7 +10,7 @@ import pay.domain.dto.UserDTO;
 import pay.domain.model.Role;
 import pay.domain.model.User;
 import pay.domain.model.enums.ERole;
-import pay.domain.record.SignupResponse;
+import pay.domain.payload.request.SignupRequest;
 import pay.domain.repository.RoleRepository;
 import pay.domain.repository.UserRepository;
 import pay.domain.security.jwt.JwtUtils;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service("userAuthService")
-public class UserAuthServiceImpl extends AbstractAuthService<SignupResponse, UserDTO> {
+public class UserAuthServiceImpl extends AbstractAuthService<SignupRequest, UserDTO> {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -41,7 +41,7 @@ public class UserAuthServiceImpl extends AbstractAuthService<SignupResponse, Use
 
     @Override
     @Transactional
-    public SignupResponse register(UserDTO signUpRequest) {
+    public SignupRequest register(UserDTO signUpRequest) {
 
         userValidator.validate(signUpRequest);
         User user = new User();
@@ -68,8 +68,8 @@ public class UserAuthServiceImpl extends AbstractAuthService<SignupResponse, Use
 
         user.setRole(rolesParaSalvar);
         userRepository.save(user);
-        kafkaEventProducer.publishKafkaSignUpNotification(SignupResponse.builder().id(user.getUserId()).username(user.getUsername()).email(user.getEmail()).now(LocalDateTime.now()).build());
-        return SignupResponse.builder().id(user.getUserId()).username(user.getUsername()).email(user.getEmail()).now(LocalDateTime.now()).build();
+        kafkaEventProducer.publishKafkaSignUpNotification(SignupRequest.builder().id(user.getUserId()).username(user.getUsername()).email(user.getEmail()).now(LocalDateTime.now()).build());
+        return SignupRequest.builder().id(user.getUserId()).username(user.getUsername()).email(user.getEmail()).now(LocalDateTime.now()).build();
     }
 
 }
