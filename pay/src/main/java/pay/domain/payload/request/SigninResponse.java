@@ -1,4 +1,4 @@
-package pay.domain.record;
+package pay.domain.payload.request;
 
 import lombok.Builder;
 import java.time.LocalDateTime;

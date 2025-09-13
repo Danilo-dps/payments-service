@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import pay.domain.record.DepositResponse;
-import pay.domain.record.SigninResponse;
-import pay.domain.record.SignupResponse;
+import pay.domain.payload.request.SigninResponse;
+import pay.domain.payload.request.SignupRequest;
 import pay.domain.record.TransferResponse;
 
 @Slf4j
@@ -33,8 +33,8 @@ public class KafkaEventProducer {
         kafkaTemplate.send(KafkaConfig.SIGN_IN_NOTIFICATION_TOPIC, signinResponse.id().toString(), signinResponse);
     }
 
-    public void publishKafkaSignUpNotification(SignupResponse signupResponse){
+    public void publishKafkaSignUpNotification(SignupRequest signupRequest){
         log.info("Usuário logado");
-        kafkaTemplate.send(KafkaConfig.SIGN_UP_NOTIFICATION_TOPIC, signupResponse.id().toString(), signupResponse);
+        kafkaTemplate.send(KafkaConfig.SIGN_UP_NOTIFICATION_TOPIC, signupRequest.id().toString(), signupRequest);
     }
 }

@@ -10,18 +10,18 @@ import pay.domain.dto.StoreDTO;
 import pay.domain.dto.UserDTO;
 import pay.domain.payload.request.LoginRequest;
 import pay.domain.payload.response.JwtResponse;
-import pay.domain.record.SignupResponse;
+import pay.domain.payload.request.SignupRequest;
 import pay.domain.service.AuthService;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthService<SignupResponse, UserDTO> userAuthService;
-    private final AuthService<SignupResponse, StoreDTO> storeAuthService;
+    private final AuthService<SignupRequest, UserDTO> userAuthService;
+    private final AuthService<SignupRequest, StoreDTO> storeAuthService;
 
-    public AuthController(@Qualifier("userAuthService") AuthService<SignupResponse, UserDTO> userAuthService,
-                          @Qualifier("storeAuthService") AuthService<SignupResponse, StoreDTO> storeAuthService) {
+    public AuthController(@Qualifier("userAuthService") AuthService<SignupRequest, UserDTO> userAuthService,
+                          @Qualifier("storeAuthService") AuthService<SignupRequest, StoreDTO> storeAuthService) {
         this.userAuthService = userAuthService;
         this.storeAuthService = storeAuthService;
     }
@@ -33,14 +33,14 @@ public class AuthController {
     }
 
     @PostMapping("/signup/user")
-    public ResponseEntity<SignupResponse> signupUser(@RequestBody UserDTO signUpRequest){
-        SignupResponse registeredUser = userAuthService.register(signUpRequest);
+    public ResponseEntity<SignupRequest> signupUser(@RequestBody UserDTO signUpRequest){
+        SignupRequest registeredUser = userAuthService.register(signUpRequest);
         return ResponseEntity.ok(registeredUser);
     }
 
     @PostMapping("/signup/store")
-    public ResponseEntity<SignupResponse> signupStore(@RequestBody StoreDTO signUpRequest){
-        SignupResponse registeredStore = storeAuthService.register(signUpRequest);
+    public ResponseEntity<SignupRequest> signupStore(@RequestBody StoreDTO signUpRequest){
+        SignupRequest registeredStore = storeAuthService.register(signUpRequest);
         return ResponseEntity.ok(registeredStore);
     }
 }

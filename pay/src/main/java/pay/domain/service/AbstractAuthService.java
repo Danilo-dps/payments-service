@@ -9,7 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import pay.domain.config.KafkaEventProducer;
 import pay.domain.payload.request.LoginRequest;
 import pay.domain.payload.response.JwtResponse;
-import pay.domain.record.SigninResponse;
+import pay.domain.payload.request.SigninResponse;
 import pay.domain.security.jwt.JwtUtils;
 import pay.domain.service.impl.CustomUserDetails;
 

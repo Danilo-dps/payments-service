@@ -11,7 +11,7 @@ import pay.domain.dto.StoreDTO;
 import pay.domain.model.Role;
 import pay.domain.model.Store;
 import pay.domain.model.enums.ERole;
-import pay.domain.record.SignupResponse;
+import pay.domain.payload.request.SignupRequest;
 import pay.domain.repository.RoleRepository;
 import pay.domain.repository.StoreRepository;
 import pay.domain.security.jwt.JwtUtils;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service("storeAuthService")
-public class StoreAuthServiceImpl extends AbstractAuthService<SignupResponse, StoreDTO> {
+public class StoreAuthServiceImpl extends AbstractAuthService<SignupRequest, StoreDTO> {
 
     private final StoreRepository storeRepository;
     private final RoleRepository roleRepository;
@@ -42,7 +42,7 @@ public class StoreAuthServiceImpl extends AbstractAuthService<SignupResponse, St
 
     @Override
     @Transactional
-    public SignupResponse register(StoreDTO signUpRequest) {
+    public SignupRequest register(StoreDTO signUpRequest) {
 
         storeValidator.validate(signUpRequest);
         Store store = new Store();
@@ -69,8 +69,8 @@ public class StoreAuthServiceImpl extends AbstractAuthService<SignupResponse, St
 
         store.setRole(rolesParaSalvar);
         storeRepository.save(store);
-        kafkaEventProducer.publishKafkaSignUpNotification(SignupResponse.builder().id(store.getStoreId()).username(store.getStoreName()).email(store.getStoreEmail()).now(LocalDateTime.now()).build());
-        return SignupResponse.builder().id(store.getStoreId()).username(store.getStoreName()).email(store.getStoreEmail()).now(LocalDateTime.now()).build();
+        kafkaEventProducer.publishKafkaSignUpNotification(SignupRequest.builder().id(store.getStoreId()).username(store.getStoreName()).email(store.getStoreEmail()).now(LocalDateTime.now()).build());
+        return SignupRequest.builder().id(store.getStoreId()).username(store.getStoreName()).email(store.getStoreEmail()).now(LocalDateTime.now()).build();
     }
 
 }
