@@ -72,7 +72,6 @@ public class OperationsServiceImpl implements OperationsService {
 
         User fromUser = userRepository.findByEmail(requestTransfer.getEmail()).orElseThrow(() -> new NotFoundException(requestTransfer.getEmail()));
 
-        // Novo método para buscar o usuário de destino em ambos os repositórios
         Object destination = findDestination(requestTransfer.getDestinationEmail());
 
         if (fromUser.getBalance() == null || fromUser.getBalance().compareTo(requestTransfer.getAmount()) < 0) {
@@ -84,7 +83,6 @@ public class OperationsServiceImpl implements OperationsService {
 
         fromUser.setBalance(fromUser.getBalance().subtract(requestTransfer.getAmount()));
 
-        // Lógica para adicionar o valor ao saldo do destino, seja ele User ou Store
         if (destination instanceof User) {
             User destinationUser = (User) destination;
             destinationUser.setBalance(destinationUser.getBalance().add(requestTransfer.getAmount()));

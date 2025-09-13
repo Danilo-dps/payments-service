@@ -1,6 +1,7 @@
 package pay.domain.service.impl;
 
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service("userAuthService")
 public class UserAuthServiceImpl extends AbstractAuthService<SignupResponse, UserDTO> {
 

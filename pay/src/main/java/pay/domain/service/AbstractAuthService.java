@@ -1,5 +1,6 @@
 package pay.domain.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,6 +16,7 @@ import pay.domain.service.impl.CustomUserDetails;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 public abstract class AbstractAuthService<R, S> implements AuthService<R, S> {
 
     private final AuthenticationManager authenticationManager;

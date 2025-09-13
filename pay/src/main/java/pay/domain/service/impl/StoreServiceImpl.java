@@ -1,6 +1,7 @@
 package pay.domain.service.impl;
 
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pay.application.exceptions.DuplicateEmailException;
 import pay.application.exceptions.NotFoundException;
@@ -21,6 +22,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+@Slf4j
 @Service
 public class StoreServiceImpl implements StoreService {
     private static final Logger logger = Logger.getLogger(StoreServiceImpl.class.getName());
