@@ -1,7 +1,10 @@
 package pay.domain.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import pay.domain.model.enums.EOperationType;
 
 import java.io.Serial;
@@ -12,10 +15,8 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "tb_received_history")
 public class ReceivedTransferHistory implements Serializable {
@@ -40,7 +41,8 @@ public class ReceivedTransferHistory implements Serializable {
     @JoinColumn(name = "store_id")
     private Store store;
 
-    public ReceivedTransferHistory(LocalDateTime whenDidItHappen, String fromEmail, EOperationType operationType, BigDecimal amount, User user) {
+    public ReceivedTransferHistory(UUID receivedId, LocalDateTime whenDidItHappen, String fromEmail, EOperationType operationType, BigDecimal amount, User user) {
+        this.receivedId = receivedId;
         this.whenDidItHappen = whenDidItHappen;
         this.fromEmail = fromEmail;
         this.operationType = operationType;
@@ -48,7 +50,8 @@ public class ReceivedTransferHistory implements Serializable {
         this.user = user;
     }
 
-    public ReceivedTransferHistory(LocalDateTime whenDidItHappen, String fromEmail, EOperationType operationType, BigDecimal amount, Store store) {
+    public ReceivedTransferHistory(UUID receivedId, LocalDateTime whenDidItHappen, String fromEmail, EOperationType operationType, BigDecimal amount, Store store) {
+        this.receivedId = receivedId;
         this.whenDidItHappen = whenDidItHappen;
         this.fromEmail = fromEmail;
         this.operationType = operationType;

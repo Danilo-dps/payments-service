@@ -54,11 +54,11 @@ public class UserController {
                 : ResponseEntity.ok(listAllDeposits);
     }
 
-    @GetMapping("/transfer/{userId}")
-    public ResponseEntity<List<TransferResponse>> getAllTransfer(@PathVariable UUID userId){
-        List<TransferResponse> listAllTransfers = userService.getAllTransfers(userId);
-        return listAllTransfers.isEmpty()
-                ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
-                : ResponseEntity.ok(listAllTransfers);
-    }
+//    @GetMapping("/transfer/{userId}")
+//    public ResponseEntity<List<TransferResponse>> getAllTransfer(@PathVariable UUID userId){
+//        List<TransferResponse> listAllTransfers = userService.getAllTransfers(userId);
+//        return listAllTransfers.isEmpty()
+//                ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+//                : ResponseEntity.ok(listAllTransfers);
+//    }
 }

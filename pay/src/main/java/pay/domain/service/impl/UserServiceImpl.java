@@ -5,17 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pay.application.exceptions.DuplicateEmailException;
 import pay.application.exceptions.NotFoundException;
-import pay.domain.adapter.DepositHistory2DepositResponse;
-import pay.domain.adapter.TransferHistory2TransferResponse;
-import pay.domain.adapter.User2UserDTO;
-import pay.domain.adapter.User2UserResponse;
+import pay.domain.adapter.*;
 import pay.domain.dto.UserDTO;
-import pay.domain.model.DepositHistory;
-import pay.domain.model.TransferHistory;
-import pay.domain.model.User;
-import pay.domain.record.DepositResponse;
-import pay.domain.record.TransferResponse;
-import pay.domain.record.UserResponse;
+import pay.domain.model.*;
+import pay.domain.record.*;
 import pay.domain.repository.UserRepository;
 import pay.domain.service.UserService;
 import pay.domain.utils.validations.EmailValidator;
@@ -113,11 +106,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
-    public List<TransferResponse> getAllTransfers(UUID userId){
+    public List<ReceivedTransferResponse> getAllReceivedTransfers(UUID userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> {log.error("Usuário não encontrado com ID: {} ", userId); return new NotFoundException(userId);});
-        List<TransferHistory> listAllTransfer = user.getTransferHistory();
-        return TransferHistory2TransferResponse.convertToList(listAllTransfer);
+        List<ReceivedTransferHistory> receivedTransferHistoryList = user.getReceivedTransferHistory();
+        return ReceivedTransferHistory2ReceivedTransferResponse.convertToList(receivedTransferHistoryList);
+    }
+
+    @Override
+    public List<SentTransferResponse> getAllSentTransfers(UUID userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> {log.error("Usuário não encontrado com ID: {} ", userId); return new NotFoundException(userId);});
+        List<SentTransferHistory> sentTransferResponseList = user.getSentTransferHistory();
+        return SentTransferHistory2SentTransferResponse.convertToList(sentTransferResponseList);
     }
 
 }

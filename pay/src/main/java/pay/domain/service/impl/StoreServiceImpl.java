@@ -5,12 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pay.application.exceptions.DuplicateEmailException;
 import pay.application.exceptions.NotFoundException;
+import pay.domain.adapter.ReceivedTransferHistory2ReceivedTransferResponse;
 import pay.domain.adapter.Store2StoreDTO;
 import pay.domain.adapter.Store2StoreResponse;
 import pay.domain.adapter.TransferHistory2TransferResponse;
 import pay.domain.dto.StoreDTO;
+import pay.domain.model.ReceivedTransferHistory;
 import pay.domain.model.Store;
 import pay.domain.model.TransferHistory;
+import pay.domain.record.ReceivedTransferResponse;
 import pay.domain.record.StoreResponse;
 import pay.domain.record.TransferResponse;
 import pay.domain.repository.StoreRepository;
@@ -104,10 +107,10 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     @Transactional
-    public List<TransferResponse> getAllTransfers(UUID storeId){
+    public List<ReceivedTransferResponse> getAllReceivedTransfers(UUID storeId){
         Store store = storeRepository.findById(storeId).orElseThrow(() -> {logger.warning("Usuário não encontrado com ID: " + storeId); return new NotFoundException(storeId);});
-        List<TransferHistory> listAllTransfer = store.getTransferHistory();
-        return TransferHistory2TransferResponse.convertToList(listAllTransfer);
+        List<ReceivedTransferHistory> listAllReceivedTransfer = store.getReceivedTransferHistory();
+        return ReceivedTransferHistory2ReceivedTransferResponse.convertToList(listAllReceivedTransfer);
     }
 
 }
