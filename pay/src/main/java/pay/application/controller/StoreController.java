@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pay.domain.dto.StoreDTO;
+import pay.domain.record.ReceivedTransferResponse;
 import pay.domain.record.StoreResponse;
-import pay.domain.record.TransferResponse;
 import pay.domain.service.StoreService;
 
 import java.util.List;
@@ -46,8 +46,8 @@ public class StoreController {
     }
 
     @GetMapping("/transfer/{storeId}")
-    public ResponseEntity<List<TransferResponse>> getAllTransfer(@PathVariable UUID storeId){
-        List<TransferResponse> listAllTransfers = storeService.getAllTransfers(storeId);
+    public ResponseEntity<List<ReceivedTransferResponse>> getAllTransfer(@PathVariable UUID storeId){
+        List<ReceivedTransferResponse> listAllTransfers = storeService.getAllReceivedTransfers(storeId);
         return listAllTransfers.isEmpty()
                 ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
                 : ResponseEntity.ok(listAllTransfers);

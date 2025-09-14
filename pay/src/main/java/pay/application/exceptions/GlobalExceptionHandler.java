@@ -5,18 +5,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import pay.domain.record.ErrorResponse;
 
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private record ErrorResponse(
-            LocalDateTime timestamp,
-            String message,
-            String errorType,
-            int statusCode
-    ) {}
+//    private record ErrorResponse(
+//            LocalDateTime timestamp,
+//            String message,
+//            String errorType,
+//            int statusCode
+//    ) {}
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)

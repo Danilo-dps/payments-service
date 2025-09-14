@@ -6,10 +6,7 @@ import lombok.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 @Setter
@@ -58,7 +55,9 @@ public class Store implements Serializable {
     @Builder.Default
     private BigDecimal balance = BigDecimal.ZERO;
 
-    private List<TransferHistory> transferHistory;
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private List<ReceivedTransferHistory> receivedTransferHistory = new ArrayList<>();
 
     public Store(UUID storeId, String storeName, String cnpj, String storeEmail, String password, Set<Role> role, BigDecimal balance) {
         this.storeId = storeId;
