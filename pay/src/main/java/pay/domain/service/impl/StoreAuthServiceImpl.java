@@ -11,7 +11,7 @@ import pay.domain.dto.StoreDTO;
 import pay.domain.model.Role;
 import pay.domain.model.Store;
 import pay.domain.model.enums.ERole;
-import pay.domain.payload.request.SignupRequest;
+import pay.domain.model.request.SignupRequest;
 import pay.domain.repository.RoleRepository;
 import pay.domain.repository.StoreRepository;
 import pay.domain.security.jwt.JwtUtils;
@@ -68,7 +68,7 @@ public class StoreAuthServiceImpl extends AbstractAuthService<SignupRequest, Sto
         }
 
         store.setRole(rolesParaSalvar);
-        storeRepository.save(store);
+        storeRepository.saveAndFlush(store);
         kafkaEventProducer.publishKafkaSignUpNotification(SignupRequest.builder().id(store.getStoreId()).username(store.getStoreName()).email(store.getStoreEmail()).now(LocalDateTime.now()).build());
         return SignupRequest.builder().id(store.getStoreId()).username(store.getStoreName()).email(store.getStoreEmail()).now(LocalDateTime.now()).build();
     }

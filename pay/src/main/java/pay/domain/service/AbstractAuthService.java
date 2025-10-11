@@ -7,9 +7,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pay.domain.config.KafkaEventProducer;
-import pay.domain.payload.request.LoginRequest;
-import pay.domain.payload.response.JwtResponse;
-import pay.domain.payload.request.SigninResponse;
+import pay.domain.model.request.LoginRequest;
+import pay.domain.model.response.JwtResponse;
+import pay.domain.model.request.SigninResponse;
 import pay.domain.security.jwt.JwtUtils;
 import pay.domain.service.impl.CustomUserDetails;
 

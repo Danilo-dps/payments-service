@@ -1,14 +1,11 @@
 package pay.application.controller;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pay.domain.dto.StoreDTO;
-import pay.domain.record.ReceivedTransferResponse;
-import pay.domain.record.StoreResponse;
+import pay.domain.model.response.StoreResponse;
 import pay.domain.service.StoreService;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -45,11 +42,4 @@ public class StoreController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/transfer/{storeId}")
-    public ResponseEntity<List<ReceivedTransferResponse>> getAllTransfer(@PathVariable UUID storeId){
-        List<ReceivedTransferResponse> listAllTransfers = storeService.getAllReceivedTransfers(storeId);
-        return listAllTransfers.isEmpty()
-                ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
-                : ResponseEntity.ok(listAllTransfers);
-    }
 }

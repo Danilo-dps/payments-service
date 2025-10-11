@@ -1,7 +1,7 @@
 package pay.domain.adapter;
 
 import pay.domain.dto.UserDTO;
-import pay.domain.record.UserResponse;
+import pay.domain.model.response.UserResponse;
 
 public class UserDTO2UserResponse {
 

@@ -1,5 +1,6 @@
 package pay.domain.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +10,7 @@ import pay.domain.repository.RoleRepository;
 
 import java.util.Arrays;
 
+@Slf4j
 @Component
 public class DataLoader implements CommandLineRunner {
 
@@ -21,18 +23,17 @@ public class DataLoader implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        // Verifica se a tabela de roles já tem dados para não inserir repetido
         if (roleRepository.count() == 0) {
-            System.out.println("Nenhum perfil encontrado, cadastrando perfis padrão...");
+            log.info("Nenhum perfil encontrado, cadastrando perfis padrão...");
 
             Arrays.stream(ERole.values()).forEach(roleEnum -> {
                 Role newRole = new Role(roleEnum);
                 roleRepository.save(newRole);
             });
 
-            System.out.println("Perfis cadastrados com sucesso!");
+            log.info("Perfis cadastrados com sucesso!");
         } else {
-            System.out.println("Perfis já cadastrados no banco de dados.");
+            log.info("Perfis já cadastrados no banco de dados.");
         }
     }
 }

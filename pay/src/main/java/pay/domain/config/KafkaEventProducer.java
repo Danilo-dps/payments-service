@@ -3,10 +3,10 @@ package pay.domain.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import pay.domain.record.DepositResponse;
-import pay.domain.payload.request.SigninResponse;
-import pay.domain.payload.request.SignupRequest;
-import pay.domain.record.TransferResponse;
+import pay.domain.model.response.DepositResponse;
+import pay.domain.model.request.SigninResponse;
+import pay.domain.model.request.SignupRequest;
+import pay.domain.model.response.TransferResponse;
 
 @Slf4j
 @Service

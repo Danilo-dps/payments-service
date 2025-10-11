@@ -10,7 +10,7 @@ import pay.domain.dto.UserDTO;
 import pay.domain.model.Role;
 import pay.domain.model.User;
 import pay.domain.model.enums.ERole;
-import pay.domain.payload.request.SignupRequest;
+import pay.domain.model.request.SignupRequest;
 import pay.domain.repository.RoleRepository;
 import pay.domain.repository.UserRepository;
 import pay.domain.security.jwt.JwtUtils;
@@ -41,7 +41,7 @@ public class UserAuthServiceImpl extends AbstractAuthService<SignupRequest, User
 
     @Override
     @Transactional
-    public SignupResponse register(UserDTO signUpRequest) {
+    public SignupRequest register(UserDTO signUpRequest) {
         log.info("Registrando novo usuário {}", signUpRequest.getUsername());
         userValidator.validate(signUpRequest);
         User user = new User();
@@ -67,7 +67,7 @@ public class UserAuthServiceImpl extends AbstractAuthService<SignupRequest, User
         }
 
         user.setRole(rolesParaSalvar);
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
         kafkaEventProducer.publishKafkaSignUpNotification(SignupRequest.builder().id(user.getUserId()).username(user.getUsername()).email(user.getEmail()).now(LocalDateTime.now()).build());
         return SignupRequest.builder().id(user.getUserId()).username(user.getUsername()).email(user.getEmail()).now(LocalDateTime.now()).build();
     }

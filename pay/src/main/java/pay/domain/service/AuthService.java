@@ -1,7 +1,7 @@
 package pay.domain.service;
 
-import pay.domain.payload.request.LoginRequest;
-import pay.domain.payload.response.JwtResponse;
+import pay.domain.model.request.LoginRequest;
+import pay.domain.model.response.JwtResponse;
 
 public interface AuthService<R, S> {
 

@@ -1,4 +1,4 @@
-package pay.domain.record;
+package pay.domain.model.response;
 
 import java.math.BigDecimal;
 import java.util.UUID;

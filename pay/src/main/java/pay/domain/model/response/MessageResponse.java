@@ -1,4 +1,4 @@
-package pay.domain.payload.response;
+package pay.domain.model.response;
 
 public class MessageResponse {
   private String message;

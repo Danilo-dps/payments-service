@@ -9,19 +9,19 @@ import pay.application.exceptions.NotFoundException;
 import pay.domain.adapter.DepositHistory2DepositResponse;
 import pay.domain.config.KafkaEventProducer;
 import pay.domain.dto.DepositRequestDTO;
-import pay.domain.model.DepositHistory;
-import pay.domain.model.Store;
-import pay.domain.model.User;
+import pay.domain.model.*;
 import pay.domain.model.enums.EOperationType;
-import pay.domain.record.DepositResponse;
-import pay.domain.record.TransferRequest;
-import pay.domain.record.TransferResponse;
-import pay.domain.repository.StoreRepository;
-import pay.domain.repository.UserRepository;
+import pay.domain.model.request.TransactionRequest;
+import pay.domain.model.response.DepositResponse;
+import pay.domain.model.response.TransactionResponse;
+import pay.domain.model.response.TransferRequest;
+import pay.domain.model.response.TransferResponse;
+import pay.domain.repository.*;
 import pay.domain.service.OperationsService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,12 +31,18 @@ public class OperationsServiceImpl implements OperationsService {
 
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
+    private final TransactionRepository transactionRepository;
     private final KafkaEventProducer kafkaEventProducer;
 
-    public OperationsServiceImpl(UserRepository userRepository, StoreRepository storeRepository, KafkaEventProducer kafkaEventProducer){
+    public OperationsServiceImpl(
+            UserRepository userRepository,
+            StoreRepository storeRepository,
+            TransactionRepository transactionRepository,
+            KafkaEventProducer kafkaEventProducer) {
         this.userRepository = userRepository;
         this.storeRepository = storeRepository;
         this.kafkaEventProducer = kafkaEventProducer;
+        this.transactionRepository = transactionRepository;
     }
 
     @Override
@@ -63,50 +69,50 @@ public class OperationsServiceImpl implements OperationsService {
 
     @Override
     @Transactional
-    public TransferResponse transfer(TransferRequest transferRequest) {
-
-        if(transferRequest.amount().compareTo(BigDecimal.ZERO) <= 0){
+    public TransactionResponse transfer(TransactionRequest transactionRequest) {
+        if (transactionRequest.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidValueException();
         }
 
-        User userSent;
-        Optional<User> user;
-        Optional<Store> store;
+        Transaction transaction = null;
+        User userSent = userRepository.findAndLockByEmail(transactionRequest.getUserSender())
+                .orElseThrow(() -> new NotFoundException("Usuário remetente não encontrado para o e-mail " + transactionRequest.getUserSender()));
 
-        userSent = userRepository.findByEmail(transferRequest.fromEmail()).orElseThrow(() -> new NotFoundException("Usuário não encontrado para o id " + transferRequest.fromEmail()));
-        user = userRepository.findByEmail(transferRequest.destinationEmail());
-
-        if (userSent.getBalance().compareTo(transferRequest.amount()) <= 0){
+        if (userSent.getBalance().compareTo(transactionRequest.getAmount()) < 0) {
             throw new InsufficientBalanceException();
         }
 
-        if (user.isPresent()){
-            userSent.setBalance(userSent.getBalance().subtract(transferRequest.amount()));
-            user.get().setBalance(user.get().getBalance().add(transferRequest.amount()));
-            userRepository.save(userSent);
-            userRepository.save(user.get());
-            return TransferResponse.builder()
-                    .transferId(userSent.getSentTransferHistory().getLast().getSentId())
-                    .fullName(userSent.getUsername())
-                    .fromEmail(userSent.getEmail())
-                    .destinationEmail(user.get().getEmail())
-                    .amount(transferRequest.amount())
-                    .whenDidItHappen(LocalDateTime.now())
-                    .build();
+        userSent.setBalance(userSent.getBalance().subtract(transactionRequest.getAmount()));
+
+        Optional<User> destinationUser = userRepository.findByEmail(transactionRequest.getReceiver());
+
+        if (destinationUser.isPresent()) {
+            User userReceived = destinationUser.get();
+            userReceived.setBalance(userReceived.getBalance().add(transactionRequest.getAmount()));
+            transaction = Transaction.builder().amount(transactionRequest.getAmount()).transactionTimestamp(LocalDateTime.now()).userSender(userSent).userReceiver(userReceived).build();
+            transactionRepository.saveAndFlush(transaction);
+            userRepository.saveAndFlush(userReceived);
+        } else {
+            Store destinationStore = storeRepository.findByStoreEmail(transactionRequest.getReceiver()).orElseThrow(() -> new NotFoundException("Conta de destino não encontrada para o e-mail " + transactionRequest.getReceiver()));
+            destinationStore.setBalance(destinationStore.getBalance().add(transactionRequest.getAmount()));
+            transaction = Transaction.builder().amount(transactionRequest.getAmount()).transactionTimestamp(LocalDateTime.now()).userSender(userSent).storeReceiver(destinationStore).build();
+            transactionRepository.saveAndFlush(transaction);
+            storeRepository.saveAndFlush(destinationStore);
         }
 
-        store = Optional.ofNullable(storeRepository.findByStoreEmail(transferRequest.destinationEmail()).orElseThrow(() -> new NotFoundException("Usuário não encontrado para o id " + transferRequest.destinationEmail())));
-        userSent.setBalance(userSent.getBalance().subtract(transferRequest.amount()));
-        store.get().setBalance(store.get().getBalance().add(transferRequest.amount()));
-        userRepository.save(userSent);
-        storeRepository.save(store.get());
-        return TransferResponse.builder()
-                .transferId(userSent.getSentTransferHistory().getLast().getSentId())
-                .fullName(userSent.getUsername())
-                .fromEmail(userSent.getEmail())
-                .destinationEmail(store.get().getStoreEmail())
-                .amount(transferRequest.amount())
-                .whenDidItHappen(LocalDateTime.now())
+        userRepository.saveAndFlush(userSent);
+
+        return TransactionResponse.builder()
+                .transactionId(transaction.getTransactionId())
+                .amount(transactionRequest.getAmount())
+                .transactionTimestamp(LocalDateTime.now())
+                .userSender(transactionRequest.getUserSender())
+                .receiver(transactionRequest.getReceiver())
                 .build();
+    }
+
+    @Override
+    public TransactionResponse bankStatement(TransactionRequest transactionRequest) {
+        return null;
     }
 }

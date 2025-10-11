@@ -8,12 +8,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pay.domain.dto.DepositRequestDTO;
-import pay.domain.record.DepositResponse;
-import pay.domain.record.TransferRequest;
-import pay.domain.record.TransferResponse;
+import pay.domain.model.request.TransactionRequest;
+import pay.domain.model.response.DepositResponse;
+import pay.domain.model.response.TransactionResponse;
 import pay.domain.service.OperationsService;
-
-import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/operations")
@@ -34,8 +32,8 @@ public class OperationsController {
 
     @PostMapping("/transfer")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<TransferResponse> transfer(@RequestBody TransferRequest transferRequest){
-        TransferResponse transferHistoryCreated = operationsService.transfer(transferRequest);
+    public ResponseEntity<TransactionResponse> transfer(@RequestBody TransactionRequest transactionRequest){
+        TransactionResponse transferHistoryCreated = operationsService.transfer(transactionRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(transferHistoryCreated);
     }
 }

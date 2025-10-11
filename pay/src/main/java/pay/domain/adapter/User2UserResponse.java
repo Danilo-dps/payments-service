@@ -1,7 +1,7 @@
 package pay.domain.adapter;
 
 import pay.domain.model.User;
-import pay.domain.record.UserResponse;
+import pay.domain.model.response.UserResponse;
 
 public class User2UserResponse {
 

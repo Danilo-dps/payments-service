@@ -1,14 +1,13 @@
 package pay.domain.service;
 
 import pay.domain.dto.DepositRequestDTO;
-import pay.domain.record.DepositResponse;
-import pay.domain.record.TransferRequest;
-import pay.domain.record.TransferResponse;
-
-import java.math.BigDecimal;
+import pay.domain.model.request.TransactionRequest;
+import pay.domain.model.response.DepositResponse;
+import pay.domain.model.response.TransactionResponse;
 
 public interface OperationsService {
 
     DepositResponse deposit(DepositRequestDTO requestDeposit);
-    TransferResponse transfer(TransferRequest transferRequest);
+    TransactionResponse transfer(TransactionRequest transactionRequest);
+    TransactionResponse bankStatement(TransactionRequest transactionRequest);
 }

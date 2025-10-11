@@ -51,7 +51,7 @@ public class CpfValidator {
     }
 
     private boolean areAllDigitsIdentical(String cpf) {
-        if (cpf.length() < 1) {
+        if (cpf.length() < 11) {
             return false;
         }
         char firstDigit = cpf.charAt(0);

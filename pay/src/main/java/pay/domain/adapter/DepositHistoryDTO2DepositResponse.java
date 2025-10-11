@@ -1,7 +1,7 @@
 package pay.domain.adapter;
 
 import pay.domain.dto.DepositHistoryDTO;
-import pay.domain.record.DepositResponse;
+import pay.domain.model.response.DepositResponse;
 
 public class DepositHistoryDTO2DepositResponse {
 

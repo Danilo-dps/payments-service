@@ -1,4 +1,4 @@
-package pay.domain.record;
+package pay.domain.model.response;
 
 import lombok.Builder;
 
