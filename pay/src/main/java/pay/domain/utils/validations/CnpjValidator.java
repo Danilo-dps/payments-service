@@ -52,7 +52,7 @@ public class CnpjValidator {
     }
 
     private boolean areAllDigitsIdentical(String cnpj) {
-        if (cnpj.length() < 1) {
+        if (cnpj.length() < 14) {
             return false;
         }
         char firstDigit = cnpj.charAt(0);

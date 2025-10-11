@@ -1,7 +1,7 @@
 package pay.domain.adapter;
 
 import pay.domain.model.DepositHistory;
-import pay.domain.record.DepositResponse;
+import pay.domain.model.response.DepositResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;

@@ -55,18 +55,13 @@ public class Store implements Serializable {
     @Builder.Default
     private BigDecimal balance = BigDecimal.ZERO;
 
-    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private List<ReceivedTransferHistory> receivedTransferHistory = new ArrayList<>();
-
-    public Store(UUID storeId, String storeName, String cnpj, String storeEmail, String password, Set<Role> role, BigDecimal balance) {
+    public Store(UUID storeId, String storeName, String cnpj, String storeEmail, String password, Set<Role> role) {
         this.storeId = storeId;
         this.storeName = storeName;
         this.cnpj = cnpj;
         this.storeEmail = storeEmail;
         this.password = password;
         this.role = role;
-        this.balance = BigDecimal.ZERO;
     }
 
     public Store(String storeName, String storeEmail, String password) {

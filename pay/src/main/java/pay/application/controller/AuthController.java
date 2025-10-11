@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pay.domain.dto.StoreDTO;
 import pay.domain.dto.UserDTO;
-import pay.domain.payload.request.LoginRequest;
-import pay.domain.payload.response.JwtResponse;
-import pay.domain.payload.request.SignupRequest;
+import pay.domain.model.request.LoginRequest;
+import pay.domain.model.response.JwtResponse;
+import pay.domain.model.request.SignupRequest;
 import pay.domain.service.AuthService;
 
 @RestController

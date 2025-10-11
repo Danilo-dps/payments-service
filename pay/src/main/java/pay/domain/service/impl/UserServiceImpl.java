@@ -8,7 +8,10 @@ import pay.application.exceptions.NotFoundException;
 import pay.domain.adapter.*;
 import pay.domain.dto.UserDTO;
 import pay.domain.model.*;
-import pay.domain.record.*;
+import pay.domain.model.response.DepositResponse;
+import pay.domain.model.response.ReceivedTransferResponse;
+import pay.domain.model.response.SentTransferResponse;
+import pay.domain.model.response.UserResponse;
 import pay.domain.repository.UserRepository;
 import pay.domain.service.UserService;
 import pay.domain.utils.validations.EmailValidator;
@@ -16,7 +19,6 @@ import pay.domain.utils.validations.EmailValidator;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 @Slf4j
 @Service
@@ -80,7 +82,7 @@ public class UserServiceImpl implements UserService {
         }
 
         log.info("Usuário atualizado");
-        User updatedUser = userRepository.save(existingUser);
+        User updatedUser = userRepository.saveAndFlush(existingUser);
         return User2UserDTO.convert(updatedUser);
     }
 
@@ -103,20 +105,6 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> {log.error("Usuário não encontrado com ID: {}", userId); return new NotFoundException(userId);});
         List<DepositHistory> listAllDeposit = user.getDepositHistory();
         return DepositHistory2DepositResponse.convertToList(listAllDeposit);
-    }
-
-    @Override
-    public List<ReceivedTransferResponse> getAllReceivedTransfers(UUID userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> {log.error("Usuário não encontrado com ID: {} ", userId); return new NotFoundException(userId);});
-        List<ReceivedTransferHistory> receivedTransferHistoryList = user.getReceivedTransferHistory();
-        return ReceivedTransferHistory2ReceivedTransferResponse.convertToList(receivedTransferHistoryList);
-    }
-
-    @Override
-    public List<SentTransferResponse> getAllSentTransfers(UUID userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> {log.error("Usuário não encontrado com ID: {} ", userId); return new NotFoundException(userId);});
-        List<SentTransferHistory> sentTransferResponseList = user.getSentTransferHistory();
-        return SentTransferHistory2SentTransferResponse.convertToList(sentTransferResponseList);
     }
 
 }

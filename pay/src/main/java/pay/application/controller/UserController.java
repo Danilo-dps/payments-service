@@ -2,9 +2,8 @@ package pay.application.controller;
 
 import org.springframework.web.bind.annotation.*;
 import pay.domain.dto.UserDTO;
-import pay.domain.record.DepositResponse;
-import pay.domain.record.TransferResponse;
-import pay.domain.record.UserResponse;
+import pay.domain.model.response.DepositResponse;
+import pay.domain.model.response.UserResponse;
 import pay.domain.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

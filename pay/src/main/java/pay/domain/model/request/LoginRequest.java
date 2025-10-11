@@ -1,4 +1,4 @@
-package pay.domain.payload.request;
+package pay.domain.model.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;

@@ -1,7 +1,7 @@
 package pay.domain.adapter;
 
 import pay.domain.model.Store;
-import pay.domain.record.StoreResponse;
+import pay.domain.model.response.StoreResponse;
 
 public class Store2StoreResponse {
 
