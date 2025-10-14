@@ -1,0 +1,75 @@
+package com.danilodps.pay.domain.service.impl;
+
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import com.danilodps.pay.domain.config.KafkaEventProducer;
+import com.danilodps.pay.domain.dto.UserDTO;
+import com.danilodps.pay.domain.model.Role;
+import com.danilodps.pay.domain.model.User;
+import com.danilodps.pay.domain.model.enums.ERole;
+import com.danilodps.pay.domain.model.request.SignupRequest;
+import com.danilodps.pay.domain.repository.RoleRepository;
+import com.danilodps.pay.domain.repository.UserRepository;
+import com.danilodps.pay.domain.security.jwt.JwtUtils;
+import com.danilodps.pay.domain.service.AbstractAuthService;
+import com.danilodps.pay.domain.utils.validator.UserValidator;
+
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service("userAuthService")
+public class UserAuthServiceImpl extends AbstractAuthService<SignupRequest, UserDTO> {
+
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserValidator userValidator;
+
+    public UserAuthServiceImpl(AuthenticationManager authenticationManager, KafkaEventProducer kafkaEventProducer, JwtUtils jwtUtils,
+                               UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, UserValidator userValidator) {
+        super(authenticationManager, kafkaEventProducer,jwtUtils);
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.userValidator = userValidator;
+    }
+
+    @Override
+    @Transactional
+    public SignupRequest register(UserDTO signUpRequest) {
+        log.info("Registrando novo usuário {}", signUpRequest.getUsername());
+        userValidator.validate(signUpRequest);
+        User user = new User();
+        user.setUsername(signUpRequest.getUsername());
+        user.setCpf(signUpRequest.getCpf());
+        user.setEmail(signUpRequest.getEmail());
+        user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
+
+        Set<Role> rolesFromDto = signUpRequest.getRole();
+        Set<Role> rolesParaSalvar;
+
+        if (rolesFromDto == null || rolesFromDto.isEmpty()) {
+            rolesParaSalvar = Set.of(roleRepository.findByName(ERole.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("Erro: Perfil padrão ROLE_USER não encontrado.")));
+        } else {
+            rolesParaSalvar = rolesFromDto.stream()
+                    .map(role -> {
+                        ERole roleEnum = role.getName();
+                        return roleRepository.findByName(roleEnum)
+                                .orElseThrow(() -> new RuntimeException("Erro: Perfil " + roleEnum.name() + " não configurado no banco."));
+                    })
+                    .collect(Collectors.toSet());
+        }
+
+        user.setRole(rolesParaSalvar);
+        userRepository.saveAndFlush(user);
+        kafkaEventProducer.publishKafkaSignUpNotification(SignupRequest.builder().id(user.getUserId()).username(user.getUsername()).email(user.getEmail()).now(LocalDateTime.now()).build());
+        return SignupRequest.builder().id(user.getUserId()).username(user.getUsername()).email(user.getEmail()).now(LocalDateTime.now()).build();
+    }
+
+}
