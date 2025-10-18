@@ -13,6 +13,6 @@ public class DepositHistoryDTO2DepositResponse {
                 depositHistoryDTO.getUserDTO().getUsername(),
                 depositHistoryDTO.getUserDTO().getEmail(),
                 depositHistoryDTO.getAmount(),
-                depositHistoryDTO.getWhenDidItHappen());
+                depositHistoryDTO.getDepositTimestamp());
     }
 }

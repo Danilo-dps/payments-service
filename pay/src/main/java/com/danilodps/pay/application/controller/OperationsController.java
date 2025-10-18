@@ -1,5 +1,6 @@
 package com.danilodps.pay.application.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,14 +26,14 @@ public class OperationsController {
 
     @PostMapping("/deposit")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<DepositResponse> deposit(@RequestBody DepositRequestDTO requestDeposit) {
+    public ResponseEntity<DepositResponse> deposit(@RequestBody @Valid DepositRequestDTO requestDeposit) {
         DepositResponse depositHistoryCreated = operationsService.deposit(requestDeposit);
         return ResponseEntity.status(HttpStatus.CREATED).body(depositHistoryCreated);
     }
 
     @PostMapping("/transfer")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<TransactionResponse> transfer(@RequestBody TransactionRequest transactionRequest){
+    public ResponseEntity<TransactionResponse> transfer(@RequestBody @Valid TransactionRequest transactionRequest){
         TransactionResponse transferHistoryCreated = operationsService.transfer(transactionRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(transferHistoryCreated);
     }

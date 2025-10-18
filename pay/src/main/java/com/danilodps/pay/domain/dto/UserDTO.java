@@ -18,7 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserDTO {
 
-    private String userId;
+    private UUID userId;
 
     @NotBlank(message = "O nome completo é obrigatório")
     private String username;

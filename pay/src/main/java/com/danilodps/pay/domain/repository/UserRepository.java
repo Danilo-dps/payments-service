@@ -9,15 +9,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, String> {
+public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<User> findAndLockByEmail(String email);
     Optional<User> findByCpf(String cpf);
-    List<DepositHistory> findDepositByUserId(String userId);
+    List<DepositHistory> findDepositByUserId(UUID userId);
     Optional<User> findByUsername(String username);
-    Boolean existsByUsername(String username);
-    Boolean existsByEmail(String email);
 }

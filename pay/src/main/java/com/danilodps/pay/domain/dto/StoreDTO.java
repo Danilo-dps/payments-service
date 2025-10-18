@@ -8,6 +8,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -17,7 +18,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class StoreDTO {
 
-    private String storeId;
+    private UUID storeId;
 
     @Column(nullable = false, length = 100)
     @NotBlank(message = "Nome é obrigatório")

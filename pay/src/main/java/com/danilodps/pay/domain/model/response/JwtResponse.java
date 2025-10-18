@@ -3,6 +3,7 @@ package com.danilodps.pay.domain.model.response;
 import lombok.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -12,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class JwtResponse {
   private String accessToken;
-  private String id;
+  private UUID id;
   private String username;
   private String email;
   private List<String> roles;

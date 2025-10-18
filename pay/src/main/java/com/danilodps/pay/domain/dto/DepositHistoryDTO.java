@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -14,16 +15,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class DepositHistoryDTO {
 
-    private String depositId;
-    private LocalDateTime whenDidItHappen;
+    private UUID depositId;
+    private LocalDateTime depositTimestamp;
     private EOperationType operationType;
     private BigDecimal amount;
     private UserDTO userDTO;
 
-    public DepositHistoryDTO(LocalDateTime whenDidItHappen, EOperationType operationType, BigDecimal amount, UserDTO userDTO) {
-        this.whenDidItHappen = whenDidItHappen;
-        this.operationType = operationType;
-        this.amount = amount;
-        this.userDTO = userDTO;
-    }
 }

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")
@@ -21,7 +22,7 @@ public class UserController {
     }
 
     @GetMapping("/id/{userId}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable String userId) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable UUID userId) {
         UserResponse userSearch = userService.getById(userId);
         return ResponseEntity.ok(userSearch);
     }
@@ -33,19 +34,19 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable String userId, @RequestBody UserResponse userResponse){
+    public ResponseEntity<UserDTO> updateUser(@PathVariable UUID userId, @RequestBody UserResponse userResponse){
         UserDTO userUpdate = userService.update(userId, userResponse);
         return ResponseEntity.ok(userUpdate);
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity <Void> deleteUser(@PathVariable String userId){
+    public ResponseEntity <Void> deleteUser(@PathVariable UUID userId){
         userService.delete(userId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/deposit/{userId}")
-    public ResponseEntity<List<DepositResponse>> getAllDeposit(@PathVariable String userId){
+    public ResponseEntity<List<DepositResponse>> getAllDeposit(@PathVariable UUID userId){
         List<DepositResponse> listAllDeposits = userService.getAllDeposits(userId);
         return listAllDeposits.isEmpty()
                 ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
