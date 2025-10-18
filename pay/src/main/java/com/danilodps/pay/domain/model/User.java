@@ -16,10 +16,10 @@ import java.util.*;
 @AllArgsConstructor
 @Entity
 @Table(
-        name = "tb_users",
+        name = "TB_USERS",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = "email", name = "uk_user_email"),
-                @UniqueConstraint(columnNames = "cpf", name = "uk_user_cpf")
+                @UniqueConstraint(columnNames = "USER_EMAIL", name = "uk_user_email"),
+                @UniqueConstraint(columnNames = "DOCUMENT_NUMBER", name = "uk_user_cpf")
         }
 )
 @EqualsAndHashCode(of = "userId")
@@ -30,38 +30,38 @@ public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "UUID", updatable = false, nullable = false)
+    @Column(name = "USER_ID", columnDefinition = "UUID", updatable = false, nullable = false)
     private UUID userId;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "USERNAME", nullable = false, length = 100)
     private String username;
 
-    @Column(nullable = false, unique = true, length = 14, updatable = false)
+    @Column(name = "DOCUMENT_NUMBER", nullable = false, unique = true, length = 14, updatable = false)
     @ToString.Exclude
     private String cpf;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(name = "USER_EMAIL", nullable = false, unique = true, length = 50)
     private String email;
 
-    @Column(nullable = false, length = 80)
+    @Column(name = "ACCESS_HASH", nullable = false, length = 100)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ToString.Exclude
     private String password;
 
-    @Column(nullable = false)
+    @Column(name = "ACCOUNT_BALANCE", nullable = false)
     @Builder.Default
     private BigDecimal balance = BigDecimal.ZERO;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "userId"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    @JoinTable(name = "USER_ROLES",
+            joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID"),
+            inverseJoinColumns = @JoinColumn(name = "ROLE_ID", referencedColumnName = "ROLE_ID"))
     @Builder.Default
     private Set<Role> role = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
-    private List<DepositHistory> depositHistory = new ArrayList<>();
+    private List<Deposit> deposit = new ArrayList<>();
 
 }

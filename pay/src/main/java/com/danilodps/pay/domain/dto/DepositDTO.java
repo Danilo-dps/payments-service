@@ -13,7 +13,7 @@ import java.util.UUID;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class DepositHistoryDTO {
+public class DepositDTO {
 
     private UUID depositId;
     private LocalDateTime depositTimestamp;

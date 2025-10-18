@@ -68,8 +68,8 @@ public class UserAuthServiceImpl extends AbstractAuthService<SignupRequest, User
 
         user.setRole(rolesParaSalvar);
         userRepository.saveAndFlush(user);
-        kafkaEventProducer.publishKafkaSignUpNotification(SignupRequest.builder().id(user.getUserId()).username(user.getUsername()).email(user.getEmail()).now(LocalDateTime.now()).build());
-        return SignupRequest.builder().id(user.getUserId()).username(user.getUsername()).email(user.getEmail()).now(LocalDateTime.now()).build();
+        kafkaEventProducer.publishKafkaSignUpNotification(SignupRequest.builder().id(user.getUserId()).username(user.getUsername()).email(user.getEmail()).signupTimestamp(LocalDateTime.now()).build());
+        return SignupRequest.builder().id(user.getUserId()).username(user.getUsername()).email(user.getEmail()).signupTimestamp(LocalDateTime.now()).build();
     }
 
 }
