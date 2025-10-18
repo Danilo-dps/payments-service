@@ -69,8 +69,8 @@ public class StoreAuthServiceImpl extends AbstractAuthService<SignupRequest, Sto
 
         store.setRole(rolesParaSalvar);
         storeRepository.saveAndFlush(store);
-        kafkaEventProducer.publishKafkaSignUpNotification(SignupRequest.builder().id(store.getStoreId()).username(store.getStoreName()).email(store.getStoreEmail()).now(LocalDateTime.now()).build());
-        return SignupRequest.builder().id(store.getStoreId()).username(store.getStoreName()).email(store.getStoreEmail()).now(LocalDateTime.now()).build();
+        kafkaEventProducer.publishKafkaSignUpNotification(SignupRequest.builder().id(store.getStoreId()).username(store.getStoreName()).email(store.getStoreEmail()).signupTimestamp(LocalDateTime.now()).build());
+        return SignupRequest.builder().id(store.getStoreId()).username(store.getStoreName()).email(store.getStoreEmail()).signupTimestamp(LocalDateTime.now()).build();
     }
 
 }

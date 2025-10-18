@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "tb_transactions")
+@Table(name = "TB_TRANSACTIONS")
 public class Transaction implements Serializable {
 
     @Serial
@@ -24,17 +24,35 @@ public class Transaction implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "UUID", updatable = false, nullable = false)
+    @Column(name = "TRANSACTION_ID", columnDefinition = "UUID", updatable = false, nullable = false)
     private UUID transactionId;
+
+    @Column(name = "AMOUNT", nullable = false)
     private BigDecimal amount;
+
+    @Column(name = "TRANSACTION_TIMESTAMP", nullable = false)
     private LocalDateTime transactionTimestamp;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_user_id")
+    @JoinColumn(name = "SENDER_USER_ID", nullable = false)
     private User userSender;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_user_id")
+    @JoinColumn(name = "RECEIVER_USER_ID")
     private User userReceiver;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_store_id")
+    @JoinColumn(name = "RECEIVER_STORE_ID")
     private Store storeReceiver;
+
+    public boolean hasValidReceiver() {
+        return userReceiver != null || storeReceiver != null;
+    }
+
+    public boolean isValidTransaction() {
+        if (userReceiver != null && userSender != null) {
+            return !userSender.getUserId().equals(userReceiver.getUserId());
+        }
+        return true;
+    }
 }

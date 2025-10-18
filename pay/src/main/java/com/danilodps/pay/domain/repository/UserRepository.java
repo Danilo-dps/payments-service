@@ -1,6 +1,6 @@
 package com.danilodps.pay.domain.repository;
 
-import com.danilodps.pay.domain.model.DepositHistory;
+import com.danilodps.pay.domain.model.Deposit;
 import com.danilodps.pay.domain.model.User;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,6 +17,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<User> findAndLockByEmail(String email);
     Optional<User> findByCpf(String cpf);
-    List<DepositHistory> findDepositByUserId(UUID userId);
+    List<Deposit> findDepositByUserId(UUID userId);
     Optional<User> findByUsername(String username);
 }

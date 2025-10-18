@@ -42,7 +42,7 @@ public abstract class AbstractAuthService<R, S> implements AuthService<R, S> {
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
-        kafkaEventProducer.publishKafkaSignInNotification(SigninResponse.builder().id(userDetails.getId()).username(userDetails.getUsername()).email(userDetails.getEmail()).now(LocalDateTime.now()).build());
+        kafkaEventProducer.publishKafkaSignInNotification(SigninResponse.builder().id(userDetails.getId()).username(userDetails.getUsername()).email(userDetails.getEmail()).signinTimestamp(LocalDateTime.now()).build());
         return new JwtResponse(jwt,
                 userDetails.getId(),
                 userDetails.getUsername(),

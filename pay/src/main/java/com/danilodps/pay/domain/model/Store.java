@@ -17,10 +17,10 @@ import java.util.*;
 @AllArgsConstructor
 @Entity
 @Table(
-        name = "tb_store",
+        name = "TB_STORE",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = "email", name = "uk_store_email"),
-                @UniqueConstraint(columnNames = "cnpj", name = "uk_store_cnpj")
+                @UniqueConstraint(columnNames = "STORE_EMAIL", name = "uk_store_email"),
+                @UniqueConstraint(columnNames = "STORE_CNPJ", name = "uk_store_cnpj")
         }
 )
 @EqualsAndHashCode(of = "storeId")
@@ -31,33 +31,32 @@ public class Store implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "UUID", updatable = false, nullable = false)
+    @Column(name = "STORE_ID", columnDefinition = "UUID", updatable = false, nullable = false)
     private UUID storeId;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "STORE_NAME", nullable = false, length = 100)
     private String storeName;
 
-    @Column(nullable = false, unique = true, length = 18, updatable = false)
+    @Column(name = "STORE_CNPJ", nullable = false, unique = true, length = 18, updatable = false)
     @ToString.Exclude
     private String cnpj;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(name = "STORE_EMAIL", nullable = false, unique = true, length = 50)
     private String storeEmail;
 
-    @Column(nullable = false, length = 80)
+    @Column(name = "ACCESS_HASH", nullable = false, length = 80)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ToString.Exclude
     private String password;
 
-    @Column(nullable = false)
+    @Column(name = "ACCOUNT_BALANCE", nullable = false)
     @Builder.Default
     private BigDecimal balance = BigDecimal.ZERO;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "store_roles",
-            joinColumns = @JoinColumn(name = "store_id", referencedColumnName = "storeId"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    @JoinTable(name = "STORE_ROLES",
+            joinColumns = @JoinColumn(name = "STORE_ID", referencedColumnName = "STORE_ID"),
+            inverseJoinColumns = @JoinColumn(name = "ROLE_ID", referencedColumnName = "ROLE_ID"))
     @Builder.Default
     private Set<Role> role = new HashSet<>();
-
 }

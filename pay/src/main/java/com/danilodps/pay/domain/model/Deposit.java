@@ -11,37 +11,38 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "tb_deposit_history")
+@Table(name = "TB_DEPOSIT")
 @EqualsAndHashCode(of = "depositId")
-public class DepositHistory implements Serializable {
+public class Deposit implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "UUID", updatable = false, nullable = false)
+    @Column(name = "DEPOSIT_ID", columnDefinition = "UUID", updatable = false, nullable = false)
     private UUID depositId;
 
-    @Column(name = "deposit_timestamp", nullable = false, updatable = false)
+    @Column(name = "DEPOSIT_TIMESTAMP", nullable = false, updatable = false)
     private LocalDateTime depositTimestamp;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "operation_type", nullable = false, updatable = false)
+    @Column(name = "OPERATION_TYPE", nullable = false, updatable = false)
     private EOperationType operationType;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "AMOUNT", nullable = false, updatable = false)
     private BigDecimal amount;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, updatable = false)
+    @JoinColumn(name = "USER_ID", nullable = false, updatable = false)
     private User user;
 
-    public DepositHistory(LocalDateTime depositTimestamp, EOperationType operationType, BigDecimal amount, User user) {
+    public Deposit(LocalDateTime depositTimestamp, EOperationType operationType, BigDecimal amount, User user) {
         this.depositTimestamp = depositTimestamp;
         this.operationType = operationType;
         this.amount = amount;

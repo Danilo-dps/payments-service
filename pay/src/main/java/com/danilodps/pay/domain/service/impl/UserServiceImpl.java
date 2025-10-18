@@ -1,9 +1,9 @@
 package com.danilodps.pay.domain.service.impl;
 
-import com.danilodps.pay.domain.adapter.DepositHistory2DepositResponse;
+import com.danilodps.pay.domain.adapter.Deposit2DepositResponse;
 import com.danilodps.pay.domain.adapter.User2UserDTO;
 import com.danilodps.pay.domain.adapter.User2UserResponse;
-import com.danilodps.pay.domain.model.DepositHistory;
+import com.danilodps.pay.domain.model.Deposit;
 import com.danilodps.pay.domain.model.User;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -104,8 +104,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public List<DepositResponse> getAllDeposits(UUID userId){
         User user = userRepository.findById(userId).orElseThrow(() -> {log.error("Usuário não encontrado com ID: {}", userId); return new NotFoundException(userId);});
-        List<DepositHistory> listAllDeposit = user.getDepositHistory();
-        return DepositHistory2DepositResponse.convertToList(listAllDeposit);
+        List<Deposit> listAllDeposit = user.getDeposit();
+        return Deposit2DepositResponse.convertToList(listAllDeposit);
     }
 
 }

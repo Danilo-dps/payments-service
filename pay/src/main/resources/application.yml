@@ -10,7 +10,7 @@ spring:
   mvc:
     dispatch-options-request: true
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres_payments
+    url: jdbc:postgresql://localhost:5433/postgres_db_payments_notification
     driver-class-name: org.postgresql.Driver
     username: admin
     password: ${DB_PASSWORD}

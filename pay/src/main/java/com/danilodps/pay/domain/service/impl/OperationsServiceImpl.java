@@ -1,7 +1,7 @@
 package com.danilodps.pay.domain.service.impl;
 
 import com.danilodps.pay.domain.adapter.Transaction2TransactionResponse;
-import com.danilodps.pay.domain.model.DepositHistory;
+import com.danilodps.pay.domain.model.Deposit;
 import com.danilodps.pay.domain.model.Store;
 import com.danilodps.pay.domain.model.Transaction;
 import com.danilodps.pay.domain.model.User;
@@ -14,14 +14,13 @@ import org.springframework.stereotype.Service;
 import com.danilodps.pay.application.exceptions.InsufficientBalanceException;
 import com.danilodps.pay.application.exceptions.InvalidValueException;
 import com.danilodps.pay.application.exceptions.NotFoundException;
-import com.danilodps.pay.domain.adapter.DepositHistory2DepositResponse;
+import com.danilodps.pay.domain.adapter.Deposit2DepositResponse;
 import com.danilodps.pay.domain.config.KafkaEventProducer;
 import com.danilodps.pay.domain.dto.DepositRequestDTO;
 import com.danilodps.pay.domain.model.enums.EOperationType;
 import com.danilodps.pay.domain.model.request.TransactionRequest;
 import com.danilodps.pay.domain.model.response.DepositResponse;
 import com.danilodps.pay.domain.model.response.TransactionResponse;
-import com.danilodps.pay.domain.repository.*;
 import com.danilodps.pay.domain.service.OperationsService;
 
 import java.math.BigDecimal;
@@ -59,15 +58,15 @@ public class OperationsServiceImpl implements OperationsService {
         User user = userRepository.findByEmail(requestDeposit.getEmail())
                 .orElseThrow(() -> new NotFoundException(requestDeposit.getEmail()));
 
-        DepositHistory deposit = new DepositHistory(LocalDateTime.now(), EOperationType.DEPOSIT, requestDeposit.getAmount(), user);
+        Deposit deposit = new Deposit(LocalDateTime.now(), EOperationType.DEPOSIT, requestDeposit.getAmount(), user);
 
-        user.getDepositHistory().add(deposit);
+        user.getDeposit().add(deposit);
         user.setBalance(user.getBalance().add(requestDeposit.getAmount()));
         User savedUser = userRepository.saveAndFlush(user);
-        DepositHistory persistedDeposit = savedUser.getDepositHistory().getLast();
+        Deposit persistedDeposit = savedUser.getDeposit().getLast();
 
-        kafkaEventProducer.publishKafkaDepositEventNotification(DepositHistory2DepositResponse.convert(persistedDeposit));
-        return DepositHistory2DepositResponse.convert(persistedDeposit);
+        kafkaEventProducer.publishKafkaDepositEventNotification(Deposit2DepositResponse.convert(persistedDeposit));
+        return Deposit2DepositResponse.convert(persistedDeposit);
     }
 
     @Override
