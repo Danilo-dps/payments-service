@@ -33,7 +33,7 @@ public class OperationsController {
 
     @PostMapping("/transfer")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<TransactionResponse> transfer(@RequestBody @Valid TransactionRequest transactionRequest){
+    public ResponseEntity<TransactionResponse> transfer(@RequestBody TransactionRequest transactionRequest){
         TransactionResponse transferHistoryCreated = operationsService.transfer(transactionRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(transferHistoryCreated);
     }

@@ -107,6 +107,7 @@ public class OperationsServiceImpl implements OperationsService {
         }
 
         userRepository.saveAndFlush(userSent);
+        transactionRequest.setUserSenderName(transaction.getUserSender().getUsername());
         transactionRequest.setTransactionId(transaction.getTransactionId());
         transactionRequest.setTransactionTimestamp(transaction.getTransactionTimestamp());
 
