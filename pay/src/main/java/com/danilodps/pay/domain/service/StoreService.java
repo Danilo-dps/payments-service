@@ -3,10 +3,12 @@ package com.danilodps.pay.domain.service;
 import com.danilodps.pay.domain.dto.StoreDTO;
 import com.danilodps.pay.domain.model.response.StoreResponse;
 
+import java.util.UUID;
+
 public interface StoreService {
 
-    StoreResponse getById(String storeId);
+    StoreResponse getById(UUID storeId);
     StoreResponse getByEmail(String storeEmail);
-    StoreDTO update(String storeId, StoreResponse storeResponse);
-    void delete(String storeId);
+    StoreDTO update(UUID storeId, StoreResponse storeResponse);
+    void delete(UUID storeId);
 }

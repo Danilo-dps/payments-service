@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
@@ -43,7 +44,7 @@ class AuthControllerTest {
     StoreDTO storeDTO;
     JwtResponse jwtResponse;
     SignupRequest signupRequest;
-    String uuid = "67c6e748-aa01-4fb3-b665-9bfaecfb179e";
+    UUID uuid = UUID.fromString("67c6e748-aa01-4fb3-b665-9bfaecfb179e");
     Role userRole;
     Role storeRole;
 

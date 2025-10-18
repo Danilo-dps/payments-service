@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -14,13 +15,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class TransactionRequest {
 
-    private String transactionId;
+    private UUID transactionId;
     @NotBlank(message = "amount é obrigatório")
     private BigDecimal amount;
     private LocalDateTime transactionTimestamp;
     @NotBlank(message = "userSender é obrigatório")
-    private String userSender;
+    private String userSenderEmail;
     @NotBlank(message = "receiver é obrigatório")
-    private String receiver;
+    private String receiverEmail;
+    private String userSenderName;
+    private String receiverName;
 
 }

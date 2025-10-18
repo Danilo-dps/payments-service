@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserResponse getById(String idUser) {
+    public UserResponse getById(UUID idUser) {
         Objects.requireNonNull(idUser, "User ID não pode ser null");
         log.info("Procurando usuário para o ID {}", idUser);
         return userRepository.findById(idUser)
@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO update(String userId, UserResponse userResponse) {
+    public UserDTO update(UUID userId, UserResponse userResponse) {
         log.info("Atualizando dados para o ID {}", userId);
         User existingUser = userRepository.findById(userId).orElseThrow(() -> {log.warn("Usuário não encontrado com ID {} ", userId); return new NotFoundException(userId);});
 
@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void delete(String userId) {
+    public void delete(UUID userId) {
         log.info("Verificando a existência do usuário de ID {} para excluir", userId);
         if (!userRepository.existsById(userId)) {
             log.error("Erro. Usuário de ID {} não encontrado", userId);
@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public List<DepositResponse> getAllDeposits(String userId){
+    public List<DepositResponse> getAllDeposits(UUID userId){
         User user = userRepository.findById(userId).orElseThrow(() -> {log.error("Usuário não encontrado com ID: {}", userId); return new NotFoundException(userId);});
         List<DepositHistory> listAllDeposit = user.getDepositHistory();
         return DepositHistory2DepositResponse.convertToList(listAllDeposit);

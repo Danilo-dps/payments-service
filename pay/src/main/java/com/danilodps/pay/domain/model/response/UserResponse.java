@@ -1,6 +1,7 @@
 package com.danilodps.pay.domain.model.response;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
-public record UserResponse(String userId, String username, String email, BigDecimal balance) {
+public record UserResponse(UUID userId, String username, String email, BigDecimal balance) {
 }

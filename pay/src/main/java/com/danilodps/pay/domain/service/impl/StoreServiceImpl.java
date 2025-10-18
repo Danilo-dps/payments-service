@@ -32,7 +32,7 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     @Transactional
-    public StoreResponse getById(String storeId) {
+    public StoreResponse getById(UUID storeId) {
         Objects.requireNonNull(storeId, "User ID não pode ser null");
         log.info("Procurando usuário...");
         return storeRepository.findById(storeId)
@@ -58,7 +58,7 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     @Transactional
-    public StoreDTO update(String storeId, StoreResponse storeResponse) {
+    public StoreDTO update(UUID storeId, StoreResponse storeResponse) {
         log.info("Atualizando dados...");
         Store existingStore = storeRepository.findById(storeId).orElseThrow(() -> {log.warn("Usuário não encontrado com ID: " + storeId); return new NotFoundException(storeId);});
 
@@ -86,7 +86,7 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     @Transactional
-    public void delete(String storeId) {
+    public void delete(UUID storeId) {
         log.info("Verificando a existência do usuário para excluir...");
         if (!storeRepository.existsById(storeId)) {
             log.warn("Erro. Usuário não encontrado");

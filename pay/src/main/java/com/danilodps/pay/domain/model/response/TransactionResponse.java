@@ -15,13 +15,17 @@ import java.util.UUID;
 @AllArgsConstructor
 public class TransactionResponse {
 
-    private String transactionId;
+    private UUID transactionId;
     @NotBlank(message = "amount é obrigatório")
     private BigDecimal amount;
     private LocalDateTime transactionTimestamp;
-    @NotBlank(message = "userSender é obrigatório")
-    private String userSender;
-    @NotBlank(message = "receiver é obrigatório")
-    private String receiver;
+    @NotBlank(message = "userSenderEmail é obrigatório")
+    private String userSenderEmail;
+    @NotBlank(message = "receiverEmail é obrigatório")
+    private String receiverEmail;
+    @NotBlank(message = "userSenderName é obrigatório")
+    private String userSenderName;
+    @NotBlank(message = "receiverName é obrigatório")
+    private String receiverName;
 
 }

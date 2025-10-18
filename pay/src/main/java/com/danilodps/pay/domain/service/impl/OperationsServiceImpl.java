@@ -1,5 +1,6 @@
 package com.danilodps.pay.domain.service.impl;
 
+import com.danilodps.pay.domain.adapter.Transaction2TransactionResponse;
 import com.danilodps.pay.domain.model.DepositHistory;
 import com.danilodps.pay.domain.model.Store;
 import com.danilodps.pay.domain.model.Transaction;
@@ -77,8 +78,8 @@ public class OperationsServiceImpl implements OperationsService {
         }
 
         Transaction transaction = null;
-        User userSent = userRepository.findAndLockByEmail(transactionRequest.getUserSender())
-                .orElseThrow(() -> new NotFoundException("Usuário remetente não encontrado para o e-mail " + transactionRequest.getUserSender()));
+        User userSent = userRepository.findAndLockByEmail(transactionRequest.getUserSenderEmail())
+                .orElseThrow(() -> new NotFoundException("Usuário remetente não encontrado para o e-mail " + transactionRequest.getUserSenderEmail()));
 
         if (userSent.getBalance().compareTo(transactionRequest.getAmount()) < 0) {
             throw new InsufficientBalanceException();
@@ -86,31 +87,31 @@ public class OperationsServiceImpl implements OperationsService {
 
         userSent.setBalance(userSent.getBalance().subtract(transactionRequest.getAmount()));
 
-        Optional<User> destinationUser = userRepository.findByEmail(transactionRequest.getReceiver());
+        Optional<User> destinationUser = userRepository.findByEmail(transactionRequest.getReceiverEmail());
 
         if (destinationUser.isPresent()) {
             User userReceived = destinationUser.get();
             userReceived.setBalance(userReceived.getBalance().add(transactionRequest.getAmount()));
             transaction = Transaction.builder().amount(transactionRequest.getAmount()).transactionTimestamp(LocalDateTime.now()).userSender(userSent).userReceiver(userReceived).build();
+            transactionRequest.setReceiverName(transaction.getUserSender().getUsername());
             transactionRepository.saveAndFlush(transaction);
             userRepository.saveAndFlush(userReceived);
         } else {
-            Store destinationStore = storeRepository.findByStoreEmail(transactionRequest.getReceiver()).orElseThrow(() -> new NotFoundException("Conta de destino não encontrada para o e-mail " + transactionRequest.getReceiver()));
+            Store destinationStore = storeRepository.findByStoreEmail(transactionRequest.getReceiverEmail())
+                    .orElseThrow(() -> new NotFoundException("Conta de destino não encontrada para o e-mail " + transactionRequest.getReceiverEmail()));
             destinationStore.setBalance(destinationStore.getBalance().add(transactionRequest.getAmount()));
             transaction = Transaction.builder().amount(transactionRequest.getAmount()).transactionTimestamp(LocalDateTime.now()).userSender(userSent).storeReceiver(destinationStore).build();
+            transactionRequest.setReceiverName(transaction.getStoreReceiver().getStoreName());
             transactionRepository.saveAndFlush(transaction);
             storeRepository.saveAndFlush(destinationStore);
         }
 
         userRepository.saveAndFlush(userSent);
+        transactionRequest.setTransactionId(transaction.getTransactionId());
+        transactionRequest.setTransactionTimestamp(transaction.getTransactionTimestamp());
 
-        return TransactionResponse.builder()
-                .transactionId(transaction.getTransactionId())
-                .amount(transactionRequest.getAmount())
-                .transactionTimestamp(LocalDateTime.now())
-                .userSender(transactionRequest.getUserSender())
-                .receiver(transactionRequest.getReceiver())
-                .build();
+        kafkaEventProducer.publishKafkaTransferEventNotification(Transaction2TransactionResponse.convertToUser(transactionRequest));
+        return Transaction2TransactionResponse.convertToUser(transactionRequest);
     }
 
     @Override

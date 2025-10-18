@@ -24,8 +24,8 @@ public class Transaction implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(length = 36, updatable = false, nullable = false)
-    private String transactionId;
+    @Column(columnDefinition = "UUID", updatable = false, nullable = false)
+    private UUID transactionId;
     private BigDecimal amount;
     private LocalDateTime transactionTimestamp;
     @ManyToOne(fetch = FetchType.LAZY)

@@ -6,6 +6,8 @@ import com.danilodps.pay.domain.service.StoreService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/store")
 public class StoreController {
@@ -17,7 +19,7 @@ public class StoreController {
     }
 
     @GetMapping("/id/{storeId}")
-    public ResponseEntity<StoreResponse> getStoreById(@PathVariable String storeId) {
+    public ResponseEntity<StoreResponse> getStoreById(@PathVariable UUID storeId) {
         StoreResponse storeSearch = storeService.getById(storeId);
         return ResponseEntity.ok(storeSearch);
     }
@@ -29,13 +31,13 @@ public class StoreController {
     }
 
     @PutMapping("/{storeId}")
-    public ResponseEntity<StoreDTO> updateStore(@PathVariable String storeId, @RequestBody StoreResponse storeResponse){
+    public ResponseEntity<StoreDTO> updateStore(@PathVariable UUID storeId, @RequestBody StoreResponse storeResponse){
         StoreDTO storeUpdate = storeService.update(storeId, storeResponse);
         return ResponseEntity.ok(storeUpdate);
     }
 
     @DeleteMapping("/{storeId}")
-    public ResponseEntity <Void> deleteStore(@PathVariable String storeId){
+    public ResponseEntity <Void> deleteStore(@PathVariable UUID storeId){
         storeService.delete(storeId);
         return ResponseEntity.noContent().build();
     }

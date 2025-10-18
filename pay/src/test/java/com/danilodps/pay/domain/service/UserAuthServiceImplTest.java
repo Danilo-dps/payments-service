@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -77,7 +78,7 @@ class UserAuthServiceImplTest {
 
 
         validUserDTO = UserDTO.builder()
-                .userId(uuid)
+                .userId(UUID.fromString(uuid))
                 .username("Test Store")
                 .cpf("12345678000195")
                 .email("test@store.com")

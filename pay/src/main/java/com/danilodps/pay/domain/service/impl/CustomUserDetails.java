@@ -13,6 +13,7 @@ import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 public class CustomUserDetails implements UserDetails {
 
@@ -20,7 +21,7 @@ public class CustomUserDetails implements UserDetails {
     private static final long serialVersionUID = 1L;
 
     @Getter
-    private final String id;
+    private final UUID id;
     private final String username;
     @Getter
     private final String email;
