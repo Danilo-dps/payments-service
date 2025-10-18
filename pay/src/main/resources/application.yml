@@ -10,10 +10,10 @@ spring:
   mvc:
     dispatch-options-request: true
   datasource:
-    url: jdbc:h2:mem:pay
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:postgresql://localhost:5432/postgres_payments
+    driver-class-name: org.postgresql.Driver
+    username: admin
+    password: ${DB_PASSWORD}
   h2:
     console:
       enabled: true
@@ -21,7 +21,7 @@ spring:
       settings:
         web-allow-others: true
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
     show-sql: true
