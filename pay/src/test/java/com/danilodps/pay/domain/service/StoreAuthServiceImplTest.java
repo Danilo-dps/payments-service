@@ -122,7 +122,7 @@ class StoreAuthServiceImplTest {
 
         assertEquals(savedStore.getStoreName(), result.username());
         assertEquals(savedStore.getStoreEmail(), result.email());
-        assertNotNull(result.now());
+        assertNotNull(result.signupTimestamp());
     }
 
     @Test

@@ -79,7 +79,7 @@ class UserAuthServiceImplTest {
 
         validUserDTO = UserDTO.builder()
                 .userId(UUID.fromString(uuid))
-                .username("Test Store")
+                .username("Test User")
                 .cpf("12345678000195")
                 .email("test@store.com")
                 .password("password123")
@@ -119,7 +119,7 @@ class UserAuthServiceImplTest {
 
         assertEquals(savedUser.getUsername(), result.username());
         assertEquals(savedUser.getEmail(), result.email());
-        assertNotNull(result.now());
+        assertNotNull(result.signupTimestamp());
     }
 
     @Test
