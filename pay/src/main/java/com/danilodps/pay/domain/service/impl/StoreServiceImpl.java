@@ -56,6 +56,7 @@ public class StoreServiceImpl implements StoreService {
                 });
        }
 
+    // TODO, é preciso atualizar para garantir hash para a nova senha
     @Override
     @Transactional
     public StoreDTO update(UUID storeId, StoreResponse storeResponse) {

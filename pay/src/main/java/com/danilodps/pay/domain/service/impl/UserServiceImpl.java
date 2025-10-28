@@ -59,6 +59,7 @@ public class UserServiceImpl implements UserService {
                 });
        }
 
+    // TODO, é preciso atualizar para garantir hash para a nova senha
     @Override
     @Transactional
     public UserDTO update(UUID userId, UserResponse userResponse) {
