@@ -1,6 +1,6 @@
 package com.danilodps.pay.domain.config;
 
-import com.danilodps.pay.domain.model.request.SigninResponse;
+import com.danilodps.pay.domain.model.response.SigninResponse;
 import com.danilodps.pay.domain.model.request.SignupRequest;
 import com.danilodps.pay.domain.model.response.DepositResponse;
 import com.danilodps.pay.domain.model.response.TransactionResponse;
