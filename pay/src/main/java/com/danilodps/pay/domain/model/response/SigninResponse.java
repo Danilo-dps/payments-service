@@ -1,4 +1,4 @@
-package com.danilodps.pay.domain.model.request;
+package com.danilodps.pay.domain.model.response;
 
 import lombok.Builder;
 

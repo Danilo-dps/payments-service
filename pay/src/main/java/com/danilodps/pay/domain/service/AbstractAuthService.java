@@ -9,7 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.danilodps.pay.domain.config.KafkaEventProducer;
 import com.danilodps.pay.domain.model.request.LoginRequest;
 import com.danilodps.pay.domain.model.response.JwtResponse;
-import com.danilodps.pay.domain.model.request.SigninResponse;
+import com.danilodps.pay.domain.model.response.SigninResponse;
 import com.danilodps.pay.domain.security.jwt.JwtUtils;
 import com.danilodps.pay.domain.service.impl.CustomUserDetails;
 
