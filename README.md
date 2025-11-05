@@ -101,6 +101,7 @@ Após a infraestrutura estar rodando, você pode iniciar a aplicação Spring Bo
 
 ```bash
 
+# Pode rodar pela IDE, sem usar o terminal
 # Compile e execute usando o Maven
 mvn spring-boot:run
 ```
@@ -122,6 +123,7 @@ Este projeto utiliza **JUnit 5** para testes unitários. Para rodar a suíte de 
 
 ```bash
 
+# Pode rodar pela IDE, sem usar o terminal
 mvn test
 ```
 
