@@ -1,20 +1,14 @@
 package com.danilodps.pay.domain.model.response;
 
-import lombok.*;
+import lombok.Builder;
 
 import java.util.List;
 import java.util.UUID;
 
-@Getter
-@Setter
 @Builder
-@ToString
-@NoArgsConstructor
-@AllArgsConstructor
-public class JwtResponse {
-  private String accessToken;
-  private UUID id;
-  private String username;
-  private String email;
-  private List<String> roles;
-}
+public record JwtResponse(
+        String accessToken,
+        UUID id,
+        String username,
+        String email,
+        List<String> roles) {}

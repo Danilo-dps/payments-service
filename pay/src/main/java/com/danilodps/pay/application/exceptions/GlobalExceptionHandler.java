@@ -12,13 +12,6 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-//    private record ErrorResponse(
-//            LocalDateTime timestamp,
-//            String message,
-//            String errorType,
-//            int statusCode
-//    ) {}
-
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ErrorResponse> handleUserNotFound(NotFoundException ex) {
