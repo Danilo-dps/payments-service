@@ -5,16 +5,17 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import com.danilodps.pay.domain.service.impl.CustomUserDetailsServiceImpl;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -22,33 +23,27 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class AuthTokenFilter extends OncePerRequestFilter {
 
-  private final JwtUtils jwtUtils;
-  private final CustomUserDetailsServiceImpl userDetailsService;
+  private final JwtTokenGenerator jwtTokenGenerator;
+  private final UserDetailsService userDetailsService;
   private final ClientContext clientContext;
 
-  public AuthTokenFilter(JwtUtils jwtUtils, CustomUserDetailsServiceImpl userDetailsService, ClientContext clientContext) {
-    this.jwtUtils = jwtUtils;
-    this.userDetailsService = userDetailsService;
-    this.clientContext = clientContext;
-  }
-
-  private static final List<String> EXCLUDED_PATHS = Arrays.asList(
-          "/auth/signup/user",
-          "/auth/signup/store",
-          "/auth/login",
-          "/auth/refresh-token",
-          "/actuator/configprops"
-  );
+    private static final List<String> EXCLUDED_PATHS = Arrays.asList(
+            "/auth/signup",
+            "/auth/login",
+            "/auth/refresh-token",
+            "/actuator/**"
+    );
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
           throws ServletException, IOException {
     try {
       String jwt = parseJwt(request);
-      if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-        String username = jwtUtils.getUserNameFromJwtToken(jwt);
+      if (jwt != null && jwtTokenGenerator.validateJwtToken(jwt)) {
+        String username = jwtTokenGenerator.getUserNameFromJwtToken(jwt);
 
         clientContext.setCurrentUser(username, jwt);
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);

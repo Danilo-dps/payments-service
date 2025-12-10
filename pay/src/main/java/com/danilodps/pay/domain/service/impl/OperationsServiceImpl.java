@@ -1,117 +1,93 @@
 package com.danilodps.pay.domain.service.impl;
 
-import com.danilodps.pay.domain.adapter.Transaction2TransactionResponse;
-import com.danilodps.pay.domain.model.Deposit;
-import com.danilodps.pay.domain.model.Store;
-import com.danilodps.pay.domain.model.Transaction;
-import com.danilodps.pay.domain.model.User;
-import com.danilodps.pay.domain.repository.StoreRepository;
-import com.danilodps.pay.domain.repository.TransactionRepository;
-import com.danilodps.pay.domain.repository.UserRepository;
+import com.danilodps.pay.domain.adapter.TransactionEntity2TransactionResponse;
+import com.danilodps.pay.domain.model.*;
+import com.danilodps.pay.domain.repository.*;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.danilodps.pay.application.exceptions.InsufficientBalanceException;
 import com.danilodps.pay.application.exceptions.InvalidValueException;
 import com.danilodps.pay.application.exceptions.NotFoundException;
-import com.danilodps.pay.domain.adapter.Deposit2DepositResponse;
-import com.danilodps.pay.domain.config.KafkaEventProducer;
-import com.danilodps.pay.domain.dto.DepositRequestDTO;
-import com.danilodps.pay.domain.model.enums.EOperationType;
-import com.danilodps.pay.domain.model.request.TransactionRequest;
-import com.danilodps.pay.domain.model.response.DepositResponse;
-import com.danilodps.pay.domain.model.response.TransactionResponse;
+import com.danilodps.pay.domain.adapter.DepositEntity2DepositResponse;
+//import com.danilodps.pay.domain.config.KafkaEventProducer;
+import com.danilodps.pay.domain.model.request.create.operations.DepositRequest;
+import com.danilodps.pay.domain.model.request.create.operations.TransactionRequest;
+import com.danilodps.pay.domain.model.response.operations.DepositResponse;
+import com.danilodps.pay.domain.model.response.operations.TransactionResponse;
 import com.danilodps.pay.domain.service.OperationsService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class OperationsServiceImpl implements OperationsService {
 
-    private final UserRepository userRepository;
-    private final StoreRepository storeRepository;
-    private final TransactionRepository transactionRepository;
-    private final KafkaEventProducer kafkaEventProducer;
-
-    public OperationsServiceImpl(
-            UserRepository userRepository,
-            StoreRepository storeRepository,
-            TransactionRepository transactionRepository,
-            KafkaEventProducer kafkaEventProducer) {
-        this.userRepository = userRepository;
-        this.storeRepository = storeRepository;
-        this.kafkaEventProducer = kafkaEventProducer;
-        this.transactionRepository = transactionRepository;
-    }
+//    private final KafkaEventProducer kafkaEventProducer;
+    private final ProfileEntityRepository profileEntityRepository;
+    private final DepositEntityRepository depositEntityRepository;
+    private final TransactionEntityRepository transactionEntityRepository;
 
     @Override
     @Transactional
-    public DepositResponse deposit(DepositRequestDTO requestDeposit) {
+    public DepositResponse deposit(DepositRequest requestDeposit) {
         log.info("Inicializando processo de depósito");
-        if (requestDeposit.getAmount() == null || requestDeposit.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+        if (requestDeposit.amount() == null || requestDeposit.amount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidValueException();
         }
 
-        User user = userRepository.findByEmail(requestDeposit.getEmail())
-                .orElseThrow(() -> new NotFoundException(requestDeposit.getEmail()));
+        ProfileEntity profileEntity = profileEntityRepository.findByProfileEmail(requestDeposit.email())
+                .orElseThrow(() -> new NotFoundException(requestDeposit.email()));
 
-        Deposit deposit = new Deposit(LocalDateTime.now(), EOperationType.DEPOSIT, requestDeposit.getAmount(), user);
+        DepositEntity deposit = DepositEntity.builder()
+                .depositTimestamp(LocalDateTime.now())
+                .amount(requestDeposit.amount())
+                .profileEntity(profileEntity)
+                .build();
 
-        user.getDeposit().add(deposit);
-        user.setBalance(user.getBalance().add(requestDeposit.getAmount()));
-        User savedUser = userRepository.saveAndFlush(user);
-        Deposit persistedDeposit = savedUser.getDeposit().getLast();
+        profileEntity.setBalance(profileEntity.getBalance().add(requestDeposit.amount()));
+        depositEntityRepository.saveAndFlush(deposit);
+        profileEntityRepository.saveAndFlush(profileEntity);
 
-        kafkaEventProducer.publishKafkaDepositEventNotification(Deposit2DepositResponse.convert(persistedDeposit));
-        return Deposit2DepositResponse.convert(persistedDeposit);
+        //kafkaEventProducer.publishKafkaDepositEventNotification(DepositEntity2DepositResponse.convert(persistedDeposit));
+        return DepositEntity2DepositResponse.convert(deposit);
     }
 
     @Override
     @Transactional
     public TransactionResponse transfer(TransactionRequest transactionRequest) {
-        if (transactionRequest.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+        if (transactionRequest.amount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidValueException();
         }
 
-        Transaction transaction = null;
-        User userSent = userRepository.findAndLockByEmail(transactionRequest.getUserSenderEmail())
-                .orElseThrow(() -> new NotFoundException("Usuário remetente não encontrado para o e-mail " + transactionRequest.getUserSenderEmail()));
+        ProfileEntity profileSender = profileEntityRepository.findAndLockByProfileEmail(transactionRequest.senderEmail())
+                .orElseThrow(() -> new NotFoundException("Usuário remetente não encontrado para o e-mail " + transactionRequest.senderEmail()));
 
-        if (userSent.getBalance().compareTo(transactionRequest.getAmount()) < 0) {
+        ProfileEntity profileDestination = profileEntityRepository.findByProfileEmail(transactionRequest.receiverEmail())
+                .orElseThrow(() -> new NotFoundException("Usuário remetente não encontrado para o e-mail " + transactionRequest.receiverEmail()));
+
+        if (profileSender.getBalance().compareTo(transactionRequest.amount()) < 0) {
             throw new InsufficientBalanceException();
         }
 
-        userSent.setBalance(userSent.getBalance().subtract(transactionRequest.getAmount()));
+        profileSender.setBalance(profileSender.getBalance().subtract(transactionRequest.amount()));
+        profileDestination.setBalance(profileDestination.getBalance().add(transactionRequest.amount()));
+        TransactionEntity transaction = TransactionEntity.builder()
+                .amount(transactionRequest.amount())
+                .transactionTimestamp(LocalDateTime.now())
+                .profileSender(profileSender)
+                .profileReceiver(profileDestination)
+                .build();
 
-        Optional<User> destinationUser = userRepository.findByEmail(transactionRequest.getReceiverEmail());
+        profileEntityRepository.saveAndFlush(profileSender);
+        profileEntityRepository.saveAndFlush(profileDestination);
+        transactionEntityRepository.saveAndFlush(transaction);
 
-        if (destinationUser.isPresent()) {
-            User userReceived = destinationUser.get();
-            userReceived.setBalance(userReceived.getBalance().add(transactionRequest.getAmount()));
-            transaction = Transaction.builder().amount(transactionRequest.getAmount()).transactionTimestamp(LocalDateTime.now()).userSender(userSent).userReceiver(userReceived).build();
-            transactionRequest.setReceiverName(transaction.getUserSender().getUsername());
-            transactionRepository.saveAndFlush(transaction);
-            userRepository.saveAndFlush(userReceived);
-        } else {
-            Store destinationStore = storeRepository.findByStoreEmail(transactionRequest.getReceiverEmail())
-                    .orElseThrow(() -> new NotFoundException("Conta de destino não encontrada para o e-mail " + transactionRequest.getReceiverEmail()));
-            destinationStore.setBalance(destinationStore.getBalance().add(transactionRequest.getAmount()));
-            transaction = Transaction.builder().amount(transactionRequest.getAmount()).transactionTimestamp(LocalDateTime.now()).userSender(userSent).storeReceiver(destinationStore).build();
-            transactionRequest.setReceiverName(transaction.getStoreReceiver().getStoreName());
-            transactionRepository.saveAndFlush(transaction);
-            storeRepository.saveAndFlush(destinationStore);
-        }
-
-        userRepository.saveAndFlush(userSent);
-        transactionRequest.setUserSenderName(transaction.getUserSender().getUsername());
-        transactionRequest.setTransactionId(transaction.getTransactionId());
-        transactionRequest.setTransactionTimestamp(transaction.getTransactionTimestamp());
-
-        kafkaEventProducer.publishKafkaTransferEventNotification(Transaction2TransactionResponse.convertToUser(transactionRequest));
-        return Transaction2TransactionResponse.convertToUser(transactionRequest);
+        //kafkaEventProducer.publishKafkaTransferEventNotification(TransactionEntity2TransactionResponse.convertToUser(transactionRequest));
+        return TransactionEntity2TransactionResponse.convert(transaction);
     }
 
     @Override

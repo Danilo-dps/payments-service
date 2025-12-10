@@ -1,14 +1,12 @@
 package com.danilodps.pay.domain.utils.validations;
 
-import org.springframework.stereotype.Component;
 import com.danilodps.pay.application.exceptions.InvalidCPFException;
 import com.danilodps.pay.application.exceptions.UserCPFEmptyException;
-
-import java.util.logging.Logger;
-
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+@Slf4j
 @Component
 public class CpfValidator {
-    private static final Logger logger = Logger.getLogger(CpfValidator.class.getName());
 
     private static final int CPF_LENGTH = 11;
     private static final String NON_DIGIT_REGEX = "[^0-9]";
@@ -16,24 +14,24 @@ public class CpfValidator {
 
     public void validate(String cpf) {
         if (isNullOrEmpty(cpf)) {
-            logger.warning("Erro. Nome está vazio");
+            log.warn("Erro. Nome está vazio");
             throw new UserCPFEmptyException();
         }
 
         String cleanedCpf = cleanCpf(cpf);
 
         if (!hasValidLength(cleanedCpf)) {
-            logger.warning(ERROR_CPF);
+            log.warn(ERROR_CPF);
             throw new InvalidCPFException(cpf);
         }
 
         if (areAllDigitsIdentical(cleanedCpf)) {
-            logger.warning(ERROR_CPF);
+            log.warn(ERROR_CPF);
             throw new InvalidCPFException(cpf);
         }
 
         if (!hasValidDigits(cleanedCpf)) {
-            logger.warning(ERROR_CPF);
+            log.warn(ERROR_CPF);
             throw new InvalidCPFException(cpf);
         }
     }

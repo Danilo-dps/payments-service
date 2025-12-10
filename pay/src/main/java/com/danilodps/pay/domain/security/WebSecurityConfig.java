@@ -3,8 +3,9 @@ package com.danilodps.pay.domain.security;
 import com.danilodps.pay.domain.security.context.ClientContext;
 import com.danilodps.pay.domain.security.jwt.AuthEntryPointJwt;
 import com.danilodps.pay.domain.security.jwt.AuthTokenFilter;
-import com.danilodps.pay.domain.security.jwt.JwtUtils;
-import com.danilodps.pay.domain.service.impl.CustomUserDetailsServiceImpl;
+import com.danilodps.pay.domain.security.jwt.JwtTokenGenerator;
+import com.danilodps.pay.domain.service.spring.CustomUserDetailsServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,35 +22,28 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfig {
 
 	private final CustomUserDetailsServiceImpl customUserDetailsService;
 	private final AuthEntryPointJwt unauthorizedHandler;
-	private final JwtUtils jwtUtils;
+	private final JwtTokenGenerator jwtTokenGenerator;
     private final ClientContext clientContext;
-
-	public WebSecurityConfig(CustomUserDetailsServiceImpl customUserDetailsService, AuthEntryPointJwt unauthorizedHandler, JwtUtils jwtUtils, ClientContext clientContext) {
-		this.customUserDetailsService = customUserDetailsService;
-		this.unauthorizedHandler = unauthorizedHandler;
-		this.jwtUtils = jwtUtils;
-        this.clientContext = clientContext;
-	}
 
 	@Bean
 	public AuthTokenFilter authenticationJwtTokenFilter() {
-		return new AuthTokenFilter(jwtUtils, customUserDetailsService, clientContext);
+		return new AuthTokenFilter(jwtTokenGenerator, customUserDetailsService, clientContext);
 	}
 
 	@Bean
 	public DaoAuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(customUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
-
 		return authProvider;
 	}
 
 	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) {
 		return authConfig.getAuthenticationManager();
 	}
 
@@ -58,26 +52,27 @@ public class WebSecurityConfig {
 		return new BCryptPasswordEncoder();
 	}
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http
-				.csrf(AbstractHttpConfigurer::disable)
-				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(auth -> auth
-						.requestMatchers(
-								"/auth/signup/user",
-								"/auth/signup/store",
-								"/auth/login",
-								"/auth/refresh-token",
-								"/actuator/configprops"
-						).permitAll()
-						.anyRequest().authenticated()
-				)
-				.addFilterAfter(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/auth/signup",
+                                "/auth/login",
+                                "/auth/refresh-token",
+                                "/actuator/configprops",
+                                "/actuator/health",
+                                "/actuator/info"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class); // ← Use BEFORE
 
-		http.authenticationProvider(authenticationProvider());
-		return http.build();
-	}
+        http.authenticationProvider(authenticationProvider());
+        return http.build();
+    }
 }
 

@@ -1,13 +1,13 @@
 package com.danilodps.pay.domain.service;
 
-import com.danilodps.pay.domain.dto.DepositRequestDTO;
-import com.danilodps.pay.domain.model.request.TransactionRequest;
-import com.danilodps.pay.domain.model.response.DepositResponse;
-import com.danilodps.pay.domain.model.response.TransactionResponse;
+import com.danilodps.pay.domain.model.request.create.operations.DepositRequest;
+import com.danilodps.pay.domain.model.request.create.operations.TransactionRequest;
+import com.danilodps.pay.domain.model.response.operations.DepositResponse;
+import com.danilodps.pay.domain.model.response.operations.TransactionResponse;
 
 public interface OperationsService {
 
-    DepositResponse deposit(DepositRequestDTO requestDeposit);
+    DepositResponse deposit(DepositRequest requestDeposit);
     TransactionResponse transfer(TransactionRequest transactionRequest);
     TransactionResponse bankStatement(TransactionRequest transactionRequest);
 }

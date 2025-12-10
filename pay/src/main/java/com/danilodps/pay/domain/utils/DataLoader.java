@@ -1,39 +1,36 @@
 package com.danilodps.pay.domain.utils;
 
+import com.danilodps.pay.domain.model.RoleEntity;
+import com.danilodps.pay.domain.model.enums.RoleEnum;
+import com.danilodps.pay.domain.repository.RoleEntityRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import com.danilodps.pay.domain.model.enums.ERole;
-import com.danilodps.pay.domain.model.Role;
-import com.danilodps.pay.domain.repository.RoleRepository;
 
-import java.util.Arrays;
-
-@Slf4j
 @Component
+@RequiredArgsConstructor
+@Slf4j
 public class DataLoader implements CommandLineRunner {
 
-    private final RoleRepository roleRepository;
-
-    public DataLoader(RoleRepository roleRepository) {
-        this.roleRepository = roleRepository;
-    }
+    // apenas para testar, saindo do H2,  terá uma tabela com roles
+    private final RoleEntityRepository roleRepository;
 
     @Override
     @Transactional
-    public void run(String... args) throws Exception {
-        if (roleRepository.count() == 0) {
-            log.info("Nenhum perfil encontrado, cadastrando perfis padrão...");
+    public void run(String... args) {
+        log.info("=== INICIALIZANDO ROLES ===");
 
-            Arrays.stream(ERole.values()).forEach(roleEnum -> {
-                Role newRole = new Role(roleEnum);
-                roleRepository.save(newRole);
-            });
-
-            log.info("Perfis cadastrados com sucesso!");
-        } else {
-            log.info("Perfis já cadastrados no banco de dados.");
+        for (RoleEnum roleEnum : RoleEnum.values()) {
+                RoleEntity role = RoleEntity.builder()
+                        .roleId(roleEnum.getId())
+                        .shortName(roleEnum.getShortName())
+                        .description(roleEnum.getDescription())
+                        .build();
+                roleRepository.save(role);
+                log.info("Role criada: {}", roleEnum);
         }
     }
+
 }
