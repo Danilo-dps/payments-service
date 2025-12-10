@@ -52,25 +52,27 @@ public class WebSecurityConfig {
 		return new BCryptPasswordEncoder();
 	}
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) {
-		http
-				.csrf(AbstractHttpConfigurer::disable)
-				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(auth -> auth
-						.requestMatchers(
-								"/auth/signup",
-								"/auth/login",
-								"/auth/refresh-token",
-								"/actuator/configprops"
-						).permitAll()
-						.anyRequest().authenticated()
-				)
-				.addFilterAfter(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/auth/signup",
+                                "/auth/login",
+                                "/auth/refresh-token",
+                                "/actuator/configprops",
+                                "/actuator/health",
+                                "/actuator/info"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class); // ← Use BEFORE
 
-		http.authenticationProvider(authenticationProvider());
-		return http.build();
-	}
+        http.authenticationProvider(authenticationProvider());
+        return http.build();
+    }
 }
 

@@ -1,5 +1,6 @@
 package com.danilodps.pay.application.exceptions;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -9,6 +10,7 @@ import com.danilodps.pay.domain.model.response.ErrorResponse;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -177,6 +179,7 @@ public class GlobalExceptionHandler {
                 "UNEXPECTED_ERROR",
                 HttpStatus.INTERNAL_SERVER_ERROR.value()
         );
+        log.info("ERRO: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }

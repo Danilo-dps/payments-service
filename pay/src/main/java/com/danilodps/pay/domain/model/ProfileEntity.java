@@ -18,10 +18,10 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(
-        name = "TB_PROFILE_ENTITY",
+        name = "TB_PROFILE",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "PROFILE_EMAIL", name = "uk_profile_email"),
-                @UniqueConstraint(columnNames = "DOCUMENT_NUMBER", name = "uk_profile")
+                @UniqueConstraint(columnNames = "DOCUMENT", name = "uk_document")
         }
 )
 @EqualsAndHashCode(of = "profileId")
@@ -38,9 +38,11 @@ public class ProfileEntity implements Serializable {
     @Column(name = "USERNAME", nullable = false, length = 100)
     private String username;
 
-    @Column(name = "DOCUMENT_TYPE", nullable = false, updatable = false)
-    @ToString.Exclude
-    private DocumentTypeEntity documentType;
+    @Column(name = "DOCUMENT_IDENTIFIER", nullable = false, unique = true, length = 4)
+    private String documentIdentifier;
+
+    @Column(name = "DOCUMENT", nullable = false, unique = true, length = 18)
+    private String document;
 
     @Column(name = "PROFILE_EMAIL", nullable = false, unique = true, length = 50)
     private String profileEmail;

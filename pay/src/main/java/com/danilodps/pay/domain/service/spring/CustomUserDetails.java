@@ -28,7 +28,7 @@ public class CustomUserDetails implements UserDetails {
 
     public CustomUserDetails(ProfileEntity profileEntity) {
         this.id = profileEntity.getProfileId();
-        this.username = profileEntity.getPassword();
+        this.username = profileEntity.getUsername();
         this.email = profileEntity.getProfileEmail();
         this.password = profileEntity.getPassword();
         this.authorities = profileEntity.getRoles().stream()

@@ -1,7 +1,6 @@
 package com.danilodps.pay.domain.service.impl;
 
 import com.danilodps.pay.domain.adapter.RoleEnum2RoleEntity;
-//import com.danilodps.pay.domain.config.KafkaEventProducer;
 import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.request.create.SignInRequest;
 import com.danilodps.pay.domain.model.request.create.SignUpRequest;
@@ -11,6 +10,7 @@ import com.danilodps.pay.domain.repository.ProfileEntityRepository;
 import com.danilodps.pay.domain.security.jwt.JwtTokenGenerator;
 import com.danilodps.pay.domain.service.ProfileAuthService;
 import com.danilodps.pay.domain.service.spring.CustomUserDetails;
+import com.danilodps.pay.domain.utils.validator.ProfileValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,16 +36,20 @@ public class ProfileAuthServiceImpl implements ProfileAuthService {
     private final AuthenticationManager authenticationManager;
 //    private final KafkaEventProducer kafkaEventProducer;
     private final JwtTokenGenerator jwtTokenGenerator;
+    private final ProfileValidator profileValidator;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
     public SignUpResponse register(SignUpRequest signUpRequest) {
 
+        profileValidator.validate(signUpRequest.email(), signUpRequest.documentIdentifier(), signUpRequest.document());
         log.info("Registrando novo usuário {}", signUpRequest.username());
 
         ProfileEntity profileEntity = new ProfileEntity();
         profileEntity.setUsername(signUpRequest.username());
+        profileEntity.setDocumentIdentifier(signUpRequest.documentIdentifier());
+        profileEntity.setDocument(signUpRequest.document());
         profileEntity.setRoles(RoleEnum2RoleEntity.convertList(signUpRequest.roleEnum()));
         profileEntity.setProfileEmail(signUpRequest.email());
         profileEntity.setPassword(passwordEncoder.encode(signUpRequest.password()));

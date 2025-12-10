@@ -1,15 +1,13 @@
 package com.danilodps.pay.domain.utils.validations;
 
-import org.springframework.stereotype.Component;
 import com.danilodps.pay.application.exceptions.InvalidCNPJException;
 import com.danilodps.pay.application.exceptions.StoreCNPJEmptyException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
-import java.util.logging.Logger;
-
+@Slf4j
 @Component
 public class CnpjValidator {
-
-    private static final Logger logger = Logger.getLogger(CnpjValidator.class.getName());
 
     private static final int CNPJ_LENGTH = 14;
     private static final String NON_DIGIT_REGEX = "[^0-9]";
@@ -17,24 +15,24 @@ public class CnpjValidator {
 
     public void validate(String cnpj) {
         if (isNullOrEmpty(cnpj)) {
-            logger.warning(ERROR_CNPJ);
+            log.warn(ERROR_CNPJ);
             throw new StoreCNPJEmptyException();
         }
 
         String cleanedCNPJ = cleanCNPJ(cnpj);
 
         if (!hasValidLength(cleanedCNPJ)) {
-            logger.warning(ERROR_CNPJ);
+            log.warn(ERROR_CNPJ);
             throw new InvalidCNPJException(cnpj);
         }
 
         if (areAllDigitsIdentical(cleanedCNPJ)) {
-            logger.warning(ERROR_CNPJ);
+            log.warn(ERROR_CNPJ);
             throw new InvalidCNPJException(cnpj);
         }
 
         if (!hasValidDigits(cleanedCNPJ)) {
-            logger.warning(ERROR_CNPJ);
+            log.warn(ERROR_CNPJ);
             throw new InvalidCNPJException(cnpj);
         }
     }

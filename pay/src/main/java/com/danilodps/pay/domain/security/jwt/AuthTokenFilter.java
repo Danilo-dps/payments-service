@@ -30,13 +30,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
   private final UserDetailsService userDetailsService;
   private final ClientContext clientContext;
 
-  private static final List<String> EXCLUDED_PATHS = Arrays.asList(
-          "/auth/signup/user",
-          "/auth/signup/store",
-          "/auth/login",
-          "/auth/refresh-token",
-          "/actuator/configprops"
-  );
+    private static final List<String> EXCLUDED_PATHS = Arrays.asList(
+            "/auth/signup",
+            "/auth/login",
+            "/auth/refresh-token",
+            "/actuator/**"
+    );
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Builder
 public record JwtResponse(
-        String accessToken,
+        String accessToken, // futuramente, não vou retornar, apenas para testar
         UUID id,
         String username,
         String email,

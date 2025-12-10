@@ -1,12 +1,13 @@
 package com.danilodps.pay.domain.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -30,7 +31,4 @@ public class RoleEntity implements Serializable {
     @Column(name = "ROLE_DESCRIPTION", length = 25)
     private String description;
 
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<ProfileEntity> profiles = new ArrayList<>();
 }
