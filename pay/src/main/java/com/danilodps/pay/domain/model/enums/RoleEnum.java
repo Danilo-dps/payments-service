@@ -20,4 +20,10 @@ public enum RoleEnum {
     private final String shortName;
     private final String description;
 
+    public static RoleEnum getByShortName(String documentType){
+        if(documentType.equals("CPF")){
+            return RoleEnum.USER;
+        }
+        return RoleEnum.STORE;
+    }
 }

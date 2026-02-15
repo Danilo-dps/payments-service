@@ -1,25 +1,29 @@
 package com.danilodps.pay.domain.service.impl;
 
-import com.danilodps.pay.domain.adapter.TransactionEntity2TransactionResponse;
-import com.danilodps.pay.domain.model.*;
-import com.danilodps.pay.domain.repository.*;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import com.danilodps.pay.application.exceptions.InsufficientBalanceException;
 import com.danilodps.pay.application.exceptions.InvalidValueException;
 import com.danilodps.pay.application.exceptions.NotFoundException;
 import com.danilodps.pay.domain.adapter.DepositEntity2DepositResponse;
-//import com.danilodps.pay.domain.config.KafkaEventProducer;
+import com.danilodps.pay.domain.adapter.TransactionEntity2TransactionResponse;
+import com.danilodps.pay.domain.model.DepositEntity;
+import com.danilodps.pay.domain.model.ProfileEntity;
+import com.danilodps.pay.domain.model.TransactionEntity;
 import com.danilodps.pay.domain.model.request.create.operations.DepositRequest;
 import com.danilodps.pay.domain.model.request.create.operations.TransactionRequest;
 import com.danilodps.pay.domain.model.response.operations.DepositResponse;
 import com.danilodps.pay.domain.model.response.operations.TransactionResponse;
+import com.danilodps.pay.domain.repository.DepositEntityRepository;
+import com.danilodps.pay.domain.repository.ProfileEntityRepository;
+import com.danilodps.pay.domain.repository.TransactionEntityRepository;
 import com.danilodps.pay.domain.service.OperationsService;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -43,6 +47,7 @@ public class OperationsServiceImpl implements OperationsService {
                 .orElseThrow(() -> new NotFoundException(requestDeposit.email()));
 
         DepositEntity deposit = DepositEntity.builder()
+                .depositId(UUID.randomUUID().toString())
                 .depositTimestamp(LocalDateTime.now())
                 .amount(requestDeposit.amount())
                 .profileEntity(profileEntity)
@@ -76,6 +81,7 @@ public class OperationsServiceImpl implements OperationsService {
         profileSender.setBalance(profileSender.getBalance().subtract(transactionRequest.amount()));
         profileDestination.setBalance(profileDestination.getBalance().add(transactionRequest.amount()));
         TransactionEntity transaction = TransactionEntity.builder()
+                .transactionId(UUID.randomUUID().toString())
                 .amount(transactionRequest.amount())
                 .transactionTimestamp(LocalDateTime.now())
                 .profileSender(profileSender)
@@ -84,6 +90,8 @@ public class OperationsServiceImpl implements OperationsService {
 
         profileEntityRepository.saveAndFlush(profileSender);
         profileEntityRepository.saveAndFlush(profileDestination);
+
+        //aqui, seria melhor um saveAndFlush ou uma query especifica para os campos atualizados?
         transactionEntityRepository.saveAndFlush(transaction);
 
         //kafkaEventProducer.publishKafkaTransferEventNotification(TransactionEntity2TransactionResponse.convertToUser(transactionRequest));

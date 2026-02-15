@@ -7,7 +7,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -23,9 +22,8 @@ public class DepositEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "DEPOSIT_ID", columnDefinition = "UUID", updatable = false, nullable = false)
-    private UUID depositId;
+    @Column(name = "DEPOSIT_ID", updatable = false, nullable = false)
+    private String depositId;
 
     @Column(name = "DEPOSIT_TIMESTAMP", nullable = false, updatable = false)
     private LocalDateTime depositTimestamp;

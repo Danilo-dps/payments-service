@@ -7,10 +7,9 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
-public interface ProfileEntityRepository extends JpaRepository<ProfileEntity, UUID> {
+public interface ProfileEntityRepository extends JpaRepository<ProfileEntity, String> {
     Optional<ProfileEntity> findByProfileEmail(String profileEmail);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

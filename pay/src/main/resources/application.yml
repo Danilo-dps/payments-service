@@ -17,7 +17,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -52,12 +52,12 @@ management:
       show-details: always
 
 app:
-  jwtSecret: ${JWT_SECRET:secretKey}
+  jwtSecret: ${JWT_SECRET}
   jwtExpirationMs: 86400000
 
-logging:
-  level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    com.danilodps.pay: DEBUG
-    org.springframework.security: DEBUG
+#logging:
+#  level:
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+#    com.danilodps.pay: DEBUG
+#    org.springframework.security: DEBUG

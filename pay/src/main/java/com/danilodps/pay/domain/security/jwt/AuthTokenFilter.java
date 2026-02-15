@@ -1,6 +1,5 @@
 package com.danilodps.pay.domain.security.jwt;
 
-import com.danilodps.pay.domain.security.context.ClientContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,14 +27,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
   private final JwtTokenGenerator jwtTokenGenerator;
   private final UserDetailsService userDetailsService;
-  private final ClientContext clientContext;
-
-    private static final List<String> EXCLUDED_PATHS = Arrays.asList(
-            "/auth/signup",
-            "/auth/login",
-            "/auth/refresh-token",
-            "/actuator/**"
-    );
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -45,7 +36,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
       if (jwt != null && jwtTokenGenerator.validateJwtToken(jwt)) {
         String username = jwtTokenGenerator.getUserNameFromJwtToken(jwt);
 
-        clientContext.setCurrentUser(username, jwt);
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         UsernamePasswordAuthenticationToken authentication =
@@ -63,13 +53,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     }
 
     filterChain.doFilter(request, response);
-  }
-
-  @Override
-  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-    String path = request.getRequestURI();
-    AntPathMatcher pathMatcher = new AntPathMatcher();
-    return EXCLUDED_PATHS.stream().anyMatch(p -> pathMatcher.match(p, path));
   }
 
   private String parseJwt(HttpServletRequest request) {

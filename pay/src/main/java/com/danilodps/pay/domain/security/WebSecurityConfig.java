@@ -1,6 +1,5 @@
 package com.danilodps.pay.domain.security;
 
-import com.danilodps.pay.domain.security.context.ClientContext;
 import com.danilodps.pay.domain.security.jwt.AuthEntryPointJwt;
 import com.danilodps.pay.domain.security.jwt.AuthTokenFilter;
 import com.danilodps.pay.domain.security.jwt.JwtTokenGenerator;
@@ -28,11 +27,10 @@ public class WebSecurityConfig {
 	private final CustomUserDetailsServiceImpl customUserDetailsService;
 	private final AuthEntryPointJwt unauthorizedHandler;
 	private final JwtTokenGenerator jwtTokenGenerator;
-    private final ClientContext clientContext;
 
 	@Bean
 	public AuthTokenFilter authenticationJwtTokenFilter() {
-		return new AuthTokenFilter(jwtTokenGenerator, customUserDetailsService, clientContext);
+		return new AuthTokenFilter(jwtTokenGenerator, customUserDetailsService);
 	}
 
 	@Bean
@@ -54,9 +52,8 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+        http.csrf(AbstractHttpConfigurer::disable)
+				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -68,8 +65,7 @@ public class WebSecurityConfig {
                                 "/actuator/info"
                         ).permitAll()
                         .anyRequest().authenticated()
-                )
-                .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class); // ← Use BEFORE
+                ).addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http.authenticationProvider(authenticationProvider());
         return http.build();
