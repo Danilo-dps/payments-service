@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
 import java.util.Collection;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class CustomUserDetails implements UserDetails {
@@ -18,7 +17,7 @@ public class CustomUserDetails implements UserDetails {
     private static final long serialVersionUID = 1L;
 
     @Getter
-    private final UUID id;
+    private final String id;
     private final String username;
     @Getter
     private final String email;

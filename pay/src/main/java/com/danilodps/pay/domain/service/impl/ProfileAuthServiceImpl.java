@@ -23,7 +23,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 // TODO fazer o UserValidator userValidator;
@@ -47,10 +49,11 @@ public class ProfileAuthServiceImpl implements ProfileAuthService {
         log.info("Registrando novo usuário {}", signUpRequest.username());
 
         ProfileEntity profileEntity = new ProfileEntity();
+        profileEntity.setProfileId(UUID.randomUUID().toString());
         profileEntity.setUsername(signUpRequest.username());
         profileEntity.setDocumentIdentifier(signUpRequest.documentIdentifier());
         profileEntity.setDocument(signUpRequest.document());
-        profileEntity.setRoles(RoleEnum2RoleEntity.convertList(signUpRequest.roleEnum()));
+        profileEntity.setRoles(Collections.singletonList(RoleEnum2RoleEntity.convert(signUpRequest.documentIdentifier())));
         profileEntity.setProfileEmail(signUpRequest.email());
         profileEntity.setPassword(passwordEncoder.encode(signUpRequest.password()));
 

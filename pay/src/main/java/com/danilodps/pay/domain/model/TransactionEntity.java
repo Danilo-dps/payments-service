@@ -7,7 +7,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -22,9 +21,8 @@ public class TransactionEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "TRANSACTION_ID", columnDefinition = "UUID", updatable = false, nullable = false)
-    private UUID transactionId;
+    @Column(name = "TRANSACTION_ID", updatable = false, nullable = false)
+    private String transactionId;
 
     @Column(name = "AMOUNT", nullable = false)
     private BigDecimal amount;

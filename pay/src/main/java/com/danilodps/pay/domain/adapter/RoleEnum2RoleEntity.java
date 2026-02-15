@@ -24,4 +24,13 @@ public class RoleEnum2RoleEntity {
                 .collect(Collectors.toList());
     }
 
+    public static RoleEntity convert(String documentType){
+        RoleEnum roleEnum = RoleEnum.getByShortName(documentType);
+        return RoleEntity.builder()
+                .roleId(roleEnum.getId())
+                .shortName(roleEnum.getShortName())
+                .description(roleEnum.getDescription())
+                .build();
+    }
+
 }

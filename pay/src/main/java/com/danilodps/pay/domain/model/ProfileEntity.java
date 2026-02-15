@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -31,9 +30,8 @@ public class ProfileEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "PROFILE_ID", columnDefinition = "UUID", updatable = false, nullable = false)
-    private UUID profileId;
+    @Column(name = "PROFILE_ID", updatable = false, nullable = false)
+    private String profileId;
 
     @Column(name = "USERNAME", nullable = false, length = 100)
     private String username;

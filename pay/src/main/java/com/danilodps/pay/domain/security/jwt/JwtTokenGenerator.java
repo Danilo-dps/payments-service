@@ -63,16 +63,21 @@ public class JwtTokenGenerator {
 
   public boolean validateJwtToken(String authToken) {
     try {
-      Jwts.parser().verifyWith((SecretKey) getSigningKey()).build().parse(authToken);
+      Jwts.parser()
+              .verifyWith((SecretKey) getSigningKey())
+              .build()
+              .parseSignedClaims(authToken);
       return true;
+    } catch (io.jsonwebtoken.security.SignatureException e) {
+      log.error("Assinatura JWT inválida: {}", e.getMessage());
     } catch (MalformedJwtException e) {
-      log.error("Invalid JWT token: {}", e.getMessage());
+      log.error("Token JWT malformado: {}", e.getMessage());
     } catch (ExpiredJwtException e) {
-      log.error("JWT token is expired: {}", e.getMessage());
+      log.error("Token JWT expirado: {}", e.getMessage());
     } catch (UnsupportedJwtException e) {
-      log.error("JWT token is unsupported: {}", e.getMessage());
+      log.error("Token JWT não suportado: {}", e.getMessage());
     } catch (IllegalArgumentException e) {
-      log.error("JWT claims string is empty: {}", e.getMessage());
+      log.error("JWT claims vazias: {}", e.getMessage());
     }
     return false;
   }

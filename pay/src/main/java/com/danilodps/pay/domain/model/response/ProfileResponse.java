@@ -4,11 +4,10 @@ import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Builder
 public record ProfileResponse(
-        UUID profileId,
+        String profileId,
         String username,
         String email,
         BigDecimal balance,
