@@ -9,36 +9,37 @@ spring:
     dispatch-options-request: true
 
   datasource:
-    url: jdbc:h2:mem:paymentdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: ""
+    url: jdbc:mysql://localhost:${MYSQL_PORT}/${MYSQL_DATABASE}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    hikari:
+      minimum-pool-size: 10
+      maximum-pool-size: 10
+      connection-timeout: 20000
+      idle-timeout: 3000
+    username: ${MYSQL_USER}
+    password: ${MYSQL_ROOT_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
+#        dialect: org.hibernate.dialect.MySQLDialect
       cache:
         use_second_level_cache: false
+      jdbc:
+        fetch_size: 100
 
   sql:
     init:
       mode: always
-      platform: h2
-    h2:
-      console:
-        enabled: true
-        path: /h2-console
-        settings:
-          trace: false
-          web-allow-others: false
+      platform: mysql
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap:
+      servers: localhost:${KAFKA_PORT}
     properties:
       spring.json.trusted.packages: "*"
 
@@ -61,3 +62,5 @@ app:
 #    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 #    com.danilodps.pay: DEBUG
 #    org.springframework.security: DEBUG
+#    com.zaxxer.hikari: DEBUG
+#    com.zaxxer.hikari.HikariConfig: DEBUG
