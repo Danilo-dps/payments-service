@@ -13,11 +13,12 @@ import static java.util.Arrays.stream;
 @RequiredArgsConstructor
 public enum RoleEnum {
 
-    USER(1L, "CPF", "Pessoa física"),
-    STORE(2L, "CNPJ", "Pessoa jurídica");
+    USER(1L, "CPF","USER", "Pessoa física"),
+    STORE(2L, "CNPJ", "COMPANY","Pessoa jurídica");
 
     private final Long id;
-    private final String shortName;
+    private final String docIdentifier;
+    private final String roleGrantedAuthority;
     private final String description;
 
     public static RoleEnum getByShortName(String documentType){

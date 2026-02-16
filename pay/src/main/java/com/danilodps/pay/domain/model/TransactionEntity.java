@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "TB_TRANSACTIONS")
+@Table(name = "TB_TRANSACTION")
 public class TransactionEntity implements Serializable {
 
     @Serial
@@ -35,7 +35,7 @@ public class TransactionEntity implements Serializable {
     private ProfileEntity profileSender;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "RECEIVER_PROFILE_ID")
+    @JoinColumn(name = "RECEIVER_PROFILE_ID", nullable = false)
     private ProfileEntity profileReceiver;
 
 }

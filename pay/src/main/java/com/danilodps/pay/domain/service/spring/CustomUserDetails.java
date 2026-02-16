@@ -31,7 +31,7 @@ public class CustomUserDetails implements UserDetails {
         this.email = profileEntity.getProfileEmail();
         this.password = profileEntity.getPassword();
         this.authorities = profileEntity.getRoles().stream()
-                .map(roleEntity -> new SimpleGrantedAuthority(roleEntity.getShortName()))
+                .map(roleEntity -> new SimpleGrantedAuthority(roleEntity.getRoleGrantedAuthority()))
                 .collect(Collectors.toList());
     }
 
