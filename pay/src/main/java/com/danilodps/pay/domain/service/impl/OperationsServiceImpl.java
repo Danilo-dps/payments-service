@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+//TODO: garantir que usuário A não acesse os dados do usuário B
 @Slf4j
 @Service
 @RequiredArgsConstructor

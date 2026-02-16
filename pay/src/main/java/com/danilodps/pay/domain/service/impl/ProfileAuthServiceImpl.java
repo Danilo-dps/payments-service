@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-// TODO fazer o UserValidator userValidator;
+//TODO: garantir que usuário A não acesse os dados do usuário B
 @Slf4j
 @Service
 @RequiredArgsConstructor
