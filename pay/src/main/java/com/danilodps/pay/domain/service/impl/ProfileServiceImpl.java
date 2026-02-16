@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-
+//TODO: garantir que usuário A não acesse os dados do usuário B
 @Slf4j
 @Service
 @RequiredArgsConstructor
