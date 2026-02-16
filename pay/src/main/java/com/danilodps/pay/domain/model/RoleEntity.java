@@ -25,8 +25,11 @@ public class RoleEntity implements Serializable {
     @Column(name = "ROLE_ID")
     private Long roleId;
 
+    @Column(name = "ROLE_DOC", length = 10)
+    private String docIdentifier;
+
     @Column(name = "ROLE_NAME", length = 10)
-    private String shortName;
+    private String roleGrantedAuthority;
 
     @Column(name = "ROLE_DESCRIPTION", length = 25)
     private String description;

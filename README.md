@@ -3,11 +3,11 @@
 
 # Payment Notification Service
 
-Este é um serviço de backend para um sistema de pagamentos simplificado, construído com **Java 21** e **Spring Boot**. Ele gerencia usuários e lojistas, processa transações (depósitos e transferências) e utiliza **Apache Kafka** para notificações assíncronas de eventos. O serviço também é configurado para enviar notificações por e-mail usando o **Google Mail (SMTP)** com um token de acesso (App Password).
+Este é um serviço de backend para um sistema de pagamentos simplificado, construído com **Java 25** e **Spring Boot**. Ele gerencia usuários e lojistas, processa transações (depósitos e transferências) e utiliza **Apache Kafka** para notificações assíncronas de eventos. O serviço também é configurado para enviar notificações por e-mail usando o **Google Mail (SMTP)** com um token de acesso (App Password).
 
 ## ✨ Funcionalidades Principais
 
-* **Autenticação e Autorização:** Cadastro e login para Usuários (`USER`) e Lojistas (`STORE`).
+* **Autenticação e Autorização:** Cadastro e login para Usuários (`USER`) e Lojistas (`COMPANY`).
 * **Operações Financeiras:** Endpoints para depósito e transferência de valores.
 * **Gerenciamento de Entidades:** Operações CRUD para Usuários e Lojistas.
 * **Mensageria Assíncrona:** Utiliza **Apache Kafka** para notificar sobre transações.
@@ -18,8 +18,8 @@ Este é um serviço de backend para um sistema de pagamentos simplificado, const
 
 ## 🛠️ Stack Tecnológica
 
-* **Backend:** Java 21, Spring Boot 3.x, Spring Security, Spring Data JPA
-* **Database:** PostgreSQL (Via Docker)
+* **Backend:** Java 25, Spring Boot 4.0.2, Spring Security, Spring Data JPA
+* **Database:** MySQL 9.6.0 (Via Docker)
 * **Mensageria:** Apache Kafka (Via Docker)
 * **Testes:** JUnit 5
 * **Containerização:** Docker & Docker Compose
@@ -33,7 +33,7 @@ Siga estas instruções para configurar e executar o ambiente de desenvolvimento
 
 ### Pré-requisitos
 
-* [Java 21 (JDK)](https://askubuntu.com/questions/1492571/install-openjdk-21)
+* [Java 25 (JDK)](https://learn.microsoft.com/en-us/java/openjdk/download)
 * [Apache Maven](https://maven.apache.org/download.cgi)
 * [Docker](https://www.docker.com/products/docker-desktop/)
 * [Docker Compose](https://docs.docker.com/compose/install/)
@@ -48,14 +48,13 @@ git clone https://github.com/Danilo-dps/payments-service.git
 cd pay
 ```
 
-Crie um arquivo `.env` na raiz do projeto, baseado no `docker-compose.yml`. Você também precisará adicionar as variáveis para o serviço de e-mail do Spring.
+Crie um arquivo `.env` na raiz do projeto, baseado no `docker-compose.yml`. Você também precisará adicionar as variáveis para o serviço de e-mail do Spring. Se for pelo **Intellij community** é necessário adicionar as variaveis de ambiente via aba **run** 
 
 **Arquivo `.env` (Exemplo):**
 
 ```yaml
 # Variáveis do Docker Compose
 DB_PASSWORD : sua_senha_segura_postgres
-PGADMIN_PASSWORD : sua_senha_segura_pgadmin
 EMAIL_USER : seu-email@gmail.com
 
 # Variáveis do Spring Boot (para application.yml)
@@ -111,9 +110,7 @@ Ou simplesmente execute a classe principal `Application` a partir da sua IDE (In
 ### 4\. Acessando os Serviços
 
 * **API:** `http://localhost:8080` (ou a porta definida no seu `application.yaml`)
-* **Kafka UI:** `http://localhost:8081` (ou altere para outra disponível)
 * **PostgresSQL:** `localhost:5433` (ou altere para outra disponível)
-* **pgAdmin 4:** `http://localhost:5051` (Login com `EMAIL_USER` e `PGADMIN_PASSWORD`)
 
 -----
 

@@ -15,7 +15,6 @@ import com.danilodps.pay.domain.model.response.operations.DepositResponse;
 import com.danilodps.pay.domain.model.response.operations.TransactionResponse;
 import com.danilodps.pay.domain.service.OperationsService;
 
-//TODO: melhorar esse @PreAuthorize("hasAuthority('CPF')"), alinhar com a tabela de RoleEntity e o RoleEnum
 @RestController
 @RequestMapping("/operations")
 @RequiredArgsConstructor
@@ -24,14 +23,14 @@ public class OperationsController {
     private final OperationsService operationsService;
 
     @PostMapping("/deposit")
-    @PreAuthorize("hasAuthority('CPF')")
+    @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<DepositResponse> deposit(@RequestBody @Valid DepositRequest requestDeposit) {
         DepositResponse depositHistoryCreated = operationsService.deposit(requestDeposit);
         return ResponseEntity.status(HttpStatus.CREATED).body(depositHistoryCreated);
     }
 
     @PostMapping("/transfer")
-    @PreAuthorize("hasAuthority('CPF')")
+    @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<TransactionResponse> transfer(@RequestBody TransactionRequest transactionRequest){
         TransactionResponse transferHistoryCreated = operationsService.transfer(transactionRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(transferHistoryCreated);

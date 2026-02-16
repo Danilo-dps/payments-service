@@ -13,7 +13,7 @@ public class RoleEnum2RoleEntity {
     public static RoleEntity convert(RoleEnum roleEnum){
         return RoleEntity.builder()
                 .roleId(roleEnum.getId())
-                .shortName(roleEnum.getShortName())
+                .roleGrantedAuthority(roleEnum.getRoleGrantedAuthority())
                 .description(roleEnum.getDescription())
                 .build();
     }
@@ -28,7 +28,8 @@ public class RoleEnum2RoleEntity {
         RoleEnum roleEnum = RoleEnum.getByShortName(documentType);
         return RoleEntity.builder()
                 .roleId(roleEnum.getId())
-                .shortName(roleEnum.getShortName())
+                .docIdentifier(documentType)
+                .roleGrantedAuthority(roleEnum.getRoleGrantedAuthority())
                 .description(roleEnum.getDescription())
                 .build();
     }

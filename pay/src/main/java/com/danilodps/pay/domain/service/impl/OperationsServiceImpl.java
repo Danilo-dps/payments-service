@@ -19,10 +19,13 @@ import com.danilodps.pay.domain.service.OperationsService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -41,6 +44,12 @@ public class OperationsServiceImpl implements OperationsService {
         log.info("Inicializando processo de depósito");
         if (requestDeposit.amount() == null || requestDeposit.amount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidValueException();
+        }
+
+        String currentUserEmail = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+
+        if (!requestDeposit.email().equals(currentUserEmail)) {
+            throw new AccessDeniedException("Você não tem permissão para acessar este recurso");
         }
 
         ProfileEntity profileEntity = profileEntityRepository.findByProfileEmail(requestDeposit.email())
@@ -66,6 +75,12 @@ public class OperationsServiceImpl implements OperationsService {
     public TransactionResponse transfer(TransactionRequest transactionRequest) {
         if (transactionRequest.amount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidValueException();
+        }
+
+        String currentUserEmail = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+
+        if (!transactionRequest.senderEmail().equals(currentUserEmail)) {
+            throw new AccessDeniedException("Você não tem permissão para acessar este recurso");
         }
 
         ProfileEntity profileSender = profileEntityRepository.findAndLockByProfileEmail(transactionRequest.senderEmail())
