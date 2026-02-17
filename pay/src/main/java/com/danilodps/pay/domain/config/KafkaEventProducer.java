@@ -1,7 +1,5 @@
 //package com.danilodps.pay.domain.config;
 //
-//import com.danilodps.pay.domain.model.response.operations.DepositResponse;
-//import com.danilodps.pay.domain.model.response.operations.TransactionResponse;
 //import lombok.extern.slf4j.Slf4j;
 //import org.springframework.kafka.core.KafkaTemplate;
 //import org.springframework.stereotype.Service;

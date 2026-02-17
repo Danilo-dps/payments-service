@@ -1,8 +1,7 @@
 package com.danilodps.pay.domain.service.impl;
 
-import com.danilodps.pay.application.exceptions.InsufficientBalanceException;
-import com.danilodps.pay.application.exceptions.InvalidValueException;
-import com.danilodps.pay.application.exceptions.NotFoundException;
+import com.danilodps.domain.model.response.DepositResponse;
+import com.danilodps.domain.model.response.TransactionResponse;
 import com.danilodps.pay.domain.adapter.DepositEntity2DepositResponse;
 import com.danilodps.pay.domain.adapter.TransactionEntity2TransactionResponse;
 import com.danilodps.pay.domain.model.DepositEntity;
@@ -10,8 +9,6 @@ import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.TransactionEntity;
 import com.danilodps.pay.domain.model.request.create.operations.DepositRequest;
 import com.danilodps.pay.domain.model.request.create.operations.TransactionRequest;
-import com.danilodps.pay.domain.model.response.operations.DepositResponse;
-import com.danilodps.pay.domain.model.response.operations.TransactionResponse;
 import com.danilodps.pay.domain.repository.DepositEntityRepository;
 import com.danilodps.pay.domain.repository.ProfileEntityRepository;
 import com.danilodps.pay.domain.repository.TransactionEntityRepository;
