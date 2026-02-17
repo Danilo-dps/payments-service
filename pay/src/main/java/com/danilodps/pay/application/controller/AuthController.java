@@ -1,9 +1,9 @@
 package com.danilodps.pay.application.controller;
 
+import com.danilodps.domain.model.response.SignUpResponse;
 import com.danilodps.pay.domain.model.request.create.SignInRequest;
 import com.danilodps.pay.domain.model.request.create.SignUpRequest;
 import com.danilodps.pay.domain.model.response.JwtResponse;
-import com.danilodps.pay.domain.model.response.SignUpResponse;
 import com.danilodps.pay.domain.service.ProfileAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

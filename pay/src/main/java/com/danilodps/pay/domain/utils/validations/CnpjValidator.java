@@ -1,7 +1,7 @@
 package com.danilodps.pay.domain.utils.validations;
 
-import com.danilodps.pay.application.exceptions.InvalidCNPJException;
-import com.danilodps.pay.application.exceptions.StoreCNPJEmptyException;
+import com.danilodps.application.exceptions.InvalidCNPJException;
+import com.danilodps.application.exceptions.StoreCNPJEmptyException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

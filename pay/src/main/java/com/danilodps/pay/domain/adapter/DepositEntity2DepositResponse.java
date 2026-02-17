@@ -1,7 +1,7 @@
 package com.danilodps.pay.domain.adapter;
 
+import com.danilodps.domain.model.response.DepositResponse;
 import com.danilodps.pay.domain.model.DepositEntity;
-import com.danilodps.pay.domain.model.response.operations.DepositResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +14,7 @@ public class DepositEntity2DepositResponse {
         return DepositResponse.builder()
                 .depositId(deposit.getDepositId())
                 .username(deposit.getProfileEntity().getUsername())
-                .email(deposit.getProfileEntity().getProfileEmail())
+                .userEmail(deposit.getProfileEntity().getProfileEmail())
                 .amount(deposit.getAmount())
                 .depositTimestamp(deposit.getDepositTimestamp())
                 .build();

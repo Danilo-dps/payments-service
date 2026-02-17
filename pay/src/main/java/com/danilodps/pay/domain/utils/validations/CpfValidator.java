@@ -1,7 +1,7 @@
 package com.danilodps.pay.domain.utils.validations;
 
-import com.danilodps.pay.application.exceptions.InvalidCPFException;
-import com.danilodps.pay.application.exceptions.UserCPFEmptyException;
+import com.danilodps.application.exceptions.InvalidCPFException;
+import com.danilodps.application.exceptions.UserCPFEmptyException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 @Slf4j

@@ -1,11 +1,11 @@
 package com.danilodps.pay.domain.service.impl;
 
+import com.danilodps.domain.model.response.SignUpResponse;
 import com.danilodps.pay.domain.adapter.RoleEnum2RoleEntity;
 import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.request.create.SignInRequest;
 import com.danilodps.pay.domain.model.request.create.SignUpRequest;
 import com.danilodps.pay.domain.model.response.JwtResponse;
-import com.danilodps.pay.domain.model.response.SignUpResponse;
 import com.danilodps.pay.domain.repository.ProfileEntityRepository;
 import com.danilodps.pay.domain.security.jwt.JwtTokenGenerator;
 import com.danilodps.pay.domain.service.ProfileAuthService;
@@ -62,7 +62,7 @@ public class ProfileAuthServiceImpl implements ProfileAuthService {
                 .id(profileEntity.getProfileId())
                 .username(profileEntity.getUsername())
                 .email(profileEntity.getProfileEmail())
-                .timestamp(LocalDateTime.now()).build();
+                .signupTimestamp(LocalDateTime.now()).build();
     }
 
     @Override

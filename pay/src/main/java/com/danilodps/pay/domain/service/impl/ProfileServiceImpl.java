@@ -1,12 +1,12 @@
 package com.danilodps.pay.domain.service.impl;
 
-import com.danilodps.pay.application.exceptions.DuplicateEmailException;
-import com.danilodps.pay.application.exceptions.NotFoundException;
+import com.danilodps.application.exceptions.DuplicateEmailException;
+import com.danilodps.application.exceptions.NotFoundException;
+import com.danilodps.domain.model.response.DepositResponse;
 import com.danilodps.pay.domain.adapter.ProfileEntity2ProfileResponse;
 import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.request.update.ProfileRequestUpdate;
 import com.danilodps.pay.domain.model.response.ProfileResponse;
-import com.danilodps.pay.domain.model.response.operations.DepositResponse;
 import com.danilodps.pay.domain.repository.ProfileEntityRepository;
 import com.danilodps.pay.domain.security.jwt.JwtTokenGenerator;
 import com.danilodps.pay.domain.service.ProfileService;

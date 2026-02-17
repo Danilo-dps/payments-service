@@ -1,5 +1,7 @@
 package com.danilodps.pay.application.controller;
 
+import com.danilodps.domain.model.response.DepositResponse;
+import com.danilodps.domain.model.response.TransactionResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.danilodps.pay.domain.model.request.create.operations.DepositRequest;
 import com.danilodps.pay.domain.model.request.create.operations.TransactionRequest;
-import com.danilodps.pay.domain.model.response.operations.DepositResponse;
-import com.danilodps.pay.domain.model.response.operations.TransactionResponse;
 import com.danilodps.pay.domain.service.OperationsService;
 
 @RestController

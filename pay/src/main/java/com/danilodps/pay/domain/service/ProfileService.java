@@ -1,8 +1,8 @@
 package com.danilodps.pay.domain.service;
 
+import com.danilodps.domain.model.response.DepositResponse;
 import com.danilodps.pay.domain.model.request.update.ProfileRequestUpdate;
 import com.danilodps.pay.domain.model.response.ProfileResponse;
-import com.danilodps.pay.domain.model.response.operations.DepositResponse;
 
 import java.util.List;
 
