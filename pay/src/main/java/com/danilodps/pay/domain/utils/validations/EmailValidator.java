@@ -1,7 +1,7 @@
 package com.danilodps.pay.domain.utils.validations;
 
-import com.danilodps.application.exceptions.EmailEmptyException;
-import com.danilodps.application.exceptions.InvalidEmailException;
+import com.danilodps.commons.application.exceptions.EmailEmptyException;
+import com.danilodps.commons.application.exceptions.InvalidEmailException;
 import org.springframework.stereotype.Component;
 
 import java.util.logging.Logger;

@@ -159,7 +159,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.danilodps</groupId>
+			<groupId>com.danilodps.commons</groupId>
 			<artifactId>commons</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>

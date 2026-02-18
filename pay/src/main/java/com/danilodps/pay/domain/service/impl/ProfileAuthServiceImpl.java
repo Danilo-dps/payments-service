@@ -1,6 +1,6 @@
 package com.danilodps.pay.domain.service.impl;
 
-import com.danilodps.domain.model.response.SignUpResponse;
+import com.danilodps.commons.domain.model.response.SignUpResponse;
 import com.danilodps.pay.domain.adapter.RoleEnum2RoleEntity;
 import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.request.create.SignInRequest;

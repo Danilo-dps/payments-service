@@ -1,6 +1,6 @@
 package com.danilodps.pay.domain.adapter;
 
-import com.danilodps.domain.model.response.DepositResponse;
+import com.danilodps.commons.domain.model.response.DepositResponse;
 import com.danilodps.pay.domain.model.DepositEntity;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.danilodps.pay.application.controller;
 
-import com.danilodps.domain.model.response.DepositResponse;
-import com.danilodps.domain.model.response.TransactionResponse;
+import com.danilodps.commons.domain.model.response.DepositResponse;
+import com.danilodps.commons.domain.model.response.TransactionResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
