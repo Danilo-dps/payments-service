@@ -1,7 +1,7 @@
 package com.danilodps.pay.application.exceptions;
 
-import com.danilodps.application.exceptions.*;
-import com.danilodps.domain.model.response.ErrorResponse;
+import com.danilodps.commons.application.exceptions.*;
+import com.danilodps.commons.domain.model.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

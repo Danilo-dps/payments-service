@@ -1,6 +1,6 @@
 package com.danilodps.pay.domain.adapter;
 
-import com.danilodps.domain.model.response.TransactionResponse;
+import com.danilodps.commons.domain.model.response.TransactionResponse;
 import com.danilodps.pay.domain.model.TransactionEntity;
 
 public class TransactionEntity2TransactionResponse {
