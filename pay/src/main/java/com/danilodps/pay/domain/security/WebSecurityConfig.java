@@ -3,7 +3,7 @@ package com.danilodps.pay.domain.security;
 import com.danilodps.pay.domain.security.jwt.AuthEntryPointJwt;
 import com.danilodps.pay.domain.security.jwt.AuthTokenFilter;
 import com.danilodps.pay.domain.security.jwt.JwtTokenGenerator;
-import com.danilodps.pay.domain.service.spring.CustomUserDetailsServiceImpl;
+import com.danilodps.pay.domain.service.spring.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
-	private final CustomUserDetailsServiceImpl customUserDetailsService;
+	private final UserDetailsServiceImpl customUserDetailsService;
 	private final AuthEntryPointJwt unauthorizedHandler;
 	private final JwtTokenGenerator jwtTokenGenerator;
 

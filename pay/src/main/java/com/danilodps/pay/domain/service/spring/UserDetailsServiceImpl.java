@@ -11,24 +11,22 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class CustomUserDetailsServiceImpl implements UserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService {
 
   private final ProfileEntityRepository profileEntityRepository;
 
   @Override
   @NullMarked
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-      Optional<ProfileEntity> profileEntity = Optional.of(profileEntityRepository.findByUsername(username)
-              .orElseThrow(() -> new RuntimeException("Perfil não encontrado: " + username)));
+  public UserDetails loadUserByUsername(String profileEmail) throws UsernameNotFoundException {
+      ProfileEntity profileEntity = profileEntityRepository.findByProfileEmail(profileEmail)
+              .orElseThrow(() -> new RuntimeException("Perfil não encontrado: " + profileEmail));
 
-      log.info("Usuário encontrado: {}", profileEntity.get().getUsername());
-      return new CustomUserDetails(profileEntity.get());
+      log.info("Usuário encontrado: {}", profileEntity.getProfileEmail());
+      return new UserDetailsImpl(profileEntity);
   }
 
 }

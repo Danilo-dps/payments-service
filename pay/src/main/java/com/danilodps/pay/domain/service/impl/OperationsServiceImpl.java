@@ -28,7 +28,6 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
-//TODO: garantir que usuário A não acesse os dados do usuário B
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -47,14 +46,8 @@ public class OperationsServiceImpl implements OperationsService {
             throw new InvalidValueException();
         }
 
-        String currentUserEmail = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
-
-        if (!requestDeposit.email().equals(currentUserEmail)) {
-            throw new AccessDeniedException("Você não tem permissão para acessar este recurso");
-        }
-
-        ProfileEntity profileEntity = profileEntityRepository.findByProfileEmail(requestDeposit.email())
-                .orElseThrow(() -> new NotFoundException(requestDeposit.email()));
+        ProfileEntity profileEntity = profileEntityRepository.findByProfileEmail(requestDeposit.userEmail())
+                .orElseThrow(() -> new NotFoundException(requestDeposit.userEmail()));
 
         DepositEntity deposit = DepositEntity.builder()
                 .depositId(UUID.randomUUID().toString())

@@ -23,14 +23,14 @@ public class OperationsController {
     private final OperationsService operationsService;
 
     @PostMapping("/deposit")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("#userEmail == authentication.principal.userEmail && hasAnyAuthority('USER')")
     public ResponseEntity<DepositResponse> deposit(@RequestBody @Valid DepositRequest requestDeposit) {
         DepositResponse depositHistoryCreated = operationsService.deposit(requestDeposit);
         return ResponseEntity.status(HttpStatus.CREATED).body(depositHistoryCreated);
     }
 
     @PostMapping("/transfer")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("#userEmail == authentication.principal.userEmail && hasAnyAuthority('USER')")
     public ResponseEntity<TransactionResponse> transfer(@RequestBody TransactionRequest transactionRequest){
         TransactionResponse transferHistoryCreated = operationsService.transfer(transactionRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(transferHistoryCreated);

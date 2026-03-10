@@ -11,43 +11,27 @@ import java.io.Serial;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-public class CustomUserDetails implements UserDetails {
+@Getter
+public class UserDetailsImpl implements UserDetails {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Getter
     private final String id;
     private final String username;
-    @Getter
-    private final String email;
+    private final String profileEmail;
     @JsonIgnore
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails(ProfileEntity profileEntity) {
+    public UserDetailsImpl(ProfileEntity profileEntity) {
         this.id = profileEntity.getProfileId();
         this.username = profileEntity.getUsername();
-        this.email = profileEntity.getProfileEmail();
+        this.profileEmail = profileEntity.getProfileEmail();
         this.password = profileEntity.getPassword();
         this.authorities = profileEntity.getRoles().stream()
                 .map(roleEntity -> new SimpleGrantedAuthority(roleEntity.getRoleGrantedAuthority()))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.authorities;
-    }
-
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.username;
     }
 
 }
