@@ -1,6 +1,6 @@
 package com.danilodps.pay.domain.security.jwt;
 
-import com.danilodps.pay.domain.service.spring.CustomUserDetails;
+import com.danilodps.pay.domain.service.spring.UserDetailsImpl;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -30,16 +30,16 @@ public class JwtTokenGenerator {
 
     public String generateJwtToken(Authentication authentication) {
 
-        CustomUserDetails userPrincipal = (CustomUserDetails) authentication.getPrincipal();
+        UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 
         List<String> roles = userPrincipal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
         return Jwts.builder()
-                .subject(userPrincipal.getUsername())
+                .subject(userPrincipal.getProfileEmail())
                 .claim("id", userPrincipal.getId())
-                .claim("email", userPrincipal.getEmail())
+                .claim("userEmail", userPrincipal.getProfileEmail())
                 .claim("roles", roles)
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + jwtExpirationMs))

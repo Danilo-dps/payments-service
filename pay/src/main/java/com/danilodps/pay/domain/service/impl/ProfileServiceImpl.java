@@ -3,6 +3,7 @@ package com.danilodps.pay.domain.service.impl;
 import com.danilodps.commons.application.exceptions.DuplicateEmailException;
 import com.danilodps.commons.application.exceptions.NotFoundException;
 import com.danilodps.commons.domain.model.response.DepositResponse;
+import com.danilodps.commons.domain.validation.EmailValidator;
 import com.danilodps.pay.domain.adapter.ProfileEntity2ProfileResponse;
 import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.request.update.ProfileRequestUpdate;
@@ -10,7 +11,6 @@ import com.danilodps.pay.domain.model.response.ProfileResponse;
 import com.danilodps.pay.domain.repository.ProfileEntityRepository;
 import com.danilodps.pay.domain.security.jwt.JwtTokenGenerator;
 import com.danilodps.pay.domain.service.ProfileService;
-import com.danilodps.pay.domain.utils.validations.EmailValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +51,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Transactional
     public ProfileResponse getByEmail(String profileEmail) {
         Objects.requireNonNull(profileEmail, "Email não pode ser null");
-        log.info("Procurando usuário para o email {}", profileEmail);
+        log.info("Procurando usuário para o userEmail {}", profileEmail);
         return profileEntityRepository.findByProfileEmail(profileEmail)
                 .map(ProfileEntity2ProfileResponse::convert)
                 .orElseThrow(() -> {

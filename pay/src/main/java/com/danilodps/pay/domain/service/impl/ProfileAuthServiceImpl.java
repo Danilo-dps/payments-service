@@ -1,6 +1,7 @@
 package com.danilodps.pay.domain.service.impl;
 
 import com.danilodps.commons.domain.model.response.SignUpResponse;
+import com.danilodps.commons.domain.validation.ValidatorComponent;
 import com.danilodps.pay.domain.adapter.RoleEnum2RoleEntity;
 import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.request.create.SignInRequest;
@@ -9,8 +10,7 @@ import com.danilodps.pay.domain.model.response.JwtResponse;
 import com.danilodps.pay.domain.repository.ProfileEntityRepository;
 import com.danilodps.pay.domain.security.jwt.JwtTokenGenerator;
 import com.danilodps.pay.domain.service.ProfileAuthService;
-import com.danilodps.pay.domain.service.spring.CustomUserDetails;
-import com.danilodps.pay.domain.utils.validator.ProfileValidator;
+import com.danilodps.pay.domain.service.spring.UserDetailsImpl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-//TODO: garantir que usuário A não acesse os dados do usuário B
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -38,14 +37,14 @@ public class ProfileAuthServiceImpl implements ProfileAuthService {
     private final AuthenticationManager authenticationManager;
 //    private final KafkaEventProducer kafkaEventProducer;
     private final JwtTokenGenerator jwtTokenGenerator;
-    private final ProfileValidator profileValidator;
+    private final ValidatorComponent profileValidator;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
     public SignUpResponse register(SignUpRequest signUpRequest) {
 
-        profileValidator.validate(signUpRequest.email(), signUpRequest.documentIdentifier(), signUpRequest.document());
+        profileValidator.validate(signUpRequest.userEmail(), signUpRequest.documentIdentifier(), signUpRequest.document());
         log.info("Registrando novo usuário {}", signUpRequest.username());
 
         ProfileEntity profileEntity = new ProfileEntity();
@@ -54,7 +53,7 @@ public class ProfileAuthServiceImpl implements ProfileAuthService {
         profileEntity.setDocumentIdentifier(signUpRequest.documentIdentifier());
         profileEntity.setDocument(signUpRequest.document());
         profileEntity.setRoles(Collections.singletonList(RoleEnum2RoleEntity.convert(signUpRequest.documentIdentifier())));
-        profileEntity.setProfileEmail(signUpRequest.email());
+        profileEntity.setProfileEmail(signUpRequest.userEmail());
         profileEntity.setPassword(passwordEncoder.encode(signUpRequest.password()));
 
         profileEntityRepository.saveAndFlush(profileEntity);
@@ -68,12 +67,12 @@ public class ProfileAuthServiceImpl implements ProfileAuthService {
     @Override
     public JwtResponse authenticate(SignInRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
+                new UsernamePasswordAuthenticationToken(loginRequest.userEmail(), loginRequest.password()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtTokenGenerator.generateJwtToken(authentication);
 
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         assert userDetails != null;
         List<String> roles = userDetails.getAuthorities().stream()
@@ -83,7 +82,7 @@ public class ProfileAuthServiceImpl implements ProfileAuthService {
         return new JwtResponse(jwt,
                 userDetails.getId(),
                 userDetails.getUsername(),
-                userDetails.getEmail(),
+                userDetails.getProfileEmail(),
                 roles);
     }
 

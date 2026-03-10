@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Builder
 public record SignUpRequest(
         String username,
-        String email,
+        String userEmail,
         String password,
         String documentIdentifier,
         String document,

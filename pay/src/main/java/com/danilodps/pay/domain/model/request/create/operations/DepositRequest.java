@@ -5,4 +5,4 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Builder
-public record DepositRequest(BigDecimal amount, String email) {}
+public record DepositRequest(BigDecimal amount, String userEmail) {}

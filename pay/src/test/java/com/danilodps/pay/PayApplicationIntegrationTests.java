@@ -36,7 +36,7 @@ class PayApplicationIntegrationTests {
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
+        registry.add("spring.datasource.userEmail", postgreSQLContainer::getUsername);
         registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
 
         registry.add("spring.kafka.bootstrap-servers", kafkaContainer::getBootstrapServers);
