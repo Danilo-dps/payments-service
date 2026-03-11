@@ -80,7 +80,7 @@ public class ProfileAuthServiceImpl implements ProfileAuthService {
                 .collect(Collectors.toList());
 
         return new JwtResponse(jwt,
-                userDetails.getId(),
+                userDetails.getProfileId(),
                 userDetails.getUsername(),
                 userDetails.getProfileEmail(),
                 roles);

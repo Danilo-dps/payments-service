@@ -17,7 +17,7 @@ public class UserDetailsImpl implements UserDetails {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final String id;
+    private final String profileId;
     private final String username;
     private final String profileEmail;
     @JsonIgnore
@@ -25,7 +25,7 @@ public class UserDetailsImpl implements UserDetails {
     private final Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl(ProfileEntity profileEntity) {
-        this.id = profileEntity.getProfileId();
+        this.profileId = profileEntity.getProfileId();
         this.username = profileEntity.getUsername();
         this.profileEmail = profileEntity.getProfileEmail();
         this.password = profileEntity.getPassword();

@@ -11,8 +11,10 @@ public class ProfileEntity2ProfileResponse {
         return ProfileResponse.builder()
                 .profileId(profileEntity.getProfileId())
                 .username(profileEntity.getUsername())
-                .email(profileEntity.getProfileEmail())
+                .profileEmail(profileEntity.getProfileEmail())
                 .balance(profileEntity.getBalance())
+                .createdAt(profileEntity.getCreatedAt())
+                .lastUpdated(profileEntity.getLastUpdated())
                 .build();
     }
 }

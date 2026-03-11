@@ -7,6 +7,7 @@ import lombok.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,4 +64,9 @@ public class ProfileEntity implements Serializable {
     @Builder.Default
     private List<RoleEntity> roles = new ArrayList<>();
 
+    @Column(name = "CREATED_AT")
+    private LocalDateTime createdAt;
+
+    @Column(name = "LAST_UPDATED")
+    private LocalDateTime lastUpdated;
 }

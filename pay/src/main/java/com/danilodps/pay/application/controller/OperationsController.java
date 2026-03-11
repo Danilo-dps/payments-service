@@ -16,22 +16,22 @@ import com.danilodps.pay.domain.model.request.create.operations.TransactionReque
 import com.danilodps.pay.domain.service.OperationsService;
 
 @RestController
-@RequestMapping("/operations")
 @RequiredArgsConstructor
+@RequestMapping("/operations")
 public class OperationsController {
 
     private final OperationsService operationsService;
 
     @PostMapping("/deposit")
-    @PreAuthorize("#userEmail == authentication.principal.userEmail && hasAnyAuthority('USER')")
-    public ResponseEntity<DepositResponse> deposit(@RequestBody @Valid DepositRequest requestDeposit) {
-        DepositResponse depositHistoryCreated = operationsService.deposit(requestDeposit);
+    @PreAuthorize("#depositRequest.userEmail == authentication.principal.profileEmail && hasAnyAuthority('USER')")
+    public ResponseEntity<DepositResponse> deposit(@RequestBody @Valid DepositRequest depositRequest) {
+        DepositResponse depositHistoryCreated = operationsService.deposit(depositRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(depositHistoryCreated);
     }
 
     @PostMapping("/transfer")
-    @PreAuthorize("#userEmail == authentication.principal.userEmail && hasAnyAuthority('USER')")
-    public ResponseEntity<TransactionResponse> transfer(@RequestBody TransactionRequest transactionRequest){
+    @PreAuthorize("#transactionRequest.senderEmail == authentication.principal.profileEmail && hasAnyAuthority('USER')")
+    public ResponseEntity<TransactionResponse> transfer(@RequestBody @Valid TransactionRequest transactionRequest){
         TransactionResponse transferHistoryCreated = operationsService.transfer(transactionRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(transferHistoryCreated);
     }

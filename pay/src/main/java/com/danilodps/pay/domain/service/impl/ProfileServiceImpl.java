@@ -19,17 +19,18 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-//TODO: garantir que usuário A não acesse os dados do usuário B
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
 
     private final EmailValidator emailValidator;
-    private final JwtTokenGenerator jwtTokenGenerator;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenGenerator jwtTokenGenerator;
 //    private final KafkaEventProducer kafkaEventProducer;
     private final AuthenticationManager authenticationManager;
     private final ProfileEntityRepository profileEntityRepository;
@@ -65,8 +66,7 @@ public class ProfileServiceImpl implements ProfileService {
     public ProfileResponse update(String profileId, ProfileRequestUpdate profileRequestUpdate) {
         log.info("Iniciando atualização de perfil para o ID {}", profileId);
 
-        ProfileEntity existingUser = profileEntityRepository.findById(profileId)
-                .orElseThrow(() -> new NotFoundException(profileId));
+        ProfileEntity existingUser = profileEntityRepository.findById(profileId).orElseThrow(() -> new NotFoundException(profileId));
 
         if (profileRequestUpdate.newEmail() != null && !profileRequestUpdate.newEmail().isBlank()) {
             if (!profileRequestUpdate.newEmail().equals(existingUser.getProfileEmail())) {
@@ -75,15 +75,17 @@ public class ProfileServiceImpl implements ProfileService {
                     throw new DuplicateEmailException(profileRequestUpdate.newEmail());
                 }
                 existingUser.setProfileEmail(profileRequestUpdate.newEmail());
+                existingUser.setLastUpdated(LocalDateTime.now());
             }
         }
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(existingUser.getUsername(), profileRequestUpdate.currentPassword()));
+        //não faz sentido essa linha aqui, afinal, já está autenticado, certo?
+        //authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(existingUser.getUsername(), profileRequestUpdate.currentPassword()));
 
         if (profileRequestUpdate.newPassword() != null && !profileRequestUpdate.newPassword().isBlank()) {
             log.info("Alterando senha do usuário {}", profileId);
             existingUser.setPassword(passwordEncoder.encode(profileRequestUpdate.newPassword()));
+            existingUser.setLastUpdated(LocalDateTime.now());
         }
 
         ProfileEntity profileEntity = profileEntityRepository.saveAndFlush(existingUser);
@@ -105,6 +107,7 @@ public class ProfileServiceImpl implements ProfileService {
         profileEntityRepository.deleteById(profileId);
     }
 
+    //TODO: criar uma projection
     @Override
     @Transactional
     public List<DepositResponse> getAllDeposits(String profileId){

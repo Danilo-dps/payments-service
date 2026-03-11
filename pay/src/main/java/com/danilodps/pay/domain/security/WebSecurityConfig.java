@@ -24,9 +24,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
-	private final UserDetailsServiceImpl customUserDetailsService;
-	private final AuthEntryPointJwt unauthorizedHandler;
 	private final JwtTokenGenerator jwtTokenGenerator;
+	private final AuthEntryPointJwt unauthorizedHandler;
+	private final UserDetailsServiceImpl customUserDetailsService;
 
 	@Bean
 	public AuthTokenFilter authenticationJwtTokenFilter() {
@@ -51,18 +51,14 @@ public class WebSecurityConfig {
 	}
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) {
         http.csrf(AbstractHttpConfigurer::disable)
 				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/auth/signup",
-                                "/auth/login",
-                                "/auth/refresh-token",
-                                "/actuator/configprops",
-                                "/actuator/health",
-                                "/actuator/info"
+                                "/auth/login"
                         ).permitAll()
                         .anyRequest().authenticated()
                 ).addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

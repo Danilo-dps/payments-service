@@ -32,14 +32,15 @@ public class JwtTokenGenerator {
 
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 
+        assert userPrincipal != null;
         List<String> roles = userPrincipal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
         return Jwts.builder()
                 .subject(userPrincipal.getProfileEmail())
-                .claim("id", userPrincipal.getId())
-                .claim("userEmail", userPrincipal.getProfileEmail())
+                .claim("profileId", userPrincipal.getProfileId())
+                .claim("profileEmail", userPrincipal.getProfileEmail())
                 .claim("roles", roles)
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
