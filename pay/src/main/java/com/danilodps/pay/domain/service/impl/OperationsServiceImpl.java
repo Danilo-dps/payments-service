@@ -15,6 +15,8 @@ import com.danilodps.pay.domain.model.request.create.operations.TransactionReque
 import com.danilodps.pay.domain.repository.DepositEntityRepository;
 import com.danilodps.pay.domain.repository.ProfileEntityRepository;
 import com.danilodps.pay.domain.repository.TransactionEntityRepository;
+import com.danilodps.pay.domain.repository.projection.DepositProjection;
+import com.danilodps.pay.domain.repository.projection.TransactionProjection;
 import com.danilodps.pay.domain.service.OperationsService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -48,7 +51,7 @@ public class OperationsServiceImpl implements OperationsService {
 
         DepositEntity deposit = DepositEntity.builder()
                 .depositId(UUID.randomUUID().toString())
-                .depositTimestamp(LocalDateTime.now())
+                .depositAt(LocalDateTime.now())
                 .amount(requestDeposit.amount())
                 .profileEntity(profileEntity)
                 .build();
@@ -83,7 +86,7 @@ public class OperationsServiceImpl implements OperationsService {
         TransactionEntity transaction = TransactionEntity.builder()
                 .transactionId(UUID.randomUUID().toString())
                 .amount(transactionRequest.amount())
-                .transactionTimestamp(LocalDateTime.now())
+                .transactionAt(LocalDateTime.now())
                 .profileSender(profileSender)
                 .profileReceiver(profileDestination)
                 .build();
@@ -99,7 +102,13 @@ public class OperationsServiceImpl implements OperationsService {
     }
 
     @Override
-    public TransactionResponse bankStatement(TransactionRequest transactionRequest) {
-        return null;
+    public List<DepositProjection> getAllDeposits(String profileId) {
+        return depositEntityRepository.findDepositsByProfileId(profileId);
     }
+
+    @Override
+    public List<TransactionProjection> getAllTransactions(String profileId) {
+        return transactionEntityRepository.findTransactionsByProfileId(profileId);
+    }
+
 }

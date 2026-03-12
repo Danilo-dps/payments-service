@@ -16,7 +16,7 @@ public class DepositEntity2DepositResponse {
                 .username(deposit.getProfileEntity().getUsername())
                 .userEmail(deposit.getProfileEntity().getProfileEmail())
                 .amount(deposit.getAmount())
-                .depositTimestamp(deposit.getDepositTimestamp())
+                .depositTimestamp(deposit.getDepositAt())
                 .build();
     }
 

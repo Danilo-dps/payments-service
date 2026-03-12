@@ -1,7 +1,7 @@
 package com.danilodps.pay.domain.repository;
 
-import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.TransactionEntity;
+import com.danilodps.pay.domain.repository.projection.TransactionProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,10 +12,11 @@ import java.util.List;
 @Repository
 public interface TransactionEntityRepository extends JpaRepository<TransactionEntity, String> {
 
-    List<TransactionEntity> findByProfileSender(ProfileEntity profileSender);
-    List<TransactionEntity> findByProfileReceiver(ProfileEntity profileReceiver);
-
-    //TODO essa query é performática?
-    @Query("SELECT t FROM TransactionEntity t WHERE t.profileSender = :profileEntity OR t.profileReceiver = :profileEntity ORDER BY t.transactionTimestamp DESC")
-    List<TransactionEntity> findTransactionHistoryByProfileEntity(@Param("profileEntity") ProfileEntity pro);
+    @Query("SELECT t.transactionId as transactionId, " +
+            "t.profileReceiver.profileId as profileReceiver, " +
+            "t.transactionAt as transactionAt, " +
+            "t.amount as amount " +
+            "FROM TransactionEntity t " +
+            "WHERE t.profileSender.profileId = :profileId")
+    List<TransactionProjection> findTransactionsByProfileId(@Param("profileId") String profileId);
 }
