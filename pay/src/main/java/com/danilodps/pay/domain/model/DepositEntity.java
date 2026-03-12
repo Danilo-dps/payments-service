@@ -25,8 +25,8 @@ public class DepositEntity implements Serializable {
     @Column(name = "DEPOSIT_ID", updatable = false, nullable = false)
     private String depositId;
 
-    @Column(name = "DEPOSIT_TIMESTAMP", nullable = false, updatable = false)
-    private LocalDateTime depositTimestamp;
+    @Column(name = "DEPOSIT_AT", nullable = false, updatable = false)
+    private LocalDateTime depositAt;
 
     @Column(name = "AMOUNT", nullable = false, updatable = false)
     private BigDecimal amount;

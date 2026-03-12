@@ -13,7 +13,7 @@ public class TransactionEntity2TransactionResponse {
                 .amount(transactionEntity.getAmount())
                 .userSenderEmail(transactionEntity.getProfileSender().getProfileEmail())
                 .receiverEmail(transactionEntity.getProfileReceiver().getProfileEmail())
-                .transactionTimestamp(transactionEntity.getTransactionTimestamp())
+                .transactionTimestamp(transactionEntity.getTransactionAt())
                 .build();
     }
 }

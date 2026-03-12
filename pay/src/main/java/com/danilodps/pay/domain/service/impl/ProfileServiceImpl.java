@@ -107,13 +107,4 @@ public class ProfileServiceImpl implements ProfileService {
         profileEntityRepository.deleteById(profileId);
     }
 
-    //TODO: criar uma projection
-    @Override
-    @Transactional
-    public List<DepositResponse> getAllDeposits(String profileId){
-        ProfileEntity profileEntity = profileEntityRepository.findById(profileId).orElseThrow(() -> {log.error("Usuário não encontrado com ID: {}", profileId); return new NotFoundException(profileId);});
-        //List<Deposit> listAllDeposit = profileEntity.getDeposit();
-        return null;
-    }
-
 }

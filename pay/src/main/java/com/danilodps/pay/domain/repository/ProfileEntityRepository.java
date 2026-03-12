@@ -10,9 +10,10 @@ import java.util.Optional;
 
 @Repository
 public interface ProfileEntityRepository extends JpaRepository<ProfileEntity, String> {
+
     Optional<ProfileEntity> findByProfileEmail(String profileEmail);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<ProfileEntity> findAndLockByProfileEmail(String profileEmail);
-    Optional<ProfileEntity> findByUsername(String username);
+
 }

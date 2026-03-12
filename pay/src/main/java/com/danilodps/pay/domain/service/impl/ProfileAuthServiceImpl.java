@@ -54,6 +54,7 @@ public class ProfileAuthServiceImpl implements ProfileAuthService {
         profileEntity.setDocument(signUpRequest.document());
         profileEntity.setRoles(Collections.singletonList(RoleEnum2RoleEntity.convert(signUpRequest.documentIdentifier())));
         profileEntity.setProfileEmail(signUpRequest.userEmail());
+        profileEntity.setCreatedAt(LocalDateTime.now());
         profileEntity.setPassword(passwordEncoder.encode(signUpRequest.password()));
 
         profileEntityRepository.saveAndFlush(profileEntity);

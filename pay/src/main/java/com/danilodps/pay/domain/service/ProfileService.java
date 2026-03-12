@@ -12,5 +12,4 @@ public interface ProfileService {
     ProfileResponse getByEmail(String profileEmail);
     ProfileResponse update(String profileId, ProfileRequestUpdate profileRequestUpdate);
     void delete(String profileId);
-    List<DepositResponse> getAllDeposits(String profileId);
 }

@@ -27,8 +27,8 @@ public class TransactionEntity implements Serializable {
     @Column(name = "AMOUNT", nullable = false)
     private BigDecimal amount;
 
-    @Column(name = "TRANSACTION_TIMESTAMP", nullable = false)
-    private LocalDateTime transactionTimestamp;
+    @Column(name = "TRANSACTION_AT", nullable = false)
+    private LocalDateTime transactionAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SENDER_PROFILE_ID", nullable = false)
