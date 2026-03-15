@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/operations")
+@RequestMapping("/operations/v1")
 public class OperationsController {
 
     private final OperationsService operationsService;
