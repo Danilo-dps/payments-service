@@ -1,7 +1,9 @@
 package com.danilodps.pay.domain.service.impl;
 
+import com.danilodps.commons.domain.model.response.SignInResponse;
 import com.danilodps.commons.domain.model.response.SignUpResponse;
 import com.danilodps.commons.domain.validation.ValidatorComponent;
+import com.danilodps.pay.application.config.KafkaEventProducer;
 import com.danilodps.pay.domain.adapter.RoleEnum2RoleEntity;
 import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.request.create.SignInRequest;
@@ -35,7 +37,7 @@ public class ProfileAuthServiceImpl implements ProfileAuthService {
 
     private final ProfileEntityRepository profileEntityRepository;
     private final AuthenticationManager authenticationManager;
-//    private final KafkaEventProducer kafkaEventProducer;
+    private final KafkaEventProducer kafkaEventProducer;
     private final JwtTokenGenerator jwtTokenGenerator;
     private final ValidatorComponent profileValidator;
     private final PasswordEncoder passwordEncoder;
@@ -57,16 +59,21 @@ public class ProfileAuthServiceImpl implements ProfileAuthService {
         profileEntity.setCreatedAt(LocalDateTime.now());
         profileEntity.setPassword(passwordEncoder.encode(signUpRequest.password()));
 
-        profileEntityRepository.saveAndFlush(profileEntity);
-        return SignUpResponse.builder()
+        SignUpResponse signUpResponse = SignUpResponse.builder()
                 .id(profileEntity.getProfileId())
                 .username(profileEntity.getUsername())
                 .email(profileEntity.getProfileEmail())
                 .signupTimestamp(LocalDateTime.now()).build();
+
+        profileEntityRepository.saveAndFlush(profileEntity);
+        kafkaEventProducer.publishSignUpNotification(signUpResponse);
+
+        return signUpResponse;
     }
 
     @Override
     public JwtResponse authenticate(SignInRequest loginRequest) {
+        log.info("Verificando se o usuário está autenticado");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.userEmail(), loginRequest.password()));
 
@@ -79,6 +86,8 @@ public class ProfileAuthServiceImpl implements ProfileAuthService {
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
+
+        kafkaEventProducer.publishSignInNotification(SignInResponse.builder().id(userDetails.getProfileId()).username(userDetails.getUsername()).email(userDetails.getProfileEmail()).signinTimestamp(LocalDateTime.now()).build());
 
         return new JwtResponse(jwt,
                 userDetails.getProfileId(),

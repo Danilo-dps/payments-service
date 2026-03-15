@@ -5,6 +5,7 @@ import com.danilodps.commons.application.exceptions.InvalidValueException;
 import com.danilodps.commons.application.exceptions.NotFoundException;
 import com.danilodps.commons.domain.model.response.DepositResponse;
 import com.danilodps.commons.domain.model.response.TransactionResponse;
+import com.danilodps.pay.application.config.KafkaEventProducer;
 import com.danilodps.pay.domain.adapter.DepositEntity2DepositResponse;
 import com.danilodps.pay.domain.adapter.TransactionEntity2TransactionResponse;
 import com.danilodps.pay.domain.model.DepositEntity;
@@ -33,7 +34,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OperationsServiceImpl implements OperationsService {
 
-//    private final KafkaEventProducer kafkaEventProducer;
+    private final KafkaEventProducer kafkaEventProducer;
     private final ProfileEntityRepository profileEntityRepository;
     private final DepositEntityRepository depositEntityRepository;
     private final TransactionEntityRepository transactionEntityRepository;
@@ -60,7 +61,7 @@ public class OperationsServiceImpl implements OperationsService {
         depositEntityRepository.saveAndFlush(deposit);
         profileEntityRepository.saveAndFlush(profileEntity);
 
-        //kafkaEventProducer.publishKafkaDepositEventNotification(DepositEntity2DepositResponse.convert(persistedDeposit));
+        kafkaEventProducer.publishDepositEventNotification(DepositEntity2DepositResponse.convert(deposit));
         return DepositEntity2DepositResponse.convert(deposit);
     }
 
@@ -97,7 +98,7 @@ public class OperationsServiceImpl implements OperationsService {
         //aqui, seria melhor um saveAndFlush ou uma query especifica para os campos atualizados?
         transactionEntityRepository.saveAndFlush(transaction);
 
-        //kafkaEventProducer.publishKafkaTransferEventNotification(TransactionEntity2TransactionResponse.convertToUser(transactionRequest));
+        kafkaEventProducer.publishTransferEventNotification(TransactionEntity2TransactionResponse.convert(transaction));
         return TransactionEntity2TransactionResponse.convert(transaction);
     }
 
