@@ -40,6 +40,12 @@ spring:
   kafka:
     bootstrap:
       servers: localhost:${KAFKA_PORT}
+    producer:
+      topic:
+        kafka-deposit: "deposit-created"
+        kafka-transfer: "transfer-created"
+        kafka-signin: "signin-notification"
+        kafka-signup: "signup-notification"
     properties:
       spring.json.trusted.packages: "*"
 

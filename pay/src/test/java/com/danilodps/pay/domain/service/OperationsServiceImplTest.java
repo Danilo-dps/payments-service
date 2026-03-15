@@ -1,6 +1,6 @@
 package com.danilodps.pay.domain.service;
 
-//import com.danilodps.pay.domain.config.KafkaEventProducer;
+//import com.danilodps.pay.application.config.KafkaEventProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
