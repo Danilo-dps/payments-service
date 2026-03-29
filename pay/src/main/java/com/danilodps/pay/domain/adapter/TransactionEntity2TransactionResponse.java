@@ -11,7 +11,7 @@ public class TransactionEntity2TransactionResponse {
         return TransactionResponse.builder()
                 .transactionId(transactionEntity.getTransactionId())
                 .amount(transactionEntity.getAmount())
-                .userSenderEmail(transactionEntity.getProfileSender().getProfileEmail())
+                .senderEmail(transactionEntity.getProfileSender().getProfileEmail())
                 .receiverEmail(transactionEntity.getProfileReceiver().getProfileEmail())
                 .transactionTimestamp(transactionEntity.getTransactionAt())
                 .build();
