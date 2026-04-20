@@ -84,7 +84,7 @@ Siga o mesmo processo para o serviço de notificação. **Importante:** Configur
 MYSQL_DATABASE=nome_escolhido_por_voce
 MYSQL_ROOT_PASSWORD=senha_escolhida_por_voce
 MYSQL_PORT=porta_escolhida_por_voce(porta padrão 3306)
-KAFKA_PORT=porta_escolhida_por_voce(porta padrão 9096)
+KAFKA_PORT=porta_escolhida_por_voce(porta padrão 9092)
 JWT_SECRET=(Gere chaves com: openssl rand -base64 64)
 SERVER_PORT=(o padrão é 8080)
 ```
