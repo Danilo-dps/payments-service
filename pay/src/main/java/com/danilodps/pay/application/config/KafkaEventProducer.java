@@ -40,12 +40,12 @@ public class KafkaEventProducer {
     }
 
     public void publishSignInNotification(SignInResponse signinResponse){
-        log.info("Criação de usuário");
+        log.info("Usuário logado");
         kafkaTemplate.send(signInNotification, signinResponse.id(), signinResponse);
     }
 
     public void publishSignUpNotification(SignUpResponse signupResponse ){
-        log.info("Usuário logado");
+        log.info("Criação de usuário");
         kafkaTemplate.send(signUpNotification, signupResponse.id(), signupResponse);
     }
 
