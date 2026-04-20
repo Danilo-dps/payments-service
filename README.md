@@ -119,4 +119,3 @@ mvn test
 * `GET /profile/v1/profileEmail/{profileEmail}`: Busca um usuário pelo seu e-mail.
 * `PUT /profile/v1/update/{profileId}`: Atualiza os dados de um usuário.
 * `DELETE /profile/v1/delete/{profileId}`: Exclui um usuário do sistema.
-```
