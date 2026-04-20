@@ -35,12 +35,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProfileAuthServiceImpl implements ProfileAuthService {
 
-    private final ProfileEntityRepository profileEntityRepository;
-    private final AuthenticationManager authenticationManager;
-    private final KafkaEventProducer kafkaEventProducer;
-    private final JwtTokenGenerator jwtTokenGenerator;
-    private final ValidatorComponent profileValidator;
     private final PasswordEncoder passwordEncoder;
+    private final ValidatorComponent profileValidator;
+    private final JwtTokenGenerator jwtTokenGenerator;
+    private final KafkaEventProducer kafkaEventProducer;
+    private final AuthenticationManager authenticationManager;
+    private final ProfileEntityRepository profileEntityRepository;
 
     @Override
     @Transactional
@@ -87,7 +87,13 @@ public class ProfileAuthServiceImpl implements ProfileAuthService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        kafkaEventProducer.publishSignInNotification(SignInResponse.builder().id(userDetails.getProfileId()).username(userDetails.getUsername()).email(userDetails.getProfileEmail()).signinTimestamp(LocalDateTime.now()).build());
+        SignInResponse signInResponse = SignInResponse.builder()
+                .id(userDetails.getProfileId())
+                .username(userDetails.getUsername())
+                .email(userDetails.getProfileEmail())
+                .signinTimestamp(LocalDateTime.now()).build();
+
+        kafkaEventProducer.publishSignInNotification(signInResponse);
 
         return new JwtResponse(jwt,
                 userDetails.getProfileId(),
