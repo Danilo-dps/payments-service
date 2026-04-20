@@ -1,190 +1,122 @@
+# Ecossistema de Pagamentos e Notificações
 
------
+Este é um sistema de pagamentos simplificado orientado a eventos, construído com **Java 21** e **Spring Boot**. A arquitetura foi dividida em microsserviços e bibliotecas para garantir separação de responsabilidades, escalabilidade e reaproveitamento de código. 
 
-# Payment Notification Service
+O sistema gerencia usuários e empresas, processa transações (depósitos e transferências) e utiliza **Apache Kafka** (em modo KRaft) para mensageria assíncrona, culminando no envio de notificações por e-mail.
 
-Este é um serviço de backend para um sistema de pagamentos simplificado, construído com **Java 25** e **Spring Boot**. Ele gerencia usuários e lojistas, processa transações (depósitos e transferências) e utiliza **Apache Kafka** para notificações assíncronas de eventos. O serviço também é configurado para enviar notificações por e-mail usando o **Google Mail (SMTP)** com um token de acesso (App Password).
+## 🏗️ Arquitetura do Projeto
 
-## ✨ Funcionalidades Principais
+Para manter a modularidade, o ecossistema está dividido em 4 repositórios principais:
 
-* **Autenticação e Autorização:** Cadastro e login para Usuários (`USER`) e Lojistas (`COMPANY`).
+1. **[Payment Service (API Produtora)](https://github.com/Danilo-dps/payments-service)**: *(Este repositório)* Responsável por expor os endpoints REST, gerenciar as contas, processar as transações e **produzir** as mensagens de notificação no Kafka.
+2. **[Notification Service (Consumidor)](https://github.com/Danilo-dps/notification-service)**: Serviço dedicado a **consumir** as mensagens do Kafka e realizar o envio de e-mails via Google Mail (SMTP).
+3. **[Commons Library](https://github.com/dlil-software-maker/commons)**: Uma mini-biblioteca que consolida os `records` (DTOs) e `exceptions` comuns utilizados por ambos os microsserviços, garantindo consistência e evitando duplicação de código.
+4. **[Infraestrutura (Docker Yamls)](https://github.com/Danilo-dps/docker-yamls/tree/main/payments-notification)**: Repositório centralizado com o `docker-compose.yml` para provisionar o Apache Kafka e o banco de dados.
+
+## 🚀 Funcionalidades Principais
+
+* **Autenticação e Autorização:** Cadastro e login para Usuários Físicos (`USER` - gerado via CPF) e Empresas (`COMPANY` - gerado via CNPJ).
 * **Operações Financeiras:** Endpoints para depósito e transferência de valores.
-* **Gerenciamento de Entidades:** Operações CRUD para Usuários(Pessoas físicas) e Empresas(Pessoa jurídica).
-* **Mensageria Assíncrona:** Utiliza **Apache Kafka** para notificar sobre transações.
-* **Notificações por E-mail:** Envia e-mails de notificação usando o **Google Mail** (requer um "Token de Acesso" / "Senha de App").
-* **Testes:** Cobertura de testes unitários com **JUnit 5**.
-
------
+* **Mensageria Assíncrona:** Comunicação não-bloqueante entre o processamento do pagamento e o envio do recibo/alerta utilizando Apache Kafka.
+* **Notificações por E-mail:** Envio de alertas configurado via Google Mail (requer Senha de App).
 
 ## 🛠️ Stack Tecnológica
 
-* **Backend:** Java 25, Spring Boot 4.0.2, Spring Security, Spring Data JPA
-* **Database:** MySQL 9.6.0 (Via Docker)
-* **Mensageria:** Apache Kafka (Via Docker)
+* **Linguagem & Framework:** Java 21, Spring Boot 4.x, Spring Security, Spring Data JPA
+* **Banco de Dados:** MySQL (Via Docker)
+* **Mensageria:** Apache Kafka rodando em modo KRaft (Via Docker)
 * **Testes:** JUnit 5
 * **Containerização:** Docker & Docker Compose
-* **Notificações:** JavaMail (com Google SMTP)
 
------
+---
 
-## 🏁 Começando
+## 🚦 Como Executar o Ambiente Local
 
-Siga estas instruções para configurar e executar o ambiente de desenvolvimento localmente.
+Como o projeto é dividido em múltiplos repositórios, a ordem de inicialização é importante. Siga o passo a passo abaixo:
 
 ### Pré-requisitos
+* Java 21 (JDK)
+* Apache Maven
+* Docker e Docker Compose
+* Uma conta Google com **"Senhas de App"** ativada para o Notification Service (veja [como gerar](https://support.google.com/accounts/answer/185833)).
 
-* [Java 25 (JDK)](https://learn.microsoft.com/en-us/java/openjdk/download)
-* [Apache Maven](https://maven.apache.org/download.cgi)
-* [Docker](https://www.docker.com/products/docker-desktop/)
-* [Docker Compose](https://docs.docker.com/compose/install/)
-* Uma conta Google com **"Senhas de App"** ativada. (Veja [como gerar uma](https://support.google.com/accounts/answer/185833))
+### Passo 1: Subir a Infraestrutura (Banco e Mensageria)
+Clone o repositório de infraestrutura. Antes de subir os contêineres, crie um arquivo `.env` na mesma pasta do `docker-compose.yml` (ou configure no seu ambiente) com as seguintes variáveis:
 
-### 1\. Configuração do Ambiente
+**Arquivo `.env` (Infraestrutura):**
+```env
+MYSQL_ROOT_PASSWORD=sua_senha_forte
+MYSQL_DATABASE=payments_db
+MYSQL_PORT=3306
+KAFKA_PORT=9092
+KAFKA_CONTROLLER_PORT=9093
+```
 
-Primeiro, clone este repositório:
-
+Inicie os contêineres:
 ```bash
-git clone https://github.com/Danilo-dps/payments-service.git
-cd pay
-```
-
-Crie um arquivo `.env` na raiz do projeto, baseado no `docker-compose.yml`. Você também precisará adicionar as variáveis para o serviço de e-mail do Spring. Se for pelo **Intellij community** é necessário adicionar as variaveis de ambiente via aba **run** 
-
-**Arquivo `.env` (Exemplo):**
-
-```
-# Variáveis do Docker Compose
-MYSQL_ROOT_PASSWORD = senha_aqui
-MYSQL_DATABASE = nome_do_banco
-MYSQL_PORT = porta_da_aplicacao
-KAFKA_PORT = porta_kafka_listener
-KAFKA_CONTROLLER_PORT = porta_kafka_controller
-```
-
-**Importante:** Adicione `SPRING_MAIL_PASSWORD` ao seu arquivo `application.yml` (ou `application.properties`) para que o Spring possa usá-lo. Geralmente, você faria referência à variável de ambiente:
-
-```yaml
-# Em src/main/resources/application.properties
-spring:
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${EMAIL_USER}
-    password: ${SPRING_MAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-```
-
-### 2\. Iniciando a Infraestrutura (Docker)
-
-O arquivo `docker-compose.yml` provisiona toda a infraestrutura necessária (MySQL, Kafka).
-* [docker-compose.yml](https://github.com/Danilo-dps/docker-yamls/blob/main/payments-notification/docker-compose.yml)
-
-Para iniciar todos os serviços em background:
-
-```bash
-
-# Comando para ser usado na pasta que está o docker-compose.yml
-# /caminho/onde/está/o/arquivo
+git clone [https://github.com/Danilo-dps/docker-yamls.git](https://github.com/Danilo-dps/docker-yamls.git)
+cd docker-yamls/payments-notification
 docker compose up -d
 ```
+*Isso iniciará o MySQL e o Kafka na rede `app-network-payment-notification`.*
 
-### 3\. Executando a Aplicação Java
-
-Após a infraestrutura estar rodando, você pode iniciar a aplicação Spring Boot:
+### Passo 2: Instalar a Biblioteca Commons Localmente
+Para que os serviços de Pagamento e Notificação encontrem as classes compartilhadas, instale a lib *commons* no seu repositório Maven local (`.m2`):
 
 ```bash
-
-# Pode rodar pela IDE, sem usar o terminal
-# Compile e execute usando o Maven
-mvn spring-boot:run
+git clone [https://github.com/dlil-software-maker/commons.git](https://github.com/dlil-software-maker/commons.git)
+cd commons
+mvn clean install
 ```
 
-Ou simplesmente execute a classe principal `Application` a partir da sua IDE (IntelliJ, VSCode, etc.).
+### Passo 3: Configurar e Executar o Payment Service (API)
+Clone este repositório (`payments-service`). Certifique-se de que as variáveis de ambiente do banco de dados e do Kafka estejam configuradas na sua IDE (ex: na aba *Run/Debug Configurations* do IntelliJ) ou no seu sistema operacional, apontando para as mesmas portas definidas no Passo 1.
 
-### 4\. Acessando os Serviços
+Execute a aplicação:
+```bash
+mvn spring-boot:run
+```
+*A API estará disponível em `http://localhost:8080` (ou na porta definida no seu `application.yml`).*
 
-* **API:** `http://localhost:8080` (ou a porta definida no seu `application.yaml`)
-* **MySQL:** `localhost:3306` (ou altere para outra disponível)
+### Passo 4: Configurar e Executar o Notification Service (Consumidor)
+Siga o mesmo processo para o serviço de notificação. **Importante:** Configure as variáveis de e-mail no ambiente deste serviço para que o envio via SMTP do Google funcione corretamente:
 
------
+**Variáveis `.env` (para a IDE, como exemplo, pode usar na aba Run do Intellij):**
+```env
+MYSQL_DATABASE=nome_escolhido_por_voce
+MYSQL_ROOT_PASSWORD=senha_escolhida_por_voce
+MYSQL_PORT=porta_escolhida_por_voce(porta padrão 3306)
+KAFKA_PORT=porta_escolhida_por_voce(porta padrão 9096)
+JWT_SECRET=(Gere chaves com: openssl rand -base64 64)
+```
+
+---
 
 ## 🧪 Testes
 
-Este projeto utiliza **JUnit 5** para testes unitários. Para rodar a suíte de testes, execute o seguinte comando Maven:
+Este projeto utiliza **JUnit 5**. Para rodar a suíte de testes unitários do Payment Service, execute o comando abaixo no terminal ou rode diretamente pela sua IDE:
 
 ```bash
-
-# Pode rodar pela IDE, sem usar o terminal
 mvn test
 ```
 
------
+---
 
-## 🚀 API Endpoints
+## 📍 API Endpoints (Payment Service)
 
-Abaixo está um resumo dos endpoints da API disponíveis.
+### 🔐 Autenticação (`/auth/v1`)
+* `POST /auth/v1/signup`: Registra um novo usuário (CPF gera usuário PF, CNPJ gera usuário PJ).
+* `POST /auth/v1/login`: Autentica um usuário e retorna o token JWT.
 
-### 🔐 Autenticação (`/auth`)
-
-* `POST /auth/v1/login`
-
-    * Autentica um usuário e retorna um token JWT.
-    * **Body:** `SignUpRequest`
-
-* `POST /auth/v1/signup`
-
-    * Registra um novo usuário, ao informar CPF gera usuário PF, CNPJ gera usuário PJ.
-    * **Body:** `SignInRequest`
-
-### 💸 Operações (`/operations`)
-
-* `POST /operations/v1/deposit`
-
-    * Realiza um depósito na conta do usuário autenticado.
-    * **Autorização:** Requer uma role `USER`.
-    * **Body:** `DepositRequest`
-
-* `POST /operations/v1/transfer`
-
-    * Realiza uma transferência da conta do usuário autenticado para outro usuário.
-    * **Autorização:** Requer uma role `USER`.
-    * **Body:** `TransactionRequest`
-
-* `GET /operations/v1/deposit/{profileId}`
-
-  * Busca depósitos na conta do usuário autenticado.
-  * **Autorização:** Requer uma role `USER`.
-  * **Param:** `profileId`
-
-* `GET /operations/v1/transaction/{profileId}`
-
-  * Busca transferências da conta do usuário autenticado para outro usuário.
-  * **Autorização:** Requer uma role `USER`.
-  * **Param:** `profileId`
+### 💸 Operações (`/operations/v1`) - *Requer Role USER*
+* `POST /operations/v1/deposit`: Realiza um depósito na conta do usuário logado.
+* `POST /operations/v1/transfer`: Transfere saldo da conta do usuário logado para outro perfil.
+* `GET /operations/v1/deposit/{profileId}`: Lista os depósitos da conta do usuário logado.
+* `GET /operations/v1/transaction/{profileId}`: Lista as transferências da conta do usuário logado.
 
 ### 👤 Usuário (`/profile/v1`)
-
-* `GET /profile/v1/id/{profileId}`
-
-    * Busca um usuário pelo seu UUID.
-
-* `GET /profile/v1/profileEmail/{profileEmail}`
-
-    * Busca um usuário pelo seu e-mail.
-
-* `PUT /profile/v1/update/{profileId}`
-
-    * Atualiza os dados de um usuário.
-    * **Param** `profileId`
-    * **Body:** `ProfileRequestUpdate`
-
-* `DELETE /profile/v1/delete/{profileId}`
-
-    * Exclui um usuário.
-
------
+* `GET /profile/v1/id/{profileId}`: Busca um usuário pelo seu UUID.
+* `GET /profile/v1/profileEmail/{profileEmail}`: Busca um usuário pelo seu e-mail.
+* `PUT /profile/v1/update/{profileId}`: Atualiza os dados de um usuário.
+* `DELETE /profile/v1/delete/{profileId}`: Exclui um usuário do sistema.
+```

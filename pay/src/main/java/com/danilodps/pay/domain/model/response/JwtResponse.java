@@ -6,7 +6,7 @@ import java.util.List;
 
 @Builder
 public record JwtResponse(
-        String accessToken, // futuramente, não vou retornar, apenas para testar
+        String accessToken,
         String profileId,
         String username,
         String profileEmail,
