@@ -73,9 +73,7 @@ mvn clean install
 Clone este repositório (`payments-service`). Certifique-se de que as variáveis de ambiente do banco de dados e do Kafka estejam configuradas na sua IDE (ex: na aba *Run/Debug Configurations* do IntelliJ) ou no seu sistema operacional, apontando para as mesmas portas definidas no Passo 1.
 
 Execute a aplicação:
-```bash
-mvn spring-boot:run
-```
+
 *A API estará disponível em `http://localhost:8080` (ou na porta definida no seu `application.yml`).*
 
 ### Passo 4: Configurar e Executar o Notification Service (Consumidor)
@@ -88,6 +86,7 @@ MYSQL_ROOT_PASSWORD=senha_escolhida_por_voce
 MYSQL_PORT=porta_escolhida_por_voce(porta padrão 3306)
 KAFKA_PORT=porta_escolhida_por_voce(porta padrão 9096)
 JWT_SECRET=(Gere chaves com: openssl rand -base64 64)
+SERVER_PORT=(o padrão é 8080)
 ```
 
 ---
@@ -95,10 +94,6 @@ JWT_SECRET=(Gere chaves com: openssl rand -base64 64)
 ## 🧪 Testes
 
 Este projeto utiliza **JUnit 5**. Para rodar a suíte de testes unitários do Payment Service, execute o comando abaixo no terminal ou rode diretamente pela sua IDE:
-
-```bash
-mvn test
-```
 
 ---
 

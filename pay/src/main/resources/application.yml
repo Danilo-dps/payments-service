@@ -1,6 +1,3 @@
-server:
-  port: 8084
-
 spring:
   application:
     name: pay
@@ -61,6 +58,9 @@ management:
 app:
   jwtSecret: ${JWT_SECRET}
   jwtExpirationMs: 86400000
+
+server:
+  port: ${SERVER_PORT}
 
 #logging:
 #  level:
