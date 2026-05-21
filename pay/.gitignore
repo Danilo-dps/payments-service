@@ -106,6 +106,7 @@ target/*.log
 # -------------
 # Ignore user-specific configurations if they aren't meant to be shared.
 *.properties
+!.mvn/wrapper/maven-wrapper.properties
 *.bak
 # Eclipse-specific (sometimes generated outside .settings)
 .sync/

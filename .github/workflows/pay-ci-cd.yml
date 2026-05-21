@@ -1,0 +1,110 @@
+# Nome que aparece na aba "Actions" do GitHub
+name: CI - Pay Services
+
+# ─── TRIGGERS ────────────────────────────────────────────────
+on:
+  push:
+    branches: [main, develop]   # roda quando alguém faz push nessas branches
+  pull_request:
+    branches: [main]            # roda quando abre PR ou faz novo commit dentro do PR com destino à main
+  workflow_dispatch:            # adiciona botão "Run workflow" na UI do GitHub (para testes manuais)
+
+# ─── JOBS ────────────────────────────────────────────────────
+jobs:
+
+  build-and-test:               # nome do job (você escolhe, sem espaços)
+    runs-on: ubuntu-latest      # GitHub sobe uma VM Linux limpa para este job
+    defaults:
+      run:
+        working-directory: ./pay  # todos os comandos "run" executam dentro desta pasta
+        # pois o mvnw e o pom.xml estão em /pay, não na raiz do repositório
+
+    steps:
+
+      # ── Passo 1 ──────────────────────────────────────────
+      - name: Fazer checkout do código
+        uses: actions/checkout@v4
+        # "uses" chama uma action pronta do marketplace do GitHub
+        # actions/checkout baixa o código do seu repositório dentro da VM
+        # sem isso, a VM não teria acesso a nenhum arquivo do projeto
+
+      # ── Passo 2 ──────────────────────────────────────────
+      - name: Configurar o Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'          # versão do Java que seu projeto usa
+          distribution: 'temurin'     # distribuição: temurin (Eclipse), corretto (Amazon), zulu, etc
+          server-id: github           # id do servidor que bate com o <id> definido no pom.xml do pay
+          server-username: MAVEN_USERNAME   # nome da variável de ambiente que terá o username
+          server-password: MAVEN_PASSWORD   # nome da variável de ambiente que terá o token
+        # esta action instala o JDK na VM, configura JAVA_HOME automaticamente
+        # e também gera o settings.xml na VM com as credenciais do GitHub Packages
+        # assim o Maven consegue baixar a biblioteca commons durante o build
+
+      # ── Passo 3 ──────────────────────────────────────────
+      - name: Cache das dependências Maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          # ~/.m2 é onde o Maven guarda os JARs baixados localmente
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          # "key" é o identificador do cache
+          # hashFiles('**/pom.xml') gera um hash do seu pom.xml
+          # se o pom.xml não mudou, o cache é reaproveitado — build muito mais rápido
+          restore-keys: |
+            ${{ runner.os }}-maven-
+          # fallback: se não achar o cache exato, tenta um cache parcial anterior
+
+      # ── Passo 4 ──────────────────────────────────────────
+      - name: Dar permissão de execução ao Maven Wrapper
+        run: chmod +x ./mvnw
+        # chmod +x — concede permissão de execução ao arquivo mvnw
+        # necessário pois o Git nem sempre preserva permissões de execução ao commitar do Windows
+        # sem isso a VM Linux não consegue rodar o ./mvnw
+
+      # ── Passo 5 ──────────────────────────────────────────
+      - name: Compilar o projeto
+        run: ./mvnw compile -B
+        env:
+          MAVEN_USERNAME: ${{ secrets.COMMONS_GITHUB_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.COMMONS_GITHUB_TOKEN }}
+        # env — injeta as credenciais como variáveis de ambiente para este step
+        # o Maven usa essas variáveis para se autenticar no GitHub Packages
+        # e baixar a biblioteca commons da conta dlil-software-maker
+        # "./mvnw" usa o Maven Wrapper do próprio projeto
+        # compile — compila os arquivos .java e gera os .class
+        # -B (batch mode) — remove saídas interativas, ideal para CI (logs mais limpos)
+
+      # ── Passo 6 ──────────────────────────────────────────
+      - name: Rodar os testes
+        run: ./mvnw test -B
+        env:
+          MAVEN_USERNAME: ${{ secrets.COMMONS_GITHUB_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.COMMONS_GITHUB_TOKEN }}
+        # executa todos os testes da pasta src/test/
+        # as credenciais são necessárias pois o Maven pode precisar
+        # resolver dependências transitivas da commons durante os testes
+        # se qualquer teste falhar, o job para aqui e marca como falha
+
+      # ── Passo 7 ──────────────────────────────────────────
+      - name: Gerar o JAR
+        run: ./mvnw package -B -DskipTests
+        env:
+          MAVEN_USERNAME: ${{ secrets.COMMONS_GITHUB_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.COMMONS_GITHUB_TOKEN }}
+        # package — compila + empacota tudo em um JAR executável
+        # -DskipTests — pula os testes aqui porque já rodamos no passo anterior
+        # credenciais mantidas pois o package também resolve dependências
+        # o JAR gerado fica em pay/target/nome-do-projeto.jar
+
+      # ── Passo 8 ──────────────────────────────────────────
+      - name: Publicar o JAR como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar                      # nome que vai aparecer no GitHub
+          path: pay/target/*.jar             # caminho completo pois "uses" ignora o working-directory
+            # diferente dos steps "run", actions externas sempre
+          # partem da raiz do repositório
+          retention-days: 7                  # GitHub guarda por 7 dias, depois apaga
+        # isso permite baixar o JAR gerado diretamente pela aba Actions do GitHub
+        # útil para inspecionar o build sem precisar rodar localmente

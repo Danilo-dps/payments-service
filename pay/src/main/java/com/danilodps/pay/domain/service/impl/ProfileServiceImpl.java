@@ -2,25 +2,20 @@ package com.danilodps.pay.domain.service.impl;
 
 import com.danilodps.commons.application.exceptions.DuplicateEmailException;
 import com.danilodps.commons.application.exceptions.NotFoundException;
-import com.danilodps.commons.domain.model.response.DepositResponse;
 import com.danilodps.commons.domain.validation.EmailValidator;
 import com.danilodps.pay.domain.adapter.ProfileEntity2ProfileResponse;
 import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.request.update.ProfileRequestUpdate;
 import com.danilodps.pay.domain.model.response.ProfileResponse;
 import com.danilodps.pay.domain.repository.ProfileEntityRepository;
-import com.danilodps.pay.domain.security.jwt.JwtTokenGenerator;
 import com.danilodps.pay.domain.service.ProfileService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -30,9 +25,6 @@ public class ProfileServiceImpl implements ProfileService {
 
     private final EmailValidator emailValidator;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenGenerator jwtTokenGenerator;
-//    private final KafkaEventProducer kafkaEventProducer;
-    private final AuthenticationManager authenticationManager;
     private final ProfileEntityRepository profileEntityRepository;
 
     @Override
@@ -59,7 +51,7 @@ public class ProfileServiceImpl implements ProfileService {
                     log.warn("Usuário não encontrado com Email {}", profileEmail);
                     return new NotFoundException(profileEmail);
                 });
-       }
+    }
 
     @Override
     @Transactional
@@ -78,9 +70,6 @@ public class ProfileServiceImpl implements ProfileService {
                 existingUser.setLastUpdated(LocalDateTime.now());
             }
         }
-
-        //não faz sentido essa linha aqui, afinal, já está autenticado, certo?
-        //authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(existingUser.getUsername(), profileRequestUpdate.currentPassword()));
 
         if (profileRequestUpdate.newPassword() != null && !profileRequestUpdate.newPassword().isBlank()) {
             log.info("Alterando senha do usuário {}", profileId);
