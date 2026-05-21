@@ -1,0 +1,78 @@
+# Nome que aparece na aba "Actions" do GitHub
+name: CI - Pay Services
+
+# ─── TRIGGERS ────────────────────────────────────────────────
+on:
+  push:
+    branches: [main, develop]   # roda quando alguém faz push nessas branches
+  pull_request:
+    branches: [main]            # roda quando abre PR com destino à main
+  workflow_dispatch:            # adiciona botão "Run workflow" na UI do GitHub (para testes manuais)
+
+# ─── JOBS ────────────────────────────────────────────────────
+jobs:
+
+  build-and-test:               # nome do job (você escolhe, sem espaços)
+    runs-on: ubuntu-latest      # GitHub sobe uma VM Linux limpa para este job
+
+    steps:
+
+      # ── Passo 1 ──────────────────────────────────────────
+      - name: Fazer checkout do código
+        uses: actions/checkout@v4
+        # "uses" chama uma action pronta do marketplace do GitHub
+        # actions/checkout baixa o código do seu repositório dentro da VM
+        # sem isso, a VM não teria acesso a nenhum arquivo do projeto
+
+      # ── Passo 2 ──────────────────────────────────────────
+      - name: Configurar o Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'          # versão do Java que seu projeto usa
+          distribution: 'temurin'     # distribuição: temurin (Eclipse), corretto (Amazon), zulu, etc
+        # esta action instala o JDK na VM e já configura JAVA_HOME automaticamente
+
+      # ── Passo 3 ──────────────────────────────────────────
+      - name: Cache das dependências Maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          # ~/.m2 é onde o Maven guarda os JARs baixados localmente
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          # "key" é o identificador do cache
+          # hashFiles('**/pom.xml') gera um hash do seu pom.xml
+          # se o pom.xml não mudou, o cache é reaproveitado — build muito mais rápido
+          restore-keys: |
+            ${{ runner.os }}-maven-
+          # fallback: se não achar o cache exato, tenta um cache parcial anterior
+
+      # ── Passo 4 ──────────────────────────────────────────
+      - name: Compilar o projeto
+        run: mvn compile -B
+        # "run" executa um comando shell diretamente na VM
+        # mvn compile — compila os arquivos .java e gera os .class
+        # -B (batch mode) — remove saídas interativas, ideal para CI (logs mais limpos)
+
+      # ── Passo 5 ──────────────────────────────────────────
+      - name: Rodar os testes
+        run: mvn test -B
+        # executa todos os testes da pasta src/test/
+        # se qualquer teste falhar, o job para aqui e marca como falha
+        # o GitHub mostra exatamente qual teste quebrou nos logs
+
+      # ── Passo 6 ──────────────────────────────────────────
+      - name: Gerar o JAR
+        run: mvn package -B -DskipTests
+        # mvn package — compila + empacota tudo em um JAR executável
+        # -DskipTests — pula os testes aqui porque já rodamos no passo anterior
+        # o JAR gerado fica em target/nome-do-projeto.jar
+
+      # ── Passo 7 ──────────────────────────────────────────
+      - name: Publicar o JAR como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar                      # nome que vai aparecer no GitHub
+          path: target/*.jar                 # caminho do arquivo gerado
+          retention-days: 7                  # GitHub guarda por 7 dias, depois apaga
+        # isso permite baixar o JAR gerado diretamente pela aba Actions do GitHub
+        # útil para inspecionar o build sem precisar rodar localmente
