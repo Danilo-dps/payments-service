@@ -178,7 +178,6 @@
 				</configuration>
 			</plugin>
 
-			<!-- Mockito agent para testes -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
@@ -194,7 +193,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
-					<argLine>@{argLine:-} -javaagent:${org.mockito:mockito-core:jar}</argLine>
+					<argLine>-javaagent:${org.mockito:mockito-core:jar}</argLine>
 				</configuration>
 			</plugin>
 
