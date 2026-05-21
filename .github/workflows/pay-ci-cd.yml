@@ -14,6 +14,10 @@ jobs:
 
   build-and-test:               # nome do job (você escolhe, sem espaços)
     runs-on: ubuntu-latest      # GitHub sobe uma VM Linux limpa para este job
+    defaults:
+      run:
+        working-directory: ./pay  # todos os comandos "run" executam dentro desta pasta
+        # pois o mvnw e o pom.xml estão em /pay, não na raiz do repositório
 
     steps:
 
@@ -54,6 +58,7 @@ jobs:
         # ele garante que a versão correta do Maven seja usada, sem depender da VM
         # compile — compila os arquivos .java e gera os .class
         # -B (batch mode) — remove saídas interativas, ideal para CI (logs mais limpos)
+        # o working-directory definido acima garante que este comando rode dentro de ./pay
 
       # ── Passo 5 ──────────────────────────────────────────
       - name: Rodar os testes
@@ -67,14 +72,16 @@ jobs:
         run: ./mvnw package -B -DskipTests
         # package — compila + empacota tudo em um JAR executável
         # -DskipTests — pula os testes aqui porque já rodamos no passo anterior
-        # o JAR gerado fica em target/nome-do-projeto.jar
+        # o JAR gerado fica em pay/target/nome-do-projeto.jar
 
       # ── Passo 7 ──────────────────────────────────────────
       - name: Publicar o JAR como artefato
         uses: actions/upload-artifact@v4
         with:
           name: app-jar                      # nome que vai aparecer no GitHub
-          path: target/*.jar                 # caminho do arquivo gerado
+          path: pay/target/*.jar             # caminho completo pois "uses" ignora o working-directory
+            # diferente dos steps "run", actions externas sempre
+          # partem da raiz do repositório
           retention-days: 7                  # GitHub guarda por 7 dias, depois apaga
         # isso permite baixar o JAR gerado diretamente pela aba Actions do GitHub
         # útil para inspecionar o build sem precisar rodar localmente
