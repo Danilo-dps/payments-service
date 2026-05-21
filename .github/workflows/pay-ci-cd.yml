@@ -6,7 +6,7 @@ on:
   push:
     branches: [main, develop]   # roda quando alguém faz push nessas branches
   pull_request:
-    branches: [main]            # roda quando abre PR com destino à main
+    branches: [main]            # roda quando abre PR ou faz novo commit dentro do PR com destino à main
   workflow_dispatch:            # adiciona botão "Run workflow" na UI do GitHub (para testes manuais)
 
 # ─── JOBS ────────────────────────────────────────────────────
@@ -48,22 +48,24 @@ jobs:
 
       # ── Passo 4 ──────────────────────────────────────────
       - name: Compilar o projeto
-        run: mvn compile -B
-        # "run" executa um comando shell diretamente na VM
-        # mvn compile — compila os arquivos .java e gera os .class
+        run: ./mvnw compile -B
+        # "./mvnw" usa o Maven Wrapper do próprio projeto
+        # projetos gerados pelo Spring Initializr sempre vêm com ele
+        # ele garante que a versão correta do Maven seja usada, sem depender da VM
+        # compile — compila os arquivos .java e gera os .class
         # -B (batch mode) — remove saídas interativas, ideal para CI (logs mais limpos)
 
       # ── Passo 5 ──────────────────────────────────────────
       - name: Rodar os testes
-        run: mvn test -B
+        run: ./mvnw test -B
         # executa todos os testes da pasta src/test/
         # se qualquer teste falhar, o job para aqui e marca como falha
         # o GitHub mostra exatamente qual teste quebrou nos logs
 
       # ── Passo 6 ──────────────────────────────────────────
       - name: Gerar o JAR
-        run: mvn package -B -DskipTests
-        # mvn package — compila + empacota tudo em um JAR executável
+        run: ./mvnw package -B -DskipTests
+        # package — compila + empacota tudo em um JAR executável
         # -DskipTests — pula os testes aqui porque já rodamos no passo anterior
         # o JAR gerado fica em target/nome-do-projeto.jar
 
