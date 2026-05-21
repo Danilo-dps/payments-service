@@ -51,6 +51,13 @@ jobs:
           # fallback: se não achar o cache exato, tenta um cache parcial anterior
 
       # ── Passo 4 ──────────────────────────────────────────
+      - name: Dar permissão de execução ao Maven Wrapper
+        run: chmod +x ./mvnw
+        # chmod +x — concede permissão de execução ao arquivo mvnw
+        # necessário pois o Git nem sempre preserva permissões de execução ao commitar do Windows
+        # sem isso a VM Linux não consegue rodar o ./mvnw
+
+      # ── Passo 5 ──────────────────────────────────────────
       - name: Compilar o projeto
         run: ./mvnw compile -B
         # "./mvnw" usa o Maven Wrapper do próprio projeto
@@ -60,21 +67,21 @@ jobs:
         # -B (batch mode) — remove saídas interativas, ideal para CI (logs mais limpos)
         # o working-directory definido acima garante que este comando rode dentro de ./pay
 
-      # ── Passo 5 ──────────────────────────────────────────
+      # ── Passo 6 ──────────────────────────────────────────
       - name: Rodar os testes
         run: ./mvnw test -B
         # executa todos os testes da pasta src/test/
         # se qualquer teste falhar, o job para aqui e marca como falha
         # o GitHub mostra exatamente qual teste quebrou nos logs
 
-      # ── Passo 6 ──────────────────────────────────────────
+      # ── Passo 7 ──────────────────────────────────────────
       - name: Gerar o JAR
         run: ./mvnw package -B -DskipTests
         # package — compila + empacota tudo em um JAR executável
         # -DskipTests — pula os testes aqui porque já rodamos no passo anterior
         # o JAR gerado fica em pay/target/nome-do-projeto.jar
 
-      # ── Passo 7 ──────────────────────────────────────────
+      # ── Passo 8 ──────────────────────────────────────────
       - name: Publicar o JAR como artefato
         uses: actions/upload-artifact@v4
         with:
