@@ -2,9 +2,9 @@ package com.danilodps.pay.domain.service.impl;
 
 import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.RoleEntity;
-import com.danilodps.pay.domain.repository.ProfileEntityRepository;
-import com.danilodps.pay.domain.service.spring.UserDetailsImpl;
-import com.danilodps.pay.domain.service.spring.UserDetailsServiceImpl;
+import com.danilodps.pay.adapters.outbound.repository.ProfileEntityRepository;
+import com.danilodps.pay.infrastrucure.spring.UserDetailsImpl;
+import com.danilodps.pay.infrastrucure.spring.UserDetailsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
