@@ -5,20 +5,15 @@ import com.danilodps.commons.application.exceptions.InvalidValueException;
 import com.danilodps.commons.application.exceptions.NotFoundException;
 import com.danilodps.commons.domain.model.response.DepositResponse;
 import com.danilodps.commons.domain.model.response.TransactionResponse;
+import com.danilodps.pay.adapters.inbound.controller.request.create.operations.DepositRequest;
+import com.danilodps.pay.adapters.inbound.controller.request.create.operations.TransactionRequest;
+import com.danilodps.pay.adapters.outbound.repositories.projection.DepositProjection;
+import com.danilodps.pay.adapters.outbound.repositories.projection.TransactionProjection;
+import com.danilodps.pay.application.usecases.OperationsUseCase;
+import com.danilodps.pay.domain.mappers.DepositEntity2DepositResponse;
+import com.danilodps.pay.domain.mappers.TransactionEntity2TransactionResponse;
+import com.danilodps.pay.domain.model.*;
 import com.danilodps.pay.infrastrucure.config.KafkaEventProducer;
-import com.danilodps.pay.domain.adapter.DepositEntity2DepositResponse;
-import com.danilodps.pay.domain.adapter.TransactionEntity2TransactionResponse;
-import com.danilodps.pay.domain.model.DepositEntity;
-import com.danilodps.pay.domain.model.ProfileEntity;
-import com.danilodps.pay.domain.model.TransactionEntity;
-import com.danilodps.pay.domain.model.request.create.operations.DepositRequest;
-import com.danilodps.pay.domain.model.request.create.operations.TransactionRequest;
-import com.danilodps.pay.adapters.outbound.repository.DepositEntityRepository;
-import com.danilodps.pay.adapters.outbound.repository.ProfileEntityRepository;
-import com.danilodps.pay.adapters.outbound.repository.TransactionEntityRepository;
-import com.danilodps.pay.adapters.outbound.repository.projection.DepositProjection;
-import com.danilodps.pay.adapters.outbound.repository.projection.TransactionProjection;
-import com.danilodps.pay.application.service.OperationsService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,13 +21,14 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class OperationsServiceImpl implements OperationsService {
+public class OperationsServiceImpl implements OperationsUseCase {
 
     private final KafkaEventProducer kafkaEventProducer;
     private final ProfileEntityRepository profileEntityRepository;
@@ -50,16 +46,11 @@ public class OperationsServiceImpl implements OperationsService {
         ProfileEntity profileEntity = profileEntityRepository.findByProfileEmail(requestDeposit.userEmail())
                 .orElseThrow(() -> new NotFoundException(requestDeposit.userEmail()));
 
-        DepositEntity deposit = DepositEntity.builder()
-                .depositId(UUID.randomUUID().toString())
-                .depositAt(LocalDateTime.now())
-                .amount(requestDeposit.amount())
-                .profileEntity(profileEntity)
-                .build();
+        DepositEntity deposit = new DepositEntity(UUID.randomUUID().toString(), LocalDateTime.now(ZoneId.systemDefault()), requestDeposit.amount(), profileEntity);
 
         profileEntity.setBalance(profileEntity.getBalance().add(requestDeposit.amount()));
-        depositEntityRepository.saveAndFlush(deposit);
-        profileEntityRepository.saveAndFlush(profileEntity);
+        depositEntityRepository.save(deposit);
+        profileEntityRepository.save(profileEntity);
 
         kafkaEventProducer.publishDepositEventNotification(DepositEntity2DepositResponse.convert(deposit));
         return DepositEntity2DepositResponse.convert(deposit);
@@ -75,7 +66,7 @@ public class OperationsServiceImpl implements OperationsService {
         ProfileEntity profileSender = profileEntityRepository.findAndLockByProfileEmail(transactionRequest.senderEmail())
                 .orElseThrow(() -> new NotFoundException("Usuário remetente não encontrado para o e-mail " + transactionRequest.senderEmail()));
 
-        ProfileEntity profileDestination = profileEntityRepository.findByProfileEmail(transactionRequest.receiverEmail())
+        ProfileEntity profileDestination = profileEntityRepository.findAndLockByProfileEmail(transactionRequest.receiverEmail())
                 .orElseThrow(() -> new NotFoundException("Usuário remetente não encontrado para o e-mail " + transactionRequest.receiverEmail()));
 
         if (profileSender.getBalance().compareTo(transactionRequest.amount()) < 0) {
@@ -84,19 +75,12 @@ public class OperationsServiceImpl implements OperationsService {
 
         profileSender.setBalance(profileSender.getBalance().subtract(transactionRequest.amount()));
         profileDestination.setBalance(profileDestination.getBalance().add(transactionRequest.amount()));
-        TransactionEntity transaction = TransactionEntity.builder()
-                .transactionId(UUID.randomUUID().toString())
-                .amount(transactionRequest.amount())
-                .transactionAt(LocalDateTime.now())
-                .profileSender(profileSender)
-                .profileReceiver(profileDestination)
-                .build();
+        TransactionEntity transaction = new TransactionEntity(UUID.randomUUID().toString(), transactionRequest.amount(), LocalDateTime.now(ZoneId.systemDefault()), profileSender, profileDestination);
 
-        profileEntityRepository.saveAndFlush(profileSender);
-        profileEntityRepository.saveAndFlush(profileDestination);
+        profileEntityRepository.save(profileSender);
+        profileEntityRepository.save(profileDestination);
 
-        //aqui, seria melhor um saveAndFlush ou uma query especifica para os campos atualizados?
-        transactionEntityRepository.saveAndFlush(transaction);
+        transactionEntityRepository.save(transaction);
 
         kafkaEventProducer.publishTransferEventNotification(TransactionEntity2TransactionResponse.convert(transaction));
         return TransactionEntity2TransactionResponse.convert(transaction);
@@ -109,7 +93,7 @@ public class OperationsServiceImpl implements OperationsService {
 
     @Override
     public List<TransactionProjection> getAllTransactions(String profileId) {
-        return transactionEntityRepository.findTransactionsByProfileId(profileId);
+        return transactionEntityRepository.findAll(profileId);
     }
 
 }

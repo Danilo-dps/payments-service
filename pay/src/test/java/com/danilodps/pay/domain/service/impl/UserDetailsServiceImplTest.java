@@ -2,7 +2,7 @@ package com.danilodps.pay.domain.service.impl;
 
 import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.RoleEntity;
-import com.danilodps.pay.adapters.outbound.repository.ProfileEntityRepository;
+import com.danilodps.pay.adapters.outbound.repositories.JpaProfileEntityRepository;
 import com.danilodps.pay.infrastrucure.spring.UserDetailsImpl;
 import com.danilodps.pay.infrastrucure.spring.UserDetailsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 class UserDetailsServiceImplTest {
 
     @Mock
-    private ProfileEntityRepository profileEntityRepository;
+    private JpaProfileEntityRepository jpaProfileEntityRepository;
 
     @InjectMocks
     private UserDetailsServiceImpl userDetailsService;
@@ -73,7 +73,7 @@ class UserDetailsServiceImplTest {
         @DisplayName("Should return UserDetails when email exists")
         void shouldReturnUserDetailsWhenEmailExists() {
             // Given
-            when(profileEntityRepository.findByProfileEmail(validEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
 
             // When
@@ -90,14 +90,14 @@ class UserDetailsServiceImplTest {
             assertThat(userDetails.getAuthorities().iterator().next().getAuthority())
                     .isEqualTo("ROLE_USER");
 
-            verify(profileEntityRepository, times(1)).findByProfileEmail(validEmail);
+            verify(jpaProfileEntityRepository, times(1)).findByProfileEmail(validEmail);
         }
 
         @Test
         @DisplayName("Should throw RuntimeException when email does not exist")
         void shouldThrowRuntimeExceptionWhenEmailDoesNotExist() {
             // Given
-            when(profileEntityRepository.findByProfileEmail(invalidEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(invalidEmail))
                     .thenReturn(Optional.empty());
 
             // When & Then
@@ -106,14 +106,14 @@ class UserDetailsServiceImplTest {
                     .hasMessageContaining("Perfil não encontrado")
                     .hasMessageContaining(invalidEmail);
 
-            verify(profileEntityRepository, times(1)).findByProfileEmail(invalidEmail);
+            verify(jpaProfileEntityRepository, times(1)).findByProfileEmail(invalidEmail);
         }
 
         @Test
         @DisplayName("Should return UserDetailsImpl with correct profileId")
         void shouldReturnUserDetailsImplWithCorrectProfileId() {
             // Given
-            when(profileEntityRepository.findByProfileEmail(validEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
 
             // When
@@ -140,7 +140,7 @@ class UserDetailsServiceImplTest {
 
             mockProfileEntity.setRoles(java.util.List.of(roleUser, roleAdmin));
 
-            when(profileEntityRepository.findByProfileEmail(validEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
 
             // When
@@ -159,7 +159,7 @@ class UserDetailsServiceImplTest {
             // Given
             mockProfileEntity.setRoles(Collections.emptyList());
 
-            when(profileEntityRepository.findByProfileEmail(validEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
 
             // When
@@ -170,31 +170,31 @@ class UserDetailsServiceImplTest {
         }
 
         @Test
-        @DisplayName("Should call repository with correct email parameter")
+        @DisplayName("Should call repositories with correct email parameter")
         void shouldCallRepositoryWithCorrectEmailParameter() {
             // Given
-            when(profileEntityRepository.findByProfileEmail(validEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
 
             // When
             userDetailsService.loadUserByUsername(validEmail);
 
             // Then
-            verify(profileEntityRepository, times(1)).findByProfileEmail(validEmail);
+            verify(jpaProfileEntityRepository, times(1)).findByProfileEmail(validEmail);
         }
 
         @Test
-        @DisplayName("Should not call repository when exception is thrown before")
+        @DisplayName("Should not call repositories when exception is thrown before")
         void shouldNotCallRepositoryWhenExceptionIsThrownBefore() {
 
-            when(profileEntityRepository.findByProfileEmail(invalidEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(invalidEmail))
                     .thenThrow(new RuntimeException("Database error"));
 
             // When & Then
             assertThatThrownBy(() -> userDetailsService.loadUserByUsername(invalidEmail))
                     .isInstanceOf(RuntimeException.class);
 
-            verify(profileEntityRepository, times(1)).findByProfileEmail(invalidEmail);
+            verify(jpaProfileEntityRepository, times(1)).findByProfileEmail(invalidEmail);
         }
     }
 
@@ -208,7 +208,7 @@ class UserDetailsServiceImplTest {
             // Given
             String emailWithSpaces = "  " + validEmail + "  ";
 
-            when(profileEntityRepository.findByProfileEmail(emailWithSpaces))
+            when(jpaProfileEntityRepository.findByProfileEmail(emailWithSpaces))
                     .thenReturn(Optional.of(mockProfileEntity));
 
             // When
@@ -216,7 +216,7 @@ class UserDetailsServiceImplTest {
 
             // Then
             assertThat(userDetails).isNotNull();
-            verify(profileEntityRepository, times(1)).findByProfileEmail(emailWithSpaces);
+            verify(jpaProfileEntityRepository, times(1)).findByProfileEmail(emailWithSpaces);
         }
 
         @Test
@@ -226,7 +226,7 @@ class UserDetailsServiceImplTest {
             String complexEncodedPassword = "{bcrypt}$2a$10$N9qo8uLOickgx2ZMRZoMy.Mr/KqZ5JkF5gF6sK4X5fY8gX9f7gX9f";
             mockProfileEntity.setPassword(complexEncodedPassword);
 
-            when(profileEntityRepository.findByProfileEmail(validEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
 
             // When
@@ -245,7 +245,7 @@ class UserDetailsServiceImplTest {
         @DisplayName("Should be read-only transactional")
         void shouldBeReadOnlyTransactional() {
 
-            when(profileEntityRepository.findByProfileEmail(validEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
 
             // When
@@ -254,8 +254,8 @@ class UserDetailsServiceImplTest {
             // Then
             assertThat(userDetails).isNotNull();
 
-            verify(profileEntityRepository, never()).save(any());
-            verify(profileEntityRepository, never()).saveAndFlush(any());
+            verify(jpaProfileEntityRepository, never()).save(any());
+            verify(jpaProfileEntityRepository, never()).saveAndFlush(any());
         }
     }
 
@@ -288,7 +288,7 @@ class UserDetailsServiceImplTest {
         @DisplayName("Should return UserDetailsImpl instance with all fields populated")
         void shouldReturnUserDetailsImplWithAllFieldsPopulated() {
             // Given
-            when(profileEntityRepository.findByProfileEmail(validEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
 
             // When
@@ -306,7 +306,7 @@ class UserDetailsServiceImplTest {
         @DisplayName("Should maintain consistency between UserDetails and ProfileEntity")
         void shouldMaintainConsistencyBetweenUserDetailsAndProfileEntity() {
             // Given
-            when(profileEntityRepository.findByProfileEmail(validEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
 
             // When

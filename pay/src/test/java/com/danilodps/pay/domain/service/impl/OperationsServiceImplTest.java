@@ -10,13 +10,13 @@ import com.danilodps.pay.application.service.impl.OperationsServiceImpl;
 import com.danilodps.pay.domain.model.DepositEntity;
 import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.TransactionEntity;
-import com.danilodps.pay.domain.model.request.create.operations.DepositRequest;
-import com.danilodps.pay.domain.model.request.create.operations.TransactionRequest;
-import com.danilodps.pay.adapters.outbound.repository.DepositEntityRepository;
-import com.danilodps.pay.adapters.outbound.repository.ProfileEntityRepository;
-import com.danilodps.pay.adapters.outbound.repository.TransactionEntityRepository;
-import com.danilodps.pay.adapters.outbound.repository.projection.DepositProjection;
-import com.danilodps.pay.adapters.outbound.repository.projection.TransactionProjection;
+import com.danilodps.pay.adapters.inbound.controller.request.create.operations.DepositRequest;
+import com.danilodps.pay.adapters.inbound.controller.request.create.operations.TransactionRequest;
+import com.danilodps.pay.adapters.outbound.repositories.JpaDepositEntityRepository;
+import com.danilodps.pay.adapters.outbound.repositories.JpaProfileEntityRepository;
+import com.danilodps.pay.adapters.outbound.repositories.JpaTransactionEntityRepository;
+import com.danilodps.pay.adapters.outbound.repositories.projection.DepositProjection;
+import com.danilodps.pay.adapters.outbound.repositories.projection.TransactionProjection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -47,13 +47,13 @@ class OperationsServiceImplTest {
     private KafkaEventProducer kafkaEventProducer;
 
     @Mock
-    private ProfileEntityRepository profileEntityRepository;
+    private JpaProfileEntityRepository jpaProfileEntityRepository;
 
     @Mock
-    private DepositEntityRepository depositEntityRepository;
+    private JpaDepositEntityRepository jpaDepositEntityRepository;
 
     @Mock
-    private TransactionEntityRepository transactionEntityRepository;
+    private JpaTransactionEntityRepository jpaTransactionEntityRepository;
 
     @InjectMocks
     private OperationsServiceImpl operationsService;
@@ -113,11 +113,11 @@ class OperationsServiceImplTest {
                     .profileEntity(mockSenderProfile)
                     .build();
 
-            when(profileEntityRepository.findByProfileEmail(senderEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
-            when(depositEntityRepository.saveAndFlush(any(DepositEntity.class)))
+            when(jpaDepositEntityRepository.saveAndFlush(any(DepositEntity.class)))
                     .thenReturn(mockDepositEntity);
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(jpaProfileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
                     .thenReturn(mockSenderProfile);
             doNothing().when(kafkaEventProducer).publishDepositEventNotification(any(DepositResponse.class));
 
@@ -135,9 +135,9 @@ class OperationsServiceImplTest {
             assertThat(mockSenderProfile.getBalance())
                     .isEqualByComparingTo(senderInitialBalance.add(depositAmount));
 
-            verify(profileEntityRepository, times(1)).findByProfileEmail(senderEmail);
-            verify(depositEntityRepository, times(1)).saveAndFlush(any(DepositEntity.class));
-            verify(profileEntityRepository, times(1)).saveAndFlush(mockSenderProfile);
+            verify(jpaProfileEntityRepository, times(1)).findByProfileEmail(senderEmail);
+            verify(jpaDepositEntityRepository, times(1)).saveAndFlush(any(DepositEntity.class));
+            verify(jpaProfileEntityRepository, times(1)).saveAndFlush(mockSenderProfile);
             verify(kafkaEventProducer, times(1)).publishDepositEventNotification(any(DepositResponse.class));
         }
 
@@ -154,8 +154,8 @@ class OperationsServiceImplTest {
             assertThatThrownBy(() -> operationsService.deposit(depositRequest))
                     .isInstanceOf(InvalidValueException.class);
 
-            verify(profileEntityRepository, never()).findByProfileEmail(anyString());
-            verify(depositEntityRepository, never()).saveAndFlush(any());
+            verify(jpaProfileEntityRepository, never()).findByProfileEmail(anyString());
+            verify(jpaDepositEntityRepository, never()).saveAndFlush(any());
             verify(kafkaEventProducer, never()).publishDepositEventNotification(any());
         }
 
@@ -197,7 +197,7 @@ class OperationsServiceImplTest {
                     .userEmail(nonExistentEmail)
                     .build();
 
-            when(profileEntityRepository.findByProfileEmail(nonExistentEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(nonExistentEmail))
                     .thenReturn(Optional.empty());
 
             // When & Then
@@ -205,9 +205,9 @@ class OperationsServiceImplTest {
                     .isInstanceOf(NotFoundException.class)
                     .hasMessageContaining(nonExistentEmail);
 
-            verify(profileEntityRepository, times(1)).findByProfileEmail(nonExistentEmail);
-            verify(depositEntityRepository, never()).saveAndFlush(any());
-            verify(profileEntityRepository, never()).saveAndFlush(any());
+            verify(jpaProfileEntityRepository, times(1)).findByProfileEmail(nonExistentEmail);
+            verify(jpaDepositEntityRepository, never()).saveAndFlush(any());
+            verify(jpaProfileEntityRepository, never()).saveAndFlush(any());
         }
 
         @Test
@@ -219,11 +219,11 @@ class OperationsServiceImplTest {
                     .userEmail(senderEmail)
                     .build();
 
-            when(profileEntityRepository.findByProfileEmail(senderEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
-            when(depositEntityRepository.saveAndFlush(any(DepositEntity.class)))
+            when(jpaDepositEntityRepository.saveAndFlush(any(DepositEntity.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(jpaProfileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
                     .thenReturn(mockSenderProfile);
 
             // When
@@ -231,7 +231,7 @@ class OperationsServiceImplTest {
 
             // Then
             ArgumentCaptor<DepositEntity> depositCaptor = ArgumentCaptor.forClass(DepositEntity.class);
-            verify(depositEntityRepository).saveAndFlush(depositCaptor.capture());
+            verify(jpaDepositEntityRepository).saveAndFlush(depositCaptor.capture());
 
             DepositEntity capturedDeposit = depositCaptor.getValue();
             assertThat(capturedDeposit.getAmount()).isEqualByComparingTo(depositAmount);
@@ -256,11 +256,11 @@ class OperationsServiceImplTest {
                     .profileEntity(mockSenderProfile)
                     .build();
 
-            when(profileEntityRepository.findByProfileEmail(senderEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
-            when(depositEntityRepository.saveAndFlush(any(DepositEntity.class)))
+            when(jpaDepositEntityRepository.saveAndFlush(any(DepositEntity.class)))
                     .thenReturn(mockDepositEntity);
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(jpaProfileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
                     .thenReturn(mockSenderProfile);
 
             ArgumentCaptor<DepositResponse> kafkaCaptor = ArgumentCaptor.forClass(DepositResponse.class);
@@ -300,15 +300,15 @@ class OperationsServiceImplTest {
                     .profileReceiver(mockReceiverProfile)
                     .build();
 
-            when(profileEntityRepository.findAndLockByProfileEmail(senderEmail))
+            when(jpaProfileEntityRepository.findAndLockByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
-            when(profileEntityRepository.findByProfileEmail(receiverEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(receiverEmail))
                     .thenReturn(Optional.of(mockReceiverProfile));
-            when(profileEntityRepository.saveAndFlush(mockSenderProfile))
+            when(jpaProfileEntityRepository.saveAndFlush(mockSenderProfile))
                     .thenReturn(mockSenderProfile);
-            when(profileEntityRepository.saveAndFlush(mockReceiverProfile))
+            when(jpaProfileEntityRepository.saveAndFlush(mockReceiverProfile))
                     .thenReturn(mockReceiverProfile);
-            when(transactionEntityRepository.saveAndFlush(any(TransactionEntity.class)))
+            when(jpaTransactionEntityRepository.saveAndFlush(any(TransactionEntity.class)))
                     .thenReturn(mockTransactionEntity);
             doNothing().when(kafkaEventProducer).publishTransferEventNotification(any(TransactionResponse.class));
 
@@ -328,11 +328,11 @@ class OperationsServiceImplTest {
             assertThat(mockReceiverProfile.getBalance())
                     .isEqualByComparingTo(receiverInitialBalance.add(transferAmount));
 
-            verify(profileEntityRepository, times(1)).findAndLockByProfileEmail(senderEmail);
-            verify(profileEntityRepository, times(1)).findByProfileEmail(receiverEmail);
-            verify(profileEntityRepository, times(1)).saveAndFlush(mockSenderProfile);
-            verify(profileEntityRepository, times(1)).saveAndFlush(mockReceiverProfile);
-            verify(transactionEntityRepository, times(1)).saveAndFlush(any(TransactionEntity.class));
+            verify(jpaProfileEntityRepository, times(1)).findAndLockByProfileEmail(senderEmail);
+            verify(jpaProfileEntityRepository, times(1)).findByProfileEmail(receiverEmail);
+            verify(jpaProfileEntityRepository, times(1)).saveAndFlush(mockSenderProfile);
+            verify(jpaProfileEntityRepository, times(1)).saveAndFlush(mockReceiverProfile);
+            verify(jpaTransactionEntityRepository, times(1)).saveAndFlush(any(TransactionEntity.class));
             verify(kafkaEventProducer, times(1)).publishTransferEventNotification(any(TransactionResponse.class));
         }
 
@@ -350,7 +350,7 @@ class OperationsServiceImplTest {
             assertThatThrownBy(() -> operationsService.transfer(transactionRequest))
                     .isInstanceOf(InvalidValueException.class);
 
-            verify(profileEntityRepository, never()).findAndLockByProfileEmail(anyString());
+            verify(jpaProfileEntityRepository, never()).findAndLockByProfileEmail(anyString());
         }
 
         @Test
@@ -379,7 +379,7 @@ class OperationsServiceImplTest {
                     .amount(transferAmount)
                     .build();
 
-            when(profileEntityRepository.findAndLockByProfileEmail(nonExistentSender))
+            when(jpaProfileEntityRepository.findAndLockByProfileEmail(nonExistentSender))
                     .thenReturn(Optional.empty());
 
             // When & Then
@@ -388,9 +388,9 @@ class OperationsServiceImplTest {
                     .hasMessageContaining("remetente")
                     .hasMessageContaining(nonExistentSender);
 
-            verify(profileEntityRepository, times(1)).findAndLockByProfileEmail(nonExistentSender);
-            verify(profileEntityRepository, never()).findByProfileEmail(anyString());
-            verify(transactionEntityRepository, never()).saveAndFlush(any());
+            verify(jpaProfileEntityRepository, times(1)).findAndLockByProfileEmail(nonExistentSender);
+            verify(jpaProfileEntityRepository, never()).findByProfileEmail(anyString());
+            verify(jpaTransactionEntityRepository, never()).saveAndFlush(any());
         }
 
         @Test
@@ -404,9 +404,9 @@ class OperationsServiceImplTest {
                     .amount(transferAmount)
                     .build();
 
-            when(profileEntityRepository.findAndLockByProfileEmail(senderEmail))
+            when(jpaProfileEntityRepository.findAndLockByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
-            when(profileEntityRepository.findByProfileEmail(nonExistentReceiver))
+            when(jpaProfileEntityRepository.findByProfileEmail(nonExistentReceiver))
                     .thenReturn(Optional.empty());
 
             // When & Then
@@ -415,9 +415,9 @@ class OperationsServiceImplTest {
                     .hasMessageContaining("remetente")
                     .hasMessageContaining(nonExistentReceiver);
 
-            verify(profileEntityRepository, times(1)).findAndLockByProfileEmail(senderEmail);
-            verify(profileEntityRepository, times(1)).findByProfileEmail(nonExistentReceiver);
-            verify(transactionEntityRepository, never()).saveAndFlush(any());
+            verify(jpaProfileEntityRepository, times(1)).findAndLockByProfileEmail(senderEmail);
+            verify(jpaProfileEntityRepository, times(1)).findByProfileEmail(nonExistentReceiver);
+            verify(jpaTransactionEntityRepository, never()).saveAndFlush(any());
         }
 
         @Test
@@ -431,17 +431,17 @@ class OperationsServiceImplTest {
                     .amount(largeAmount)
                     .build();
 
-            when(profileEntityRepository.findAndLockByProfileEmail(senderEmail))
+            when(jpaProfileEntityRepository.findAndLockByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
-            when(profileEntityRepository.findByProfileEmail(receiverEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(receiverEmail))
                     .thenReturn(Optional.of(mockReceiverProfile));
 
             // When & Then
             assertThatThrownBy(() -> operationsService.transfer(transactionRequest))
                     .isInstanceOf(InsufficientBalanceException.class);
 
-            verify(profileEntityRepository, never()).saveAndFlush(any());
-            verify(transactionEntityRepository, never()).saveAndFlush(any());
+            verify(jpaProfileEntityRepository, never()).saveAndFlush(any());
+            verify(jpaTransactionEntityRepository, never()).saveAndFlush(any());
             verify(kafkaEventProducer, never()).publishTransferEventNotification(any());
         }
 
@@ -455,13 +455,13 @@ class OperationsServiceImplTest {
                     .amount(transferAmount)
                     .build();
 
-            when(profileEntityRepository.findAndLockByProfileEmail(senderEmail))
+            when(jpaProfileEntityRepository.findAndLockByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
-            when(profileEntityRepository.findByProfileEmail(receiverEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(receiverEmail))
                     .thenReturn(Optional.of(mockReceiverProfile));
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(jpaProfileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
                     .thenReturn(mockSenderProfile, mockReceiverProfile);
-            when(transactionEntityRepository.saveAndFlush(any(TransactionEntity.class)))
+            when(jpaTransactionEntityRepository.saveAndFlush(any(TransactionEntity.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             // When
@@ -469,7 +469,7 @@ class OperationsServiceImplTest {
 
             // Then
             ArgumentCaptor<TransactionEntity> transactionCaptor = ArgumentCaptor.forClass(TransactionEntity.class);
-            verify(transactionEntityRepository).saveAndFlush(transactionCaptor.capture());
+            verify(jpaTransactionEntityRepository).saveAndFlush(transactionCaptor.capture());
 
             TransactionEntity capturedTransaction = transactionCaptor.getValue();
             assertThat(capturedTransaction.getAmount()).isEqualByComparingTo(transferAmount);
@@ -489,21 +489,21 @@ class OperationsServiceImplTest {
                     .amount(transferAmount)
                     .build();
 
-            when(profileEntityRepository.findAndLockByProfileEmail(senderEmail))
+            when(jpaProfileEntityRepository.findAndLockByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
-            when(profileEntityRepository.findByProfileEmail(receiverEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(receiverEmail))
                     .thenReturn(Optional.of(mockReceiverProfile));
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(jpaProfileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
                     .thenReturn(mockSenderProfile, mockReceiverProfile);
-            when(transactionEntityRepository.saveAndFlush(any(TransactionEntity.class)))
+            when(jpaTransactionEntityRepository.saveAndFlush(any(TransactionEntity.class)))
                     .thenReturn(mock(TransactionEntity.class));
 
             // When
             operationsService.transfer(transactionRequest);
 
             // Then
-            verify(profileEntityRepository, times(1)).findAndLockByProfileEmail(senderEmail);
-            verify(profileEntityRepository, never()).findAndLockByProfileEmail(receiverEmail);
+            verify(jpaProfileEntityRepository, times(1)).findAndLockByProfileEmail(senderEmail);
+            verify(jpaProfileEntityRepository, never()).findAndLockByProfileEmail(receiverEmail);
         }
 
         @Test
@@ -524,13 +524,13 @@ class OperationsServiceImplTest {
                     .profileReceiver(mockReceiverProfile)
                     .build();
 
-            when(profileEntityRepository.findAndLockByProfileEmail(senderEmail))
+            when(jpaProfileEntityRepository.findAndLockByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
-            when(profileEntityRepository.findByProfileEmail(receiverEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(receiverEmail))
                     .thenReturn(Optional.of(mockReceiverProfile));
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(jpaProfileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
                     .thenReturn(mockSenderProfile, mockReceiverProfile);
-            when(transactionEntityRepository.saveAndFlush(any(TransactionEntity.class)))
+            when(jpaTransactionEntityRepository.saveAndFlush(any(TransactionEntity.class)))
                     .thenReturn(mockTransactionEntity);
 
             ArgumentCaptor<TransactionResponse> kafkaCaptor = ArgumentCaptor.forClass(TransactionResponse.class);
@@ -560,7 +560,7 @@ class OperationsServiceImplTest {
             DepositProjection mockProjection = mock(DepositProjection.class);
             List<DepositProjection> mockDeposits = List.of(mockProjection);
 
-            when(depositEntityRepository.findDepositsByProfileId(profileId))
+            when(jpaDepositEntityRepository.findDepositsByProfileId(profileId))
                     .thenReturn(mockDeposits);
 
             // When
@@ -569,7 +569,7 @@ class OperationsServiceImplTest {
             // Then
             assertThat(result).hasSize(1);
             assertThat(result).isEqualTo(mockDeposits);
-            verify(depositEntityRepository, times(1)).findDepositsByProfileId(profileId);
+            verify(jpaDepositEntityRepository, times(1)).findDepositsByProfileId(profileId);
         }
 
         @Test
@@ -577,7 +577,7 @@ class OperationsServiceImplTest {
         void shouldReturnEmptyListWhenProfileHasNoDeposits() {
             // Given
             String profileId = senderProfileId;
-            when(depositEntityRepository.findDepositsByProfileId(profileId))
+            when(jpaDepositEntityRepository.findDepositsByProfileId(profileId))
                     .thenReturn(List.of());
 
             // When
@@ -585,22 +585,22 @@ class OperationsServiceImplTest {
 
             // Then
             assertThat(result).isEmpty();
-            verify(depositEntityRepository, times(1)).findDepositsByProfileId(profileId);
+            verify(jpaDepositEntityRepository, times(1)).findDepositsByProfileId(profileId);
         }
 
         @Test
-        @DisplayName("Should pass correct profileId to repository")
+        @DisplayName("Should pass correct profileId to repositories")
         void shouldPassCorrectProfileIdToRepository() {
             // Given
             String profileId = senderProfileId;
-            when(depositEntityRepository.findDepositsByProfileId(profileId))
+            when(jpaDepositEntityRepository.findDepositsByProfileId(profileId))
                     .thenReturn(List.of());
 
             // When
             operationsService.getAllDeposits(profileId);
 
             // Then
-            verify(depositEntityRepository, times(1)).findDepositsByProfileId(profileId);
+            verify(jpaDepositEntityRepository, times(1)).findDepositsByProfileId(profileId);
         }
 
         @Test
@@ -618,7 +618,7 @@ class OperationsServiceImplTest {
                 @Override public BigDecimal getAmount() { return amount; }
             };
 
-            when(depositEntityRepository.findDepositsByProfileId(profileId))
+            when(jpaDepositEntityRepository.findDepositsByProfileId(profileId))
                     .thenReturn(List.of(mockProjection));
 
             // When
@@ -645,7 +645,7 @@ class OperationsServiceImplTest {
             TransactionProjection mockProjection = mock(TransactionProjection.class);
             List<TransactionProjection> mockTransactions = List.of(mockProjection);
 
-            when(transactionEntityRepository.findTransactionsByProfileId(profileId))
+            when(jpaTransactionEntityRepository.findTransactionsByProfileId(profileId))
                     .thenReturn(mockTransactions);
 
             // When
@@ -654,7 +654,7 @@ class OperationsServiceImplTest {
             // Then
             assertThat(result).hasSize(1);
             assertThat(result).isEqualTo(mockTransactions);
-            verify(transactionEntityRepository, times(1)).findTransactionsByProfileId(profileId);
+            verify(jpaTransactionEntityRepository, times(1)).findTransactionsByProfileId(profileId);
         }
 
         @Test
@@ -662,7 +662,7 @@ class OperationsServiceImplTest {
         void shouldReturnEmptyListWhenProfileHasNoTransactions() {
             // Given
             String profileId = senderProfileId;
-            when(transactionEntityRepository.findTransactionsByProfileId(profileId))
+            when(jpaTransactionEntityRepository.findTransactionsByProfileId(profileId))
                     .thenReturn(List.of());
 
             // When
@@ -670,22 +670,22 @@ class OperationsServiceImplTest {
 
             // Then
             assertThat(result).isEmpty();
-            verify(transactionEntityRepository, times(1)).findTransactionsByProfileId(profileId);
+            verify(jpaTransactionEntityRepository, times(1)).findTransactionsByProfileId(profileId);
         }
 
         @Test
-        @DisplayName("Should pass correct profileId to repository")
+        @DisplayName("Should pass correct profileId to repositories")
         void shouldPassCorrectProfileIdToRepository() {
             // Given
             String profileId = senderProfileId;
-            when(transactionEntityRepository.findTransactionsByProfileId(profileId))
+            when(jpaTransactionEntityRepository.findTransactionsByProfileId(profileId))
                     .thenReturn(List.of());
 
             // When
             operationsService.getAllTransactions(profileId);
 
             // Then
-            verify(transactionEntityRepository, times(1)).findTransactionsByProfileId(profileId);
+            verify(jpaTransactionEntityRepository, times(1)).findTransactionsByProfileId(profileId);
         }
 
         @Test
@@ -705,7 +705,7 @@ class OperationsServiceImplTest {
                 @Override public BigDecimal getAmount() { return amount; }
             };
 
-            when(transactionEntityRepository.findTransactionsByProfileId(profileId))
+            when(jpaTransactionEntityRepository.findTransactionsByProfileId(profileId))
                     .thenReturn(List.of(mockProjection));
 
             // When
@@ -735,13 +735,13 @@ class OperationsServiceImplTest {
                     .amount(transferAmount)
                     .build();
 
-            when(profileEntityRepository.findAndLockByProfileEmail(senderEmail))
+            when(jpaProfileEntityRepository.findAndLockByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
-            when(profileEntityRepository.findByProfileEmail(receiverEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(receiverEmail))
                     .thenReturn(Optional.of(mockReceiverProfile));
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(jpaProfileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
                     .thenReturn(mockSenderProfile, mockReceiverProfile);
-            when(transactionEntityRepository.saveAndFlush(any(TransactionEntity.class)))
+            when(jpaTransactionEntityRepository.saveAndFlush(any(TransactionEntity.class)))
                     .thenReturn(mock(TransactionEntity.class));
 
             // When
@@ -753,8 +753,8 @@ class OperationsServiceImplTest {
             assertThat(mockReceiverProfile.getBalance())
                     .isEqualByComparingTo(receiverInitialBalance.add(transferAmount));
 
-            verify(profileEntityRepository, times(1)).saveAndFlush(mockSenderProfile);
-            verify(profileEntityRepository, times(1)).saveAndFlush(mockReceiverProfile);
+            verify(jpaProfileEntityRepository, times(1)).saveAndFlush(mockSenderProfile);
+            verify(jpaProfileEntityRepository, times(1)).saveAndFlush(mockReceiverProfile);
         }
 
         @Test
@@ -768,9 +768,9 @@ class OperationsServiceImplTest {
                     .amount(largeAmount)
                     .build();
 
-            when(profileEntityRepository.findAndLockByProfileEmail(senderEmail))
+            when(jpaProfileEntityRepository.findAndLockByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
-            when(profileEntityRepository.findByProfileEmail(receiverEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(receiverEmail))
                     .thenReturn(Optional.of(mockReceiverProfile));
 
             BigDecimal senderBalanceBefore = mockSenderProfile.getBalance();
@@ -783,8 +783,8 @@ class OperationsServiceImplTest {
             assertThat(mockSenderProfile.getBalance()).isEqualByComparingTo(senderBalanceBefore);
             assertThat(mockReceiverProfile.getBalance()).isEqualByComparingTo(receiverBalanceBefore);
 
-            verify(profileEntityRepository, never()).saveAndFlush(any());
-            verify(transactionEntityRepository, never()).saveAndFlush(any());
+            verify(jpaProfileEntityRepository, never()).saveAndFlush(any());
+            verify(jpaTransactionEntityRepository, never()).saveAndFlush(any());
         }
 
         @Test
@@ -796,18 +796,18 @@ class OperationsServiceImplTest {
                     .userEmail(senderEmail)
                     .build();
 
-            when(profileEntityRepository.findByProfileEmail(senderEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
 
             // Simula exceção no save do depósito
-            when(depositEntityRepository.saveAndFlush(any(DepositEntity.class)))
+            when(jpaDepositEntityRepository.saveAndFlush(any(DepositEntity.class)))
                     .thenThrow(new RuntimeException("Database error"));
 
             // When & Then
             assertThatThrownBy(() -> operationsService.deposit(depositRequest))
                     .isInstanceOf(RuntimeException.class);
 
-            verify(profileEntityRepository, never()).saveAndFlush(any());
+            verify(jpaProfileEntityRepository, never()).saveAndFlush(any());
 
             // para testar o rollback real, precisa de um teste de integração com banco H2
         }
@@ -828,13 +828,13 @@ class OperationsServiceImplTest {
                     .amount(exactAmount)
                     .build();
 
-            when(profileEntityRepository.findAndLockByProfileEmail(senderEmail))
+            when(jpaProfileEntityRepository.findAndLockByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
-            when(profileEntityRepository.findByProfileEmail(receiverEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(receiverEmail))
                     .thenReturn(Optional.of(mockReceiverProfile));
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(jpaProfileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
                     .thenReturn(mockSenderProfile, mockReceiverProfile);
-            when(transactionEntityRepository.saveAndFlush(any(TransactionEntity.class)))
+            when(jpaTransactionEntityRepository.saveAndFlush(any(TransactionEntity.class)))
                     .thenReturn(mock(TransactionEntity.class));
 
             // When
@@ -856,11 +856,11 @@ class OperationsServiceImplTest {
                     .userEmail(senderEmail)
                     .build();
 
-            when(profileEntityRepository.findByProfileEmail(senderEmail))
+            when(jpaProfileEntityRepository.findByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
-            when(depositEntityRepository.saveAndFlush(any(DepositEntity.class)))
+            when(jpaDepositEntityRepository.saveAndFlush(any(DepositEntity.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(jpaProfileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
                     .thenReturn(mockSenderProfile);
 
             // When

@@ -1,0 +1,20 @@
+package com.danilodps.pay.domain.mappers;
+
+import com.danilodps.commons.domain.model.response.TransactionResponse;
+import com.danilodps.pay.domain.model.TransactionEntity;
+
+public class TransactionEntity2TransactionResponse {
+
+    private TransactionEntity2TransactionResponse(){}
+
+    public static TransactionResponse convert(TransactionEntity transactionEntity){
+        return TransactionResponse.builder()
+                .transactionId(transactionEntity.getTransactionId())
+                .amount(transactionEntity.getAmount())
+                .senderEmail(transactionEntity.getProfileSender().getProfileEmail())
+                .receiverEmail(transactionEntity.getProfileReceiver().getProfileEmail())
+                .transactionTimestamp(transactionEntity.getTransactionAt())
+                .build();
+    }
+}
+

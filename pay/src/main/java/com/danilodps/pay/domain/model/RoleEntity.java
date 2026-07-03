@@ -1,37 +1,83 @@
 package com.danilodps.pay.domain.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.*;
-
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "TB_ROLES")
 public class RoleEntity implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @Column(name = "ROLE_ID")
     private Long roleId;
 
-    @Column(name = "ROLE_DOC", length = 10)
     private String docIdentifier;
 
-    @Column(name = "ROLE_NAME", length = 10)
     private String roleGrantedAuthority;
 
-    @Column(name = "ROLE_DESCRIPTION", length = 25)
     private String description;
+
+    public RoleEntity() {
+    }
+
+    public RoleEntity(Long roleId, String docIdentifier, String roleGrantedAuthority, String description) {
+        this.roleId = roleId;
+        this.docIdentifier = docIdentifier;
+        this.roleGrantedAuthority = roleGrantedAuthority;
+        this.description = description;
+    }
+
+    public Long getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
+    }
+
+    public String getDocIdentifier() {
+        return docIdentifier;
+    }
+
+    public void setDocIdentifier(String docIdentifier) {
+        this.docIdentifier = docIdentifier;
+    }
+
+    public String getRoleGrantedAuthority() {
+        return roleGrantedAuthority;
+    }
+
+    public void setRoleGrantedAuthority(String roleGrantedAuthority) {
+        this.roleGrantedAuthority = roleGrantedAuthority;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof RoleEntity that)) return false;
+        return Objects.equals(roleId, that.roleId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(roleId);
+    }
+
+    @Override
+    public String toString() {
+        return "RoleEntity{" +
+                "roleId=" + roleId +
+                ", docIdentifier='" + docIdentifier + '\'' +
+                ", roleGrantedAuthority='" + roleGrantedAuthority + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 
 }

@@ -1,72 +1,166 @@
 package com.danilodps.pay.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(
-        name = "TB_PROFILE",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = "PROFILE_EMAIL", name = "uk_profile_email"),
-                @UniqueConstraint(columnNames = "DOCUMENT", name = "uk_document")
-        }
-)
-@EqualsAndHashCode(of = "profileId")
 public class ProfileEntity implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @Column(name = "PROFILE_ID", updatable = false, nullable = false)
     private String profileId;
 
-    @Column(name = "USERNAME", nullable = false, length = 100)
     private String username;
 
-    @Column(name = "DOCUMENT_IDENTIFIER", nullable = false, unique = true, length = 4)
     private String documentIdentifier;
 
-    @Column(name = "DOCUMENT", nullable = false, unique = true, length = 18)
     private String document;
 
-    @Column(name = "PROFILE_EMAIL", nullable = false, unique = true, length = 50)
     private String profileEmail;
 
-    @Column(name = "ACCESS_HASH", nullable = false, length = 100)
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @ToString.Exclude
     private String password;
 
-    @Column(name = "ACCOUNT_BALANCE", nullable = false)
-    @Builder.Default
-    private BigDecimal balance = BigDecimal.ZERO;
+    private BigDecimal balance;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "PROFILE_ROLES",
-            joinColumns = @JoinColumn(name = "PROFILE_ID"),
-            inverseJoinColumns = @JoinColumn(name = "ROLE_ID")
-    )
-    @Builder.Default
-    private List<RoleEntity> roles = new ArrayList<>();
+    private List<RoleEntity> roles;
 
-    @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
 
-    @Column(name = "LAST_UPDATED")
     private LocalDateTime lastUpdated;
+
+    public ProfileEntity() {
+    }
+
+    public ProfileEntity(String profileId,
+                         String username,
+                         String documentIdentifier,
+                         String document,
+                         String profileEmail,
+                         String password,
+                         BigDecimal balance,
+                         List<RoleEntity> roles,
+                         LocalDateTime createdAt,
+                         LocalDateTime lastUpdated) {
+        this.profileId = profileId;
+        this.username = username;
+        this.documentIdentifier = documentIdentifier;
+        this.document = document;
+        this.profileEmail = profileEmail;
+        this.password = password;
+        this.balance = balance;
+        this.roles = roles;
+        this.createdAt = createdAt;
+        this.lastUpdated = lastUpdated;
+    }
+
+    public LocalDateTime getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(LocalDateTime lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public List<RoleEntity> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<RoleEntity> roles) {
+        this.roles = roles;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
+
+    public String getProfileEmail() {
+        return profileEmail;
+    }
+
+    public void setProfileEmail(String profileEmail) {
+        this.profileEmail = profileEmail;
+    }
+
+    public String getDocument() {
+        return document;
+    }
+
+    public void setDocument(String document) {
+        this.document = document;
+    }
+
+    public String getDocumentIdentifier() {
+        return documentIdentifier;
+    }
+
+    public void setDocumentIdentifier(String documentIdentifier) {
+        this.documentIdentifier = documentIdentifier;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getProfileId() {
+        return profileId;
+    }
+
+    public void setProfileId(String profileId) {
+        this.profileId = profileId;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ProfileEntity that)) return false;
+        return Objects.equals(profileId, that.profileId) && Objects.equals(profileEmail, that.profileEmail);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(profileId, profileEmail);
+    }
+
+    @Override
+    public String toString() {
+        return "ProfileEntity{" +
+                "profileId='" + profileId + '\'' +
+                ", username='" + username + '\'' +
+                ", documentIdentifier='" + documentIdentifier + '\'' +
+                ", document='" + document + '\'' +
+                ", profileEmail='" + profileEmail + '\'' +
+                ", password='" + password + '\'' +
+                ", balance=" + balance +
+                ", roles=" + roles +
+                ", createdAt=" + createdAt +
+                ", lastUpdated=" + lastUpdated +
+                '}';
+    }
 }

@@ -1,5 +1,6 @@
 package com.danilodps.pay.infrastrucure.spring;
 
+import com.danilodps.pay.adapters.outbound.entities.JpaProfileEntity;
 import com.danilodps.pay.domain.model.ProfileEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -24,7 +25,7 @@ public class UserDetailsImpl implements UserDetails {
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(ProfileEntity profileEntity) {
+    public UserDetailsImpl(JpaProfileEntity profileEntity) {
         this.profileId = profileEntity.getProfileId();
         this.username = profileEntity.getUsername();
         this.profileEmail = profileEntity.getProfileEmail();

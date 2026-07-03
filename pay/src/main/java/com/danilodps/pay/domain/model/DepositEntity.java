@@ -1,38 +1,88 @@
 package com.danilodps.pay.domain.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "TB_DEPOSIT")
-@EqualsAndHashCode(of = "depositId")
 public class DepositEntity implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @Column(name = "DEPOSIT_ID", updatable = false, nullable = false)
     private String depositId;
 
-    @Column(name = "DEPOSIT_AT", nullable = false, updatable = false)
     private LocalDateTime depositAt;
 
-    @Column(name = "AMOUNT", nullable = false, updatable = false)
     private BigDecimal amount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROFILE_ID", nullable = false)
     private ProfileEntity profileEntity;
+
+    public DepositEntity() {
+    }
+
+    public DepositEntity(String depositId,
+                         LocalDateTime depositAt,
+                         BigDecimal amount,
+                         ProfileEntity profileEntity) {
+        this.depositId = depositId;
+        this.depositAt = depositAt;
+        this.amount = amount;
+        this.profileEntity = profileEntity;
+    }
+
+    public String getDepositId() {
+        return depositId;
+    }
+
+    public void setDepositId(String depositId) {
+        this.depositId = depositId;
+    }
+
+    public LocalDateTime getDepositAt() {
+        return depositAt;
+    }
+
+    public void setDepositAt(LocalDateTime depositAt) {
+        this.depositAt = depositAt;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public ProfileEntity getProfileEntity() {
+        return profileEntity;
+    }
+
+    public void setProfileEntity(ProfileEntity profileEntity) {
+        this.profileEntity = profileEntity;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof DepositEntity that)) return false;
+        return Objects.equals(depositId, that.depositId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(depositId);
+    }
+
+    @Override
+    public String toString() {
+        return "DepositEntity{" +
+                "depositId='" + depositId + '\'' +
+                ", depositAt=" + depositAt +
+                ", amount=" + amount +
+                ", profileEntity=" + profileEntity +
+                '}';
+    }
 
 }

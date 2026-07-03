@@ -7,10 +7,10 @@ import com.danilodps.pay.infrastrucure.config.KafkaEventProducer;
 import com.danilodps.pay.application.service.impl.ProfileAuthServiceImpl;
 import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.RoleEntity;
-import com.danilodps.pay.domain.model.request.create.SignInRequest;
-import com.danilodps.pay.domain.model.request.create.SignUpRequest;
-import com.danilodps.pay.domain.model.response.JwtResponse;
-import com.danilodps.pay.adapters.outbound.repository.ProfileEntityRepository;
+import com.danilodps.pay.adapters.inbound.controller.request.create.SignInRequest;
+import com.danilodps.pay.adapters.inbound.controller.request.create.SignUpRequest;
+import com.danilodps.pay.adapters.inbound.controller.response.JwtResponse;
+import com.danilodps.pay.adapters.outbound.repositories.JpaProfileEntityRepository;
 import com.danilodps.pay.infrastrucure.security.jwt.JwtTokenGenerator;
 import com.danilodps.pay.infrastrucure.spring.UserDetailsImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,7 +57,7 @@ class ProfileAuthServiceImplTest {
     private AuthenticationManager authenticationManager;
 
     @Mock
-    private ProfileEntityRepository profileEntityRepository;
+    private JpaProfileEntityRepository jpaProfileEntityRepository;
 
     @InjectMocks
     private ProfileAuthServiceImpl profileAuthService;
@@ -128,7 +128,7 @@ class ProfileAuthServiceImplTest {
                     validSignUpRequest.document()
             );
             when(passwordEncoder.encode(testPassword)).thenReturn(encodedPassword);
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(jpaProfileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
                     .thenReturn(mockProfileEntity);
             doNothing().when(kafkaEventProducer).publishSignUpNotification(any(SignUpResponse.class));
 
@@ -147,7 +147,7 @@ class ProfileAuthServiceImplTest {
                     validSignUpRequest.document()
             );
             verify(passwordEncoder, times(1)).encode(testPassword);
-            verify(profileEntityRepository, times(1)).saveAndFlush(any(ProfileEntity.class));
+            verify(jpaProfileEntityRepository, times(1)).saveAndFlush(any(ProfileEntity.class));
             verify(kafkaEventProducer, times(1)).publishSignUpNotification(any(SignUpResponse.class));
         }
 
@@ -157,7 +157,7 @@ class ProfileAuthServiceImplTest {
             // Given
             doNothing().when(profileValidator).validate(anyString(), anyString(), anyString());
             when(passwordEncoder.encode(testPassword)).thenReturn(encodedPassword);
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(jpaProfileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
             doNothing().when(kafkaEventProducer).publishSignUpNotification(any(SignUpResponse.class));
 
@@ -167,7 +167,7 @@ class ProfileAuthServiceImplTest {
             profileAuthService.register(validSignUpRequest);
 
             // Then
-            verify(profileEntityRepository).saveAndFlush(profileCaptor.capture());
+            verify(jpaProfileEntityRepository).saveAndFlush(profileCaptor.capture());
             ProfileEntity capturedProfile = profileCaptor.getValue();
 
             assertThat(capturedProfile.getUsername()).isEqualTo(testUsername);
@@ -186,7 +186,7 @@ class ProfileAuthServiceImplTest {
             // Given
             doNothing().when(profileValidator).validate(anyString(), anyString(), anyString());
             when(passwordEncoder.encode(testPassword)).thenReturn(encodedPassword);
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(jpaProfileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
                     .thenReturn(mockProfileEntity);
             doNothing().when(kafkaEventProducer).publishSignUpNotification(any(SignUpResponse.class));
 
@@ -210,7 +210,7 @@ class ProfileAuthServiceImplTest {
             // Given
             doNothing().when(profileValidator).validate(anyString(), anyString(), anyString());
             when(passwordEncoder.encode(testPassword)).thenReturn(encodedPassword);
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(jpaProfileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
                     .thenReturn(mockProfileEntity);
             ArgumentCaptor<SignUpResponse> kafkaCaptor = ArgumentCaptor.forClass(SignUpResponse.class);
 
@@ -239,7 +239,7 @@ class ProfileAuthServiceImplTest {
                     .hasMessageContaining("Validation failed");
 
             verify(passwordEncoder, never()).encode(anyString());
-            verify(profileEntityRepository, never()).saveAndFlush(any());
+            verify(jpaProfileEntityRepository, never()).saveAndFlush(any());
             verify(kafkaEventProducer, never()).publishSignUpNotification(any());
         }
 
@@ -249,7 +249,7 @@ class ProfileAuthServiceImplTest {
             // Given
             doNothing().when(profileValidator).validate(anyString(), anyString(), anyString());
             when(passwordEncoder.encode(testPassword)).thenReturn(encodedPassword);
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(jpaProfileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
                     .thenReturn(mockProfileEntity);
             doNothing().when(kafkaEventProducer).publishSignUpNotification(any(SignUpResponse.class));
 
@@ -455,7 +455,7 @@ class ProfileAuthServiceImplTest {
             // Given
             doNothing().when(profileValidator).validate(anyString(), anyString(), anyString());
             when(passwordEncoder.encode(testPassword)).thenReturn(encodedPassword);
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(jpaProfileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
             doNothing().when(kafkaEventProducer).publishSignUpNotification(any(SignUpResponse.class));
 
@@ -466,7 +466,7 @@ class ProfileAuthServiceImplTest {
             profileAuthService.register(validSignUpRequest);
 
             // Then
-            verify(profileEntityRepository).saveAndFlush(profileCaptor.capture());
+            verify(jpaProfileEntityRepository).saveAndFlush(profileCaptor.capture());
             ProfileEntity capturedProfile = profileCaptor.getValue();
 
             assertThat(capturedProfile.getCreatedAt()).isNotNull();

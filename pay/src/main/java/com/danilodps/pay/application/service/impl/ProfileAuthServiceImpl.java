@@ -3,15 +3,15 @@ package com.danilodps.pay.application.service.impl;
 import com.danilodps.commons.domain.model.response.SignInResponse;
 import com.danilodps.commons.domain.model.response.SignUpResponse;
 import com.danilodps.commons.domain.validation.ValidatorComponent;
-import com.danilodps.pay.infrastrucure.config.KafkaEventProducer;
-import com.danilodps.pay.domain.adapter.RoleEnum2RoleEntity;
+import com.danilodps.pay.adapters.inbound.controller.request.create.SignInRequest;
+import com.danilodps.pay.adapters.inbound.controller.request.create.SignUpRequest;
+import com.danilodps.pay.adapters.inbound.controller.response.JwtResponse;
+import com.danilodps.pay.application.usecases.ProfileAuthUseCase;
+import com.danilodps.pay.domain.mappers.RoleEnum2RoleEntity;
 import com.danilodps.pay.domain.model.ProfileEntity;
-import com.danilodps.pay.domain.model.request.create.SignInRequest;
-import com.danilodps.pay.domain.model.request.create.SignUpRequest;
-import com.danilodps.pay.domain.model.response.JwtResponse;
-import com.danilodps.pay.adapters.outbound.repository.ProfileEntityRepository;
+import com.danilodps.pay.domain.model.ProfileEntityRepository;
+import com.danilodps.pay.infrastrucure.config.KafkaEventProducer;
 import com.danilodps.pay.infrastrucure.security.jwt.JwtTokenGenerator;
-import com.danilodps.pay.application.service.ProfileAuthService;
 import com.danilodps.pay.infrastrucure.spring.UserDetailsImpl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProfileAuthServiceImpl implements ProfileAuthService {
+public class ProfileAuthServiceImpl implements ProfileAuthUseCase {
 
     private final PasswordEncoder passwordEncoder;
     private final ValidatorComponent profileValidator;
@@ -56,16 +57,16 @@ public class ProfileAuthServiceImpl implements ProfileAuthService {
         profileEntity.setDocument(signUpRequest.document());
         profileEntity.setRoles(Collections.singletonList(RoleEnum2RoleEntity.convert(signUpRequest.documentIdentifier())));
         profileEntity.setProfileEmail(signUpRequest.userEmail());
-        profileEntity.setCreatedAt(LocalDateTime.now());
+        profileEntity.setCreatedAt(LocalDateTime.now(ZoneId.systemDefault()));
         profileEntity.setPassword(passwordEncoder.encode(signUpRequest.password()));
 
         SignUpResponse signUpResponse = SignUpResponse.builder()
                 .id(profileEntity.getProfileId())
                 .username(profileEntity.getUsername())
                 .email(profileEntity.getProfileEmail())
-                .signupTimestamp(LocalDateTime.now()).build();
+                .signupTimestamp(LocalDateTime.now(ZoneId.systemDefault())).build();
 
-        profileEntityRepository.saveAndFlush(profileEntity);
+        profileEntityRepository.save(profileEntity);
         kafkaEventProducer.publishSignUpNotification(signUpResponse);
 
         return signUpResponse;
@@ -91,7 +92,7 @@ public class ProfileAuthServiceImpl implements ProfileAuthService {
                 .id(userDetails.getProfileId())
                 .username(userDetails.getUsername())
                 .email(userDetails.getProfileEmail())
-                .signinTimestamp(LocalDateTime.now()).build();
+                .signinTimestamp(LocalDateTime.now(ZoneId.systemDefault())).build();
 
         kafkaEventProducer.publishSignInNotification(signInResponse);
 
