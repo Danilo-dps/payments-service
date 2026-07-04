@@ -2,8 +2,8 @@ package com.danilodps.pay.adapters.outbound.repositories.impl;
 
 import com.danilodps.pay.adapters.outbound.entities.JpaProfileEntity;
 import com.danilodps.pay.adapters.outbound.repositories.JpaProfileEntityRepository;
-import com.danilodps.pay.domain.mappers.entities.JpaProfileEntity2ProfileEntity;
-import com.danilodps.pay.domain.mappers.entities.ProfileEntity2JpaProfileEntity;
+import com.danilodps.pay.domain.mappers.entities.jpa.JpaProfileEntity2ProfileEntity;
+import com.danilodps.pay.domain.mappers.entities.core.ProfileEntity2JpaProfileEntity;
 import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.ProfileEntityRepository;
 import org.springframework.stereotype.Repository;

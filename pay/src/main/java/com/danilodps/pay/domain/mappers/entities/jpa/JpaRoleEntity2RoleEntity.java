@@ -1,4 +1,4 @@
-package com.danilodps.pay.domain.mappers.entities;
+package com.danilodps.pay.domain.mappers.entities.jpa;
 
 import com.danilodps.pay.adapters.outbound.entities.JpaRoleEntity;
 import com.danilodps.pay.domain.model.RoleEntity;

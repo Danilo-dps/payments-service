@@ -1,4 +1,4 @@
-package com.danilodps.pay.domain.mappers.entities;
+package com.danilodps.pay.domain.mappers.entities.core;
 
 import com.danilodps.pay.adapters.outbound.entities.JpaTransactionEntity;
 import com.danilodps.pay.domain.model.TransactionEntity;

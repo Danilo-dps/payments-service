@@ -1,7 +1,8 @@
 package com.danilodps.pay.infrastrucure.spring;
 
-import com.danilodps.pay.adapters.outbound.entities.JpaProfileEntity;
-import com.danilodps.pay.adapters.outbound.repositories.JpaProfileEntityRepository;
+import com.danilodps.pay.domain.mappers.entities.core.ProfileEntity2JpaProfileEntity;
+import com.danilodps.pay.domain.model.ProfileEntity;
+import com.danilodps.pay.domain.model.ProfileEntityRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
@@ -17,16 +18,16 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-  private final JpaProfileEntityRepository jpaProfileEntityRepository;
+  private final ProfileEntityRepository profileEntityRepository;
 
   @Override
   @NullMarked
   public UserDetails loadUserByUsername(String profileEmail) throws UsernameNotFoundException {
-      JpaProfileEntity profileEntity = jpaProfileEntityRepository.findByProfileEmail(profileEmail)
+      ProfileEntity profileEntity = profileEntityRepository.findByProfileEmail(profileEmail)
               .orElseThrow(() -> new RuntimeException("Perfil não encontrado: " + profileEmail));
 
       log.info("Usuário encontrado: {}", profileEntity.getProfileEmail());
-      return new UserDetailsImpl(profileEntity);
+      return new UserDetailsImpl(ProfileEntity2JpaProfileEntity.convert(profileEntity));
   }
 
 }
