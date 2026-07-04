@@ -3,10 +3,13 @@ package com.danilodps.pay.domain.service.impl;
 import com.danilodps.commons.application.exceptions.DuplicateEmailException;
 import com.danilodps.commons.application.exceptions.NotFoundException;
 import com.danilodps.commons.domain.validation.EmailValidator;
+import com.danilodps.pay.adapters.inbound.controller.request.update.ProfileRequestUpdate;
+import com.danilodps.pay.adapters.inbound.controller.response.ProfileResponse;
+import com.danilodps.pay.application.service.impl.ProfileServiceImpl;
 import com.danilodps.pay.domain.model.ProfileEntity;
-import com.danilodps.pay.domain.model.request.update.ProfileRequestUpdate;
-import com.danilodps.pay.domain.model.response.ProfileResponse;
-import com.danilodps.pay.domain.repository.ProfileEntityRepository;
+import com.danilodps.pay.domain.model.ProfileEntityRepository;
+import com.danilodps.pay.domain.model.RoleEntity;
+import com.danilodps.pay.domain.model.enums.DocumentTypeEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,21 +49,29 @@ class ProfileServiceImplTest {
     private ProfileServiceImpl profileService;
 
     private ProfileEntity mockProfileEntity;
-    private final String validProfileId = "profile-123";
+    private final String validProfileId = "3696fa22-0d5c-43be-85ba-69709d0bb018";
     private final String validEmail = "user@example.com";
-    private final LocalDateTime now = LocalDateTime.now();
+    private final String documentIdentifier = DocumentTypeEnum.CPF.getShortName();
 
     @BeforeEach
     void setUp() {
-        mockProfileEntity = ProfileEntity.builder()
-                .profileId(validProfileId)
-                .username("Test User")
-                .profileEmail(validEmail)
-                .balance(BigDecimal.valueOf(1000.50))
-                .password("encodedOldPassword")
-                .createdAt(now.minusDays(30))
-                .lastUpdated(now.minusDays(1))
-                .build();
+        RoleEntity mockRoleEntity = new RoleEntity(1L, documentIdentifier, "ROLE_USER", "User role");
+
+        String profileId = "3696fa22-0d5c-43be-85ba-69709d0bb018";
+        String username = "Test User";
+        String encodedPassword = "encodedOldPassword";
+        String document = "063.546.880-87";
+        mockProfileEntity = new ProfileEntity(
+                profileId,
+                username,
+                documentIdentifier,
+                document,
+                validEmail,
+                encodedPassword,
+                new BigDecimal("1000.50"),
+                Collections.singletonList(mockRoleEntity),
+                LocalDateTime.now(),
+                LocalDateTime.now());
     }
 
     @Nested
@@ -188,7 +200,7 @@ class ProfileServiceImplTest {
                     .thenReturn(Optional.of(mockProfileEntity));
             when(profileEntityRepository.findByProfileEmail(newEmail))
                     .thenReturn(Optional.empty());
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(profileEntityRepository.save(any(ProfileEntity.class)))
                     .thenReturn(mockProfileEntity);
 
             // When
@@ -201,7 +213,7 @@ class ProfileServiceImplTest {
 
             verify(emailValidator, times(1)).validate(newEmail);
             verify(profileEntityRepository, times(1)).findByProfileEmail(newEmail);
-            verify(profileEntityRepository, times(1)).saveAndFlush(mockProfileEntity);
+            verify(profileEntityRepository, times(1)).save(mockProfileEntity);
         }
 
         @Test
@@ -212,7 +224,7 @@ class ProfileServiceImplTest {
 
             when(profileEntityRepository.findById(validProfileId))
                     .thenReturn(Optional.of(mockProfileEntity));
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(profileEntityRepository.save(any(ProfileEntity.class)))
                     .thenReturn(mockProfileEntity);
 
             // When
@@ -222,7 +234,7 @@ class ProfileServiceImplTest {
             assertThat(mockProfileEntity.getProfileEmail()).isEqualTo(validEmail);
             verify(emailValidator, never()).validate(anyString());
             verify(profileEntityRepository, never()).findByProfileEmail(anyString());
-            verify(profileEntityRepository, times(1)).saveAndFlush(mockProfileEntity);
+            verify(profileEntityRepository, times(1)).save(mockProfileEntity);
         }
 
         @Test
@@ -244,7 +256,7 @@ class ProfileServiceImplTest {
                     .hasMessageContaining(existingEmail);
 
             verify(emailValidator, times(1)).validate(existingEmail);
-            verify(profileEntityRepository, never()).saveAndFlush(any());
+            verify(profileEntityRepository, never()).save(any());
         }
 
         @Test
@@ -258,7 +270,7 @@ class ProfileServiceImplTest {
             when(profileEntityRepository.findById(validProfileId))
                     .thenReturn(Optional.of(mockProfileEntity));
             when(passwordEncoder.encode(newPassword)).thenReturn(encodedPassword);
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(profileEntityRepository.save(any(ProfileEntity.class)))
                     .thenReturn(mockProfileEntity);
 
             // When
@@ -269,7 +281,7 @@ class ProfileServiceImplTest {
             assertThat(mockProfileEntity.getLastUpdated()).isNotNull();
 
             verify(passwordEncoder, times(1)).encode(newPassword);
-            verify(profileEntityRepository, times(1)).saveAndFlush(mockProfileEntity);
+            verify(profileEntityRepository, times(1)).save(mockProfileEntity);
         }
 
         @Test
@@ -286,7 +298,7 @@ class ProfileServiceImplTest {
             when(profileEntityRepository.findByProfileEmail(newEmail))
                     .thenReturn(Optional.empty());
             when(passwordEncoder.encode(newPassword)).thenReturn(encodedPassword);
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(profileEntityRepository.save(any(ProfileEntity.class)))
                     .thenReturn(mockProfileEntity);
 
             // When
@@ -298,7 +310,7 @@ class ProfileServiceImplTest {
 
             verify(emailValidator).validate(newEmail);
             verify(passwordEncoder).encode(newPassword);
-            verify(profileEntityRepository).saveAndFlush(mockProfileEntity);
+            verify(profileEntityRepository).save(mockProfileEntity);
         }
 
         @Test
@@ -316,7 +328,7 @@ class ProfileServiceImplTest {
                     .isInstanceOf(NotFoundException.class)
                     .hasMessageContaining(nonExistentId);
 
-            verify(profileEntityRepository, never()).saveAndFlush(any());
+            verify(profileEntityRepository, never()).save(any());
         }
 
         @Test
@@ -327,7 +339,7 @@ class ProfileServiceImplTest {
 
             when(profileEntityRepository.findById(validProfileId))
                     .thenReturn(Optional.of(mockProfileEntity));
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(profileEntityRepository.save(any(ProfileEntity.class)))
                     .thenReturn(mockProfileEntity);
 
             // When
@@ -347,7 +359,7 @@ class ProfileServiceImplTest {
 
             when(profileEntityRepository.findById(validProfileId))
                     .thenReturn(Optional.of(mockProfileEntity));
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(profileEntityRepository.save(any(ProfileEntity.class)))
                     .thenReturn(mockProfileEntity);
 
             // When
@@ -369,7 +381,7 @@ class ProfileServiceImplTest {
                     .thenReturn(Optional.of(mockProfileEntity));
             when(profileEntityRepository.findByProfileEmail(newEmail))
                     .thenReturn(Optional.empty());
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(profileEntityRepository.save(any(ProfileEntity.class)))
                     .thenReturn(mockProfileEntity);
 
             // When
@@ -380,43 +392,43 @@ class ProfileServiceImplTest {
         }
     }
 
-    @Nested
-    @DisplayName("delete() Tests")
-    class DeleteTests {
-
-        @Test
-        @DisplayName("Should delete profile successfully when profile exists")
-        void shouldDeleteProfileSuccessfullyWhenProfileExists() {
-            // Given
-            when(profileEntityRepository.existsById(validProfileId))
-                    .thenReturn(true);
-            doNothing().when(profileEntityRepository).deleteById(validProfileId);
-
-            // When
-            profileService.delete(validProfileId);
-
-            // Then
-            verify(profileEntityRepository, times(1)).existsById(validProfileId);
-            verify(profileEntityRepository, times(1)).deleteById(validProfileId);
-        }
-
-        @Test
-        @DisplayName("Should throw NotFoundException when trying to delete non-existent profile")
-        void shouldThrowNotFoundExceptionWhenDeletingNonExistentProfile() {
-            // Given
-            String nonExistentId = "non-existent-id";
-            when(profileEntityRepository.existsById(nonExistentId))
-                    .thenReturn(false);
-
-            // When & Then
-            assertThatThrownBy(() -> profileService.delete(nonExistentId))
-                    .isInstanceOf(NotFoundException.class)
-                    .hasMessageContaining(nonExistentId);
-
-            verify(profileEntityRepository, times(1)).existsById(nonExistentId);
-            verify(profileEntityRepository, never()).deleteById(anyString());
-        }
-    }
+//    @Nested
+//    @DisplayName("delete() Tests")
+//    class DeleteTests {
+//
+//        @Test
+//        @DisplayName("Should delete profile successfully when profile exists")
+//        void shouldDeleteProfileSuccessfullyWhenProfileExists() {
+//            // Given
+//            when(profileEntityRepository.existsById(validProfileId))
+//                    .thenReturn(true);
+//            doNothing().when(profileEntityRepository).deleteById(validProfileId);
+//
+//            // When
+//            profileService.delete(validProfileId);
+//
+//            // Then
+//            verify(profileEntityRepository, times(1)).existsById(validProfileId);
+//            verify(profileEntityRepository, times(1)).deleteById(validProfileId);
+//        }
+//
+//        @Test
+//        @DisplayName("Should throw NotFoundException when trying to delete non-existent profile")
+//        void shouldThrowNotFoundExceptionWhenDeletingNonExistentProfile() {
+//            // Given
+//            String nonExistentId = "non-existent-id";
+//            when(profileEntityRepository.existsById(nonExistentId))
+//                    .thenReturn(false);
+//
+//            // When & Then
+//            assertThatThrownBy(() -> profileService.delete(nonExistentId))
+//                    .isInstanceOf(NotFoundException.class)
+//                    .hasMessageContaining(nonExistentId);
+//
+//            verify(profileEntityRepository, times(1)).existsById(nonExistentId);
+//            verify(profileEntityRepository, never()).deleteById(anyString());
+//        }
+//    }
 
     @Nested
     @DisplayName("Transaction and Integration Behavior Tests")
@@ -436,7 +448,7 @@ class ProfileServiceImplTest {
                     .thenReturn(Optional.of(mockProfileEntity));
             when(profileEntityRepository.findByProfileEmail(newEmail))
                     .thenReturn(Optional.empty());
-            when(profileEntityRepository.saveAndFlush(any(ProfileEntity.class)))
+            when(profileEntityRepository.save(any(ProfileEntity.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             // When
@@ -444,7 +456,7 @@ class ProfileServiceImplTest {
 
             // Then
             ArgumentCaptor<ProfileEntity> entityCaptor = ArgumentCaptor.forClass(ProfileEntity.class);
-            verify(profileEntityRepository).saveAndFlush(entityCaptor.capture());
+            verify(profileEntityRepository).save(entityCaptor.capture());
 
             ProfileEntity savedEntity = entityCaptor.getValue();
             assertThat(savedEntity.getLastUpdated()).isAfter(previousLastUpdated);

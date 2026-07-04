@@ -1,10 +1,10 @@
 package com.danilodps.pay.domain.service.impl;
 
 import com.danilodps.pay.domain.model.ProfileEntity;
+import com.danilodps.pay.domain.model.ProfileEntityRepository;
 import com.danilodps.pay.domain.model.RoleEntity;
-import com.danilodps.pay.domain.repository.ProfileEntityRepository;
-import com.danilodps.pay.domain.service.spring.UserDetailsImpl;
-import com.danilodps.pay.domain.service.spring.UserDetailsServiceImpl;
+import com.danilodps.pay.infrastrucure.spring.UserDetailsImpl;
+import com.danilodps.pay.infrastrucure.spring.UserDetailsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
@@ -44,25 +45,21 @@ class UserDetailsServiceImplTest {
     @BeforeEach
     void setUp() {
         String documentIdentifier = "CPF";
-        RoleEntity mockRoleEntity = RoleEntity.builder()
-                .roleId(1L)
-                .roleGrantedAuthority("ROLE_USER")
-                .description("User role")
-                .docIdentifier(documentIdentifier)
-                .build();
+        RoleEntity mockRoleEntity = new RoleEntity(1L, documentIdentifier, "ROLE_USER", "User role");
 
         String document = "123.456.789-00";
-        mockProfileEntity = ProfileEntity.builder()
-                .profileId(profileId)
-                .username(username)
-                .profileEmail(validEmail)
-                .password(encodedPassword)
-                .documentIdentifier(documentIdentifier)
-                .document(document)
-                .roles(Collections.singletonList(mockRoleEntity))
-                .createdAt(LocalDateTime.now())
-                .lastUpdated(LocalDateTime.now())
-                .build();
+        mockProfileEntity = new ProfileEntity(
+                profileId,
+                username,
+                documentIdentifier,
+                document,
+                validEmail,
+                encodedPassword,
+                new BigDecimal("1200"),
+                Collections.singletonList(mockRoleEntity),
+                LocalDateTime.now(),
+                LocalDateTime.now());
+
     }
 
     @Nested
@@ -129,14 +126,9 @@ class UserDetailsServiceImplTest {
         @DisplayName("Should include all roles from ProfileEntity")
         void shouldIncludeAllRolesFromProfileEntity() {
             // Given
-            RoleEntity roleUser = RoleEntity.builder()
-                    .roleId(1L)
-                    .roleGrantedAuthority("ROLE_USER")
-                    .build();
-            RoleEntity roleAdmin = RoleEntity.builder()
-                    .roleId(2L)
-                    .roleGrantedAuthority("ROLE_ADMIN")
-                    .build();
+            RoleEntity roleUser = new RoleEntity(1L, "CPF", "ROLE_USER", "User role");
+
+            RoleEntity roleAdmin = new RoleEntity(2L, "CPF", "ROLE_ADMIN", "User role");
 
             mockProfileEntity.setRoles(java.util.List.of(roleUser, roleAdmin));
 
@@ -170,7 +162,7 @@ class UserDetailsServiceImplTest {
         }
 
         @Test
-        @DisplayName("Should call repository with correct email parameter")
+        @DisplayName("Should call repositories with correct email parameter")
         void shouldCallRepositoryWithCorrectEmailParameter() {
             // Given
             when(profileEntityRepository.findByProfileEmail(validEmail))
@@ -184,7 +176,7 @@ class UserDetailsServiceImplTest {
         }
 
         @Test
-        @DisplayName("Should not call repository when exception is thrown before")
+        @DisplayName("Should not call repositories when exception is thrown before")
         void shouldNotCallRepositoryWhenExceptionIsThrownBefore() {
 
             when(profileEntityRepository.findByProfileEmail(invalidEmail))
@@ -255,7 +247,7 @@ class UserDetailsServiceImplTest {
             assertThat(userDetails).isNotNull();
 
             verify(profileEntityRepository, never()).save(any());
-            verify(profileEntityRepository, never()).saveAndFlush(any());
+            verify(profileEntityRepository, never()).save(any());
         }
     }
 

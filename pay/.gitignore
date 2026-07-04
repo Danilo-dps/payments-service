@@ -1,5 +1,5 @@
 # This .gitignore file helps prevent unnecessary files from being committed
-# to your Git repository for a Java project.
+# to your Git repositories for a Java project.
 
 # General build output directories
 # ------------------------------
@@ -12,7 +12,7 @@ build/
 
 # Maven Specific
 # --------------
-# Local Maven repository cache.
+# Local Maven repositories cache.
 .m2/
 # Maven Wrapper JAR file. The wrapper scripts (mvnw, mvnw.cmd) should be committed.
 .mvn/wrapper/maven-wrapper.jar
