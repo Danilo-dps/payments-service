@@ -3,7 +3,7 @@ package com.danilodps.pay;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class PayApplicationIntegrationTests {
+class PaymentApplicationIntegrationTests {
 
     @Test
     void contextLoads() {
