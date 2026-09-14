@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest      # GitHub sobe uma VM Linux limpa para este job
     defaults:
       run:
-        working-directory: ./pay  # todos os comandos "run" executam dentro desta pasta
+        working-directory: ./  # todos os comandos "run" executam dentro desta pasta
         # pois o mvnw e o pom.xml estão em /pay, não na raiz do repositório
 
     steps:
@@ -45,7 +45,7 @@ jobs:
       - name: Cache das dependências Maven
         uses: actions/cache@v4
         with:
-          path: ~/.m2/repositories
+          path: ~/.m2/repository
           # ~/.m2 é onde o Maven guarda os JARs baixados localmente
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           # "key" é o identificador do cache
@@ -102,7 +102,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-jar                      # nome que vai aparecer no GitHub
-          path: pay/target/*.jar             # caminho completo pois "uses" ignora o working-directory
+          path: target/*.jar             # caminho completo pois "uses" ignora o working-directory
             # diferente dos steps "run", actions externas sempre
           # partem da raiz do repositório
           retention-days: 7                  # GitHub guarda por 7 dias, depois apaga
