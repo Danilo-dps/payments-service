@@ -11,7 +11,7 @@
 	<groupId>com.danilodps</groupId>
 	<artifactId>pay</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>pay</name>
+	<name>payments service</name>
 	<description>A way to pay</description>
 	<url/>
 	<licenses>
