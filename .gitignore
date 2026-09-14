@@ -111,3 +111,6 @@ target/*.log
 # Eclipse-specific (sometimes generated outside .settings)
 .sync/
 .synctarget/
+
+# Env
+.env
