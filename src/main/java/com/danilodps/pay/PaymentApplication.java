@@ -8,10 +8,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync
 @EnableKafka
 @SpringBootApplication(scanBasePackages = {"com.danilodps"})
-public class PayApplication {
+public class PaymentApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PayApplication.class, args);
+		SpringApplication.run(PaymentApplication.class, args);
 	}
 
 }
