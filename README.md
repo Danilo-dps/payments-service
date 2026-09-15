@@ -114,3 +114,10 @@ Este projeto utiliza **JUnit 5**. Para rodar a suíte de testes unitários do Pa
 * `GET /profile/v1/profileEmail/{profileEmail}`: Busca um usuário pelo seu e-mail.
 * `PUT /profile/v1/update/{profileId}`: Atualiza os dados de um usuário.
 * `DELETE /profile/v1/delete/{profileId}`: Exclui um usuário do sistema.
+
+---
+
+### Comando maven para recuperar os valores da variável de ambiente enquanto builda o código
+```mvn
+export $(xargs < .env) && mvn clean install
+``` 

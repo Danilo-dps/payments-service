@@ -1,11 +1,8 @@
 package com.danilodps.pay.adapters.outbound.repositories.impl;
 
-import com.danilodps.pay.adapters.outbound.entities.JpaProfileEntity;
 import com.danilodps.pay.adapters.outbound.repositories.JpaProfileEntityRepository;
-import com.danilodps.pay.domain.mappers.entities.jpa.JpaProfileEntity2ProfileEntity;
-import com.danilodps.pay.domain.mappers.entities.core.ProfileEntity2JpaProfileEntity;
-import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.ProfileEntityRepository;
+import com.danilodps.pay.domain.model.entities.ProfileEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,41 +19,32 @@ public class ProfileEntityRepositoryImpl implements ProfileEntityRepository {
 
     @Override
     public List<ProfileEntity> findAll() {
-        List<JpaProfileEntity> jpaProfileEntities = jpaProfileEntityRepository.findAll();
-        if(!jpaProfileEntities.isEmpty()){
-            return JpaProfileEntity2ProfileEntity.convert(jpaProfileEntities);
-        }
-        return List.of();
+        return jpaProfileEntityRepository.findAll();
     }
 
     @Override
     public Optional<ProfileEntity> findById(String profileId) {
-        Optional<JpaProfileEntity>  jpaProfileEntity = jpaProfileEntityRepository.findById(profileId);
-        return jpaProfileEntity.map(profileEntity -> Optional.of(JpaProfileEntity2ProfileEntity.convert(profileEntity))).orElse(null);
+        return jpaProfileEntityRepository.findById(profileId);
     }
 
     @Override
     public ProfileEntity save(ProfileEntity profileEntity) {
-        JpaProfileEntity  jpaProfileEntity =
-                this.jpaProfileEntityRepository.saveAndFlush(ProfileEntity2JpaProfileEntity.convert(profileEntity));
-        return JpaProfileEntity2ProfileEntity.convert(jpaProfileEntity);
+        return this.jpaProfileEntityRepository.saveAndFlush(profileEntity);
     }
 
     @Override
     public void delete(ProfileEntity profileEntity) {
-        this.jpaProfileEntityRepository.delete(ProfileEntity2JpaProfileEntity.convert(profileEntity));
+        this.jpaProfileEntityRepository.delete(profileEntity);
     }
 
     @Override
     public Optional<ProfileEntity> findByProfileEmail(String profileEmail) {
-        Optional<JpaProfileEntity> optJpaProfileEntity = this.jpaProfileEntityRepository.findByProfileEmail(profileEmail);
-        return optJpaProfileEntity.map(JpaProfileEntity2ProfileEntity::convert).or(Optional::empty);
+        return  this.jpaProfileEntityRepository.findByProfileEmail(profileEmail);
     }
 
     @Override
     public Optional<ProfileEntity> findAndLockByProfileEmail(String profileEmail) {
-        Optional<JpaProfileEntity> optJpaProfileEntity = this.jpaProfileEntityRepository.findAndLockByProfileEmail(profileEmail);
-        return optJpaProfileEntity.map(JpaProfileEntity2ProfileEntity::convert).or(Optional::empty);
+        return this.jpaProfileEntityRepository.findAndLockByProfileEmail(profileEmail);
     }
 
 }

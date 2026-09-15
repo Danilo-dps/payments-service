@@ -7,10 +7,11 @@ import com.danilodps.pay.adapters.inbound.controller.request.create.SignInReques
 import com.danilodps.pay.adapters.inbound.controller.request.create.SignUpRequest;
 import com.danilodps.pay.adapters.inbound.controller.response.JwtResponse;
 import com.danilodps.pay.application.service.impl.ProfileAuthServiceImpl;
-import com.danilodps.pay.domain.mappers.entities.core.ProfileEntity2JpaProfileEntity;
-import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.ProfileEntityRepository;
-import com.danilodps.pay.domain.model.RoleEntity;
+import com.danilodps.pay.domain.model.ProfileRoleEntityRepository;
+import com.danilodps.pay.domain.model.entities.ProfileEntity;
+import com.danilodps.pay.domain.model.entities.ProfileRoleEntity;
+import com.danilodps.pay.domain.model.entities.RoleEntity;
 import com.danilodps.pay.domain.model.enums.DocumentTypeEnum;
 import com.danilodps.pay.infrastrucure.config.KafkaEventProducer;
 import com.danilodps.pay.infrastrucure.security.jwt.JwtTokenGenerator;
@@ -31,7 +32,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,12 +62,16 @@ class ProfileAuthServiceImplTest {
     @Mock
     private ProfileEntityRepository profileEntityRepository;
 
+    @Mock
+    private ProfileRoleEntityRepository profileRoleEntityRepository;
+
     @InjectMocks
     private ProfileAuthServiceImpl profileAuthService;
 
     private SignUpRequest validSignUpRequest;
     private SignInRequest validSignInRequest;
     private ProfileEntity mockProfileEntity;
+    private RoleEntity mockRoleEntity;
     private UserDetailsImpl mockUserDetails;
     private Authentication mockAuthentication;
     private final String testEmail = "test@example.com";
@@ -95,7 +99,7 @@ class ProfileAuthServiceImplTest {
                 .password(testPassword)
                 .build();
 
-        RoleEntity mockRoleEntity = new RoleEntity(1L, "CPF","ROLE_USER", "User role" );
+        mockRoleEntity = new RoleEntity(1L, "CPF", "ROLE_USER", "User role");
 
         String validEmail = "test@example.com";
         String username = "Test User";
@@ -109,11 +113,10 @@ class ProfileAuthServiceImplTest {
                 validEmail,
                 encodedPassword,
                 new BigDecimal("12"),
-                Collections.singletonList(mockRoleEntity),
                 LocalDateTime.now(),
-                LocalDateTime.now());
+                null);
 
-        mockUserDetails = new UserDetailsImpl(ProfileEntity2JpaProfileEntity.convert(mockProfileEntity));
+        mockUserDetails = new UserDetailsImpl(mockProfileEntity, List.of(mockRoleEntity));
         mockAuthentication = mock(Authentication.class);
     }
 
@@ -133,6 +136,8 @@ class ProfileAuthServiceImplTest {
             when(passwordEncoder.encode(testPassword)).thenReturn(encodedPassword);
             when(profileEntityRepository.save(any(ProfileEntity.class)))
                     .thenReturn(mockProfileEntity);
+            when(profileRoleEntityRepository.save(any(ProfileRoleEntity.class)))
+                    .thenReturn(new ProfileRoleEntity());
             doNothing().when(kafkaEventProducer).publishSignUpNotification(any(SignUpResponse.class));
 
             // When
@@ -151,6 +156,7 @@ class ProfileAuthServiceImplTest {
             );
             verify(passwordEncoder, times(1)).encode(testPassword);
             verify(profileEntityRepository, times(1)).save(any(ProfileEntity.class));
+            verify(profileRoleEntityRepository, times(1)).save(any(ProfileRoleEntity.class));
             verify(kafkaEventProducer, times(1)).publishSignUpNotification(any(SignUpResponse.class));
         }
 
@@ -162,6 +168,8 @@ class ProfileAuthServiceImplTest {
             when(passwordEncoder.encode(testPassword)).thenReturn(encodedPassword);
             when(profileEntityRepository.save(any(ProfileEntity.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
+            when(profileRoleEntityRepository.save(any(ProfileRoleEntity.class)))
+                    .thenReturn(new ProfileRoleEntity());
             doNothing().when(kafkaEventProducer).publishSignUpNotification(any(SignUpResponse.class));
 
             ArgumentCaptor<ProfileEntity> profileCaptor = ArgumentCaptor.forClass(ProfileEntity.class);
@@ -180,7 +188,6 @@ class ProfileAuthServiceImplTest {
             assertThat(capturedProfile.getPassword()).isEqualTo(encodedPassword);
             assertThat(capturedProfile.getProfileId()).isNotNull();
             assertThat(capturedProfile.getCreatedAt()).isNotNull();
-            assertThat(capturedProfile.getRoles()).isNotEmpty();
         }
 
         @Test
@@ -191,6 +198,8 @@ class ProfileAuthServiceImplTest {
             when(passwordEncoder.encode(testPassword)).thenReturn(encodedPassword);
             when(profileEntityRepository.save(any(ProfileEntity.class)))
                     .thenReturn(mockProfileEntity);
+            when(profileRoleEntityRepository.save(any(ProfileRoleEntity.class)))
+                    .thenReturn(new ProfileRoleEntity());
             doNothing().when(kafkaEventProducer).publishSignUpNotification(any(SignUpResponse.class));
 
             ArgumentCaptor<String> emailCaptor = ArgumentCaptor.forClass(String.class);
@@ -215,6 +224,8 @@ class ProfileAuthServiceImplTest {
             when(passwordEncoder.encode(testPassword)).thenReturn(encodedPassword);
             when(profileEntityRepository.save(any(ProfileEntity.class)))
                     .thenReturn(mockProfileEntity);
+            when(profileRoleEntityRepository.save(any(ProfileRoleEntity.class)))
+                    .thenReturn(new ProfileRoleEntity());
             ArgumentCaptor<SignUpResponse> kafkaCaptor = ArgumentCaptor.forClass(SignUpResponse.class);
 
             // When
@@ -254,6 +265,8 @@ class ProfileAuthServiceImplTest {
             when(passwordEncoder.encode(testPassword)).thenReturn(encodedPassword);
             when(profileEntityRepository.save(any(ProfileEntity.class)))
                     .thenReturn(mockProfileEntity);
+            when(profileRoleEntityRepository.save(any(ProfileRoleEntity.class)))
+                    .thenReturn(new ProfileRoleEntity());
             doNothing().when(kafkaEventProducer).publishSignUpNotification(any(SignUpResponse.class));
 
             // When
@@ -430,13 +443,12 @@ class ProfileAuthServiceImplTest {
         @Test
         @DisplayName("Should handle user with multiple roles")
         void shouldHandleUserWithMultipleRoles() {
-
-            mockProfileEntity.setRoles(List.of(
-                                    new RoleEntity(1L, documentIdentifier, "ROLE_USER", "User role"),
-                                    new RoleEntity(1L, documentIdentifier, "ROLE_ADMIN", "Admin role")
-            ));
-
-            UserDetailsImpl multiRoleUserDetails = new UserDetailsImpl(ProfileEntity2JpaProfileEntity.convert(mockProfileEntity));
+            // Given
+            List<RoleEntity> multipleRoles = List.of(
+                    new RoleEntity(1L, documentIdentifier, "ROLE_USER", "User role"),
+                    new RoleEntity(2L, documentIdentifier, "ROLE_ADMIN", "Admin role")
+            );
+            UserDetailsImpl multiRoleUserDetails = new UserDetailsImpl(mockProfileEntity, multipleRoles);
 
             when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                     .thenReturn(mockAuthentication);
@@ -460,6 +472,8 @@ class ProfileAuthServiceImplTest {
             when(passwordEncoder.encode(testPassword)).thenReturn(encodedPassword);
             when(profileEntityRepository.save(any(ProfileEntity.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
+            when(profileRoleEntityRepository.save(any(ProfileRoleEntity.class)))
+                    .thenReturn(new ProfileRoleEntity());
             doNothing().when(kafkaEventProducer).publishSignUpNotification(any(SignUpResponse.class));
 
             ArgumentCaptor<ProfileEntity> profileCaptor = ArgumentCaptor.forClass(ProfileEntity.class);

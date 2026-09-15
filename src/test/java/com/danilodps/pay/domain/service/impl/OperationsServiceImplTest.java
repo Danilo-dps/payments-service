@@ -5,13 +5,19 @@ import com.danilodps.commons.application.exceptions.InvalidValueException;
 import com.danilodps.commons.application.exceptions.NotFoundException;
 import com.danilodps.commons.domain.model.response.DepositResponse;
 import com.danilodps.commons.domain.model.response.TransactionResponse;
-import com.danilodps.pay.domain.model.*;
-import com.danilodps.pay.infrastrucure.config.KafkaEventProducer;
-import com.danilodps.pay.application.service.impl.OperationsServiceImpl;
 import com.danilodps.pay.adapters.inbound.controller.request.create.operations.DepositRequest;
 import com.danilodps.pay.adapters.inbound.controller.request.create.operations.TransactionRequest;
 import com.danilodps.pay.adapters.outbound.repositories.projection.DepositProjection;
 import com.danilodps.pay.adapters.outbound.repositories.projection.TransactionProjection;
+import com.danilodps.pay.application.service.impl.OperationsServiceImpl;
+import com.danilodps.pay.domain.model.DepositEntityRepository;
+import com.danilodps.pay.domain.model.ProfileEntityRepository;
+import com.danilodps.pay.domain.model.TransactionEntityRepository;
+import com.danilodps.pay.domain.model.entities.DepositEntity;
+import com.danilodps.pay.domain.model.entities.ProfileEntity;
+import com.danilodps.pay.domain.model.entities.RoleEntity;
+import com.danilodps.pay.domain.model.entities.TransactionEntity;
+import com.danilodps.pay.infrastrucure.config.KafkaEventProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,7 +30,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -68,8 +73,6 @@ class OperationsServiceImplTest {
 
     @BeforeEach
     void setUp() {
-
-        RoleEntity mockRoleEntity = new RoleEntity(1L, "ROLE_USER", "User role", "documentIdentifier");
         mockSenderProfile = new ProfileEntity(
                 senderProfileId,
                 "Sender User",
@@ -78,7 +81,6 @@ class OperationsServiceImplTest {
                 senderEmail,
                 "password",
                 senderInitialBalance,
-                Collections.singletonList(mockRoleEntity),
                 now.minusDays(30),
                 now.minusDays(1));
 
@@ -90,7 +92,6 @@ class OperationsServiceImplTest {
                 receiverEmail,
                 "encodedPassword",
                 receiverInitialBalance,
-                Collections.singletonList(mockRoleEntity),
                 now.minusDays(30),
                 now.minusDays(1));
     }
@@ -112,7 +113,7 @@ class OperationsServiceImplTest {
                     UUID.randomUUID().toString(),
                     now,
                     depositAmount,
-                    mockSenderProfile);
+                    mockSenderProfile.getProfileId());
 
             when(profileEntityRepository.findByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
@@ -236,7 +237,7 @@ class OperationsServiceImplTest {
 
             DepositEntity capturedDeposit = depositCaptor.getValue();
             assertThat(capturedDeposit.getAmount()).isEqualByComparingTo(depositAmount);
-            assertThat(capturedDeposit.getProfileEntity()).isEqualTo(mockSenderProfile);
+            assertThat(capturedDeposit.getProfileId()).isEqualTo(mockSenderProfile.getProfileId());
             assertThat(capturedDeposit.getDepositId()).isNotNull();
             assertThat(capturedDeposit.getDepositAt()).isNotNull();
         }
@@ -254,7 +255,7 @@ class OperationsServiceImplTest {
                     "deposit-123",
                     now,
                     depositAmount,
-                    mockSenderProfile);
+                    mockSenderProfile.getProfileId());
 
             when(profileEntityRepository.findByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
@@ -296,8 +297,8 @@ class OperationsServiceImplTest {
                     UUID.randomUUID().toString(),
                     transferAmount,
                     now,
-                    mockSenderProfile,
-                    mockReceiverProfile);
+                    mockSenderProfile.getProfileId(),
+                    mockReceiverProfile.getProfileId());
 
             when(profileEntityRepository.findAndLockByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
@@ -410,7 +411,7 @@ class OperationsServiceImplTest {
             // When & Then
             assertThatThrownBy(() -> operationsService.transfer(transactionRequest))
                     .isInstanceOf(NotFoundException.class)
-                    .hasMessageContaining("remetente")
+                    .hasMessageContaining("Usuário com email Usuário destinatário não encontrado para o e-mail nonexistent@example.com não encontrado.")
                     .hasMessageContaining(nonExistentReceiver);
 
             verify(profileEntityRepository, times(1)).findAndLockByProfileEmail(senderEmail);
@@ -471,8 +472,8 @@ class OperationsServiceImplTest {
 
             TransactionEntity capturedTransaction = transactionCaptor.getValue();
             assertThat(capturedTransaction.getAmount()).isEqualByComparingTo(transferAmount);
-            assertThat(capturedTransaction.getProfileSender()).isEqualTo(mockSenderProfile);
-            assertThat(capturedTransaction.getProfileReceiver()).isEqualTo(mockReceiverProfile);
+            assertThat(capturedTransaction.getSenderProfileId()).isEqualTo(mockSenderProfile.getProfileId());
+            assertThat(capturedTransaction.getReceiverProfileId()).isEqualTo(mockReceiverProfile.getProfileId());
             assertThat(capturedTransaction.getTransactionId()).isNotNull();
             assertThat(capturedTransaction.getTransactionAt()).isNotNull();
         }
@@ -517,8 +518,8 @@ class OperationsServiceImplTest {
                     "d3464bd7-9010-42aa-aa87-b085bcf0c117",
                     transferAmount,
                     now,
-                    mockSenderProfile,
-                   mockReceiverProfile);
+                    mockSenderProfile.getProfileId(),
+                   mockReceiverProfile.getProfileId());
 
             when(profileEntityRepository.findAndLockByProfileEmail(senderEmail))
                     .thenReturn(Optional.of(mockSenderProfile));
@@ -622,7 +623,7 @@ class OperationsServiceImplTest {
 
             // Then
             assertThat(result).hasSize(1);
-            DepositProjection projection = result.get(0);
+            DepositProjection projection = result.getFirst();
             assertThat(projection.getDepositId()).isEqualTo(depositId);
             assertThat(projection.getAmount()).isEqualByComparingTo(amount);
             assertThat(projection.getDepositAt()).isEqualTo(depositAt);

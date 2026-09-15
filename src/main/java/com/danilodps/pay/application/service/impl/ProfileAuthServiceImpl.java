@@ -8,8 +8,11 @@ import com.danilodps.pay.adapters.inbound.controller.request.create.SignUpReques
 import com.danilodps.pay.adapters.inbound.controller.response.JwtResponse;
 import com.danilodps.pay.application.usecases.ProfileAuthUseCase;
 import com.danilodps.pay.domain.mappers.RoleEnum2RoleEntity;
-import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.ProfileEntityRepository;
+import com.danilodps.pay.domain.model.ProfileRoleEntityRepository;
+import com.danilodps.pay.domain.model.entities.ProfileEntity;
+import com.danilodps.pay.domain.model.entities.ProfileRoleEntity;
+import com.danilodps.pay.domain.model.entities.ProfileRoleId;
 import com.danilodps.pay.infrastrucure.config.KafkaEventProducer;
 import com.danilodps.pay.infrastrucure.security.jwt.JwtTokenGenerator;
 import com.danilodps.pay.infrastrucure.spring.UserDetailsImpl;
@@ -24,9 +27,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -42,6 +45,7 @@ public class ProfileAuthServiceImpl implements ProfileAuthUseCase {
     private final KafkaEventProducer kafkaEventProducer;
     private final AuthenticationManager authenticationManager;
     private final ProfileEntityRepository profileEntityRepository;
+    private final ProfileRoleEntityRepository profileRoleEntityRepository;
 
     @Override
     @Transactional
@@ -55,10 +59,22 @@ public class ProfileAuthServiceImpl implements ProfileAuthUseCase {
         profileEntity.setUsername(signUpRequest.username());
         profileEntity.setDocumentIdentifier(signUpRequest.documentIdentifier());
         profileEntity.setDocument(signUpRequest.document());
-        profileEntity.setRoles(Collections.singletonList(RoleEnum2RoleEntity.convert(signUpRequest.documentIdentifier())));
         profileEntity.setProfileEmail(signUpRequest.userEmail());
         profileEntity.setCreatedAt(LocalDateTime.now(ZoneId.systemDefault()));
         profileEntity.setPassword(passwordEncoder.encode(signUpRequest.password()));
+        profileEntity.setBalance(BigDecimal.ZERO);
+
+        profileEntityRepository.save(profileEntity);
+
+        Long roleId = RoleEnum2RoleEntity.convert(signUpRequest.documentIdentifier());
+        ProfileRoleId profileRoleId = new ProfileRoleId();
+        profileRoleId.setProfileId(profileEntity.getProfileId());
+        profileRoleId.setRoleId(roleId);
+
+        ProfileRoleEntity profileRole = new ProfileRoleEntity();
+        profileRole.setId(profileRoleId);
+
+        profileRoleEntityRepository.save(profileRole);
 
         SignUpResponse signUpResponse = SignUpResponse.builder()
                 .id(profileEntity.getProfileId())
@@ -66,7 +82,6 @@ public class ProfileAuthServiceImpl implements ProfileAuthUseCase {
                 .email(profileEntity.getProfileEmail())
                 .signupTimestamp(LocalDateTime.now(ZoneId.systemDefault())).build();
 
-        profileEntityRepository.save(profileEntity);
         kafkaEventProducer.publishSignUpNotification(signUpResponse);
 
         return signUpResponse;

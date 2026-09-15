@@ -1,6 +1,6 @@
 package com.danilodps.pay.adapters.outbound.repositories;
 
-import com.danilodps.pay.adapters.outbound.entities.JpaProfileEntity;
+import com.danilodps.pay.domain.model.entities.ProfileEntity;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -9,11 +9,11 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface JpaProfileEntityRepository extends JpaRepository<JpaProfileEntity, String> {
+public interface JpaProfileEntityRepository extends JpaRepository<ProfileEntity, String> {
 
-    Optional<JpaProfileEntity> findByProfileEmail(String profileEmail);
+    Optional<ProfileEntity> findByProfileEmail(String profileEmail);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<JpaProfileEntity> findAndLockByProfileEmail(String profileEmail);
+    Optional<ProfileEntity> findAndLockByProfileEmail(String profileEmail);
 
 }

@@ -6,9 +6,8 @@ import com.danilodps.commons.domain.validation.EmailValidator;
 import com.danilodps.pay.adapters.inbound.controller.request.update.ProfileRequestUpdate;
 import com.danilodps.pay.adapters.inbound.controller.response.ProfileResponse;
 import com.danilodps.pay.application.service.impl.ProfileServiceImpl;
-import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.ProfileEntityRepository;
-import com.danilodps.pay.domain.model.RoleEntity;
+import com.danilodps.pay.domain.model.entities.ProfileEntity;
 import com.danilodps.pay.domain.model.enums.DocumentTypeEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,7 +22,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,8 +53,6 @@ class ProfileServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        RoleEntity mockRoleEntity = new RoleEntity(1L, documentIdentifier, "ROLE_USER", "User role");
-
         String profileId = "3696fa22-0d5c-43be-85ba-69709d0bb018";
         String username = "Test User";
         String encodedPassword = "encodedOldPassword";
@@ -69,9 +65,8 @@ class ProfileServiceImplTest {
                 validEmail,
                 encodedPassword,
                 new BigDecimal("1000.50"),
-                Collections.singletonList(mockRoleEntity),
                 LocalDateTime.now(),
-                LocalDateTime.now());
+                null);
     }
 
     @Nested
@@ -392,57 +387,18 @@ class ProfileServiceImplTest {
         }
     }
 
-//    @Nested
-//    @DisplayName("delete() Tests")
-//    class DeleteTests {
-//
-//        @Test
-//        @DisplayName("Should delete profile successfully when profile exists")
-//        void shouldDeleteProfileSuccessfullyWhenProfileExists() {
-//            // Given
-//            when(profileEntityRepository.existsById(validProfileId))
-//                    .thenReturn(true);
-//            doNothing().when(profileEntityRepository).deleteById(validProfileId);
-//
-//            // When
-//            profileService.delete(validProfileId);
-//
-//            // Then
-//            verify(profileEntityRepository, times(1)).existsById(validProfileId);
-//            verify(profileEntityRepository, times(1)).deleteById(validProfileId);
-//        }
-//
-//        @Test
-//        @DisplayName("Should throw NotFoundException when trying to delete non-existent profile")
-//        void shouldThrowNotFoundExceptionWhenDeletingNonExistentProfile() {
-//            // Given
-//            String nonExistentId = "non-existent-id";
-//            when(profileEntityRepository.existsById(nonExistentId))
-//                    .thenReturn(false);
-//
-//            // When & Then
-//            assertThatThrownBy(() -> profileService.delete(nonExistentId))
-//                    .isInstanceOf(NotFoundException.class)
-//                    .hasMessageContaining(nonExistentId);
-//
-//            verify(profileEntityRepository, times(1)).existsById(nonExistentId);
-//            verify(profileEntityRepository, never()).deleteById(anyString());
-//        }
-//    }
-
     @Nested
     @DisplayName("Transaction and Integration Behavior Tests")
     class TransactionBehaviorTests {
 
         @Test
-        @DisplayName("Should update lastUpdated timestamp when profile is modified")
+        @DisplayName("Should set lastUpdated timestamp when profile is modified")
         void shouldUpdateLastUpdatedTimestampWhenProfileIsModified() {
             // Given
             String newEmail = "updated@example.com";
             ProfileRequestUpdate updateRequest = ProfileRequestUpdate.builder()
                     .newEmail(newEmail)
                     .build();
-            LocalDateTime previousLastUpdated = mockProfileEntity.getLastUpdated();
 
             when(profileEntityRepository.findById(validProfileId))
                     .thenReturn(Optional.of(mockProfileEntity));
@@ -459,7 +415,8 @@ class ProfileServiceImplTest {
             verify(profileEntityRepository).save(entityCaptor.capture());
 
             ProfileEntity savedEntity = entityCaptor.getValue();
-            assertThat(savedEntity.getLastUpdated()).isAfter(previousLastUpdated);
+            assertThat(savedEntity.getLastUpdated()).isNotNull();
         }
     }
+
 }

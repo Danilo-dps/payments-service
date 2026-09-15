@@ -1,6 +1,7 @@
 package com.danilodps.pay.domain.model;
 
 import com.danilodps.pay.adapters.outbound.repositories.projection.TransactionProjection;
+import com.danilodps.pay.domain.model.entities.TransactionEntity;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.danilodps.pay.adapters.outbound.entities;
+package com.danilodps.pay.domain.model.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,8 +16,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Entity
 @Table(name = "TB_ROLES")
-public class JpaRoleEntity implements Serializable {
-
+public class RoleEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -25,13 +24,13 @@ public class JpaRoleEntity implements Serializable {
     @Column(name = "ROLE_ID")
     private Long roleId;
 
-    @Column(name = "ROLE_DOC", length = 10)
+    @Column(name = "DOC_IDENTIFIER")
     private String docIdentifier;
 
-    @Column(name = "ROLE_NAME", length = 10)
+    @Column(name = "ROLE_GRANTED")
     private String roleGrantedAuthority;
 
-    @Column(name = "ROLE_DESCRIPTION", length = 25)
+    @Column(name = "ROLE_DESCRIPTION")
     private String description;
 
 }

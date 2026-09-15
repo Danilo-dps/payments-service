@@ -1,4 +1,4 @@
-package com.danilodps.pay.adapters.outbound.entities;
+package com.danilodps.pay.domain.model.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -16,23 +16,22 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "TB_DEPOSIT")
 @EqualsAndHashCode(of = "depositId")
-public class JpaDepositEntity implements Serializable {
+public class DepositEntity implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(name = "DEPOSIT_ID", updatable = false, nullable = false)
+    @Column(name = "DEPOSIT_ID")
     private String depositId;
 
-    @Column(name = "DEPOSIT_AT", nullable = false, updatable = false)
+    @Column(name = "DEPOSIT_AT")
     private LocalDateTime depositAt;
 
-    @Column(name = "AMOUNT", nullable = false, updatable = false)
+    @Column(name = "AMOUNT")
     private BigDecimal amount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROFILE_ID", nullable = false)
-    private JpaProfileEntity profileEntity;
+    @Column(name = "PROFILE_ID", updatable = false)
+    private String profileId;
 
 }
