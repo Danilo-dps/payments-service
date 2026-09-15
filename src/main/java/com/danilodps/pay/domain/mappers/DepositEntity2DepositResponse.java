@@ -1,7 +1,8 @@
 package com.danilodps.pay.domain.mappers;
 
 import com.danilodps.commons.domain.model.response.DepositResponse;
-import com.danilodps.pay.domain.model.DepositEntity;
+import com.danilodps.pay.domain.model.entities.DepositEntity;
+import com.danilodps.pay.domain.model.entities.ProfileEntity;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,19 +11,14 @@ public class DepositEntity2DepositResponse {
 
     private DepositEntity2DepositResponse(){}
 
-    public static DepositResponse convert(DepositEntity deposit){
+    public static DepositResponse convert(DepositEntity deposit, ProfileEntity profileEntity){
         return DepositResponse.builder()
                 .depositId(deposit.getDepositId())
-                .username(deposit.getProfileEntity().getUsername())
-                .userEmail(deposit.getProfileEntity().getProfileEmail())
+                .username(profileEntity.getUsername())
+                .userEmail(profileEntity.getProfileEmail())
                 .amount(deposit.getAmount())
                 .depositTimestamp(deposit.getDepositAt())
                 .build();
     }
 
-    public static List<DepositResponse> convertToList(List<DepositEntity> listDeposit){
-        return listDeposit.stream()
-                .map(DepositEntity2DepositResponse::convert)
-                .collect(Collectors.toList());
-    }
 }

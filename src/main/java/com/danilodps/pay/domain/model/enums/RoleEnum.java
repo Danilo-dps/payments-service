@@ -14,7 +14,7 @@ import static java.util.Arrays.stream;
 public enum RoleEnum {
 
     USER(1L, "CPF","USER", "Pessoa física"),
-    STORE(2L, "CNPJ", "COMPANY","Pessoa jurídica");
+    COMPANY(2L, "CNPJ", "COMPANY","Pessoa jurídica");
 
     private final Long id;
     private final String docIdentifier;
@@ -25,6 +25,6 @@ public enum RoleEnum {
         if(documentType.equals("CPF")){
             return RoleEnum.USER;
         }
-        return RoleEnum.STORE;
+        return RoleEnum.COMPANY;
     }
 }

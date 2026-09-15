@@ -1,12 +1,13 @@
 package com.danilodps.pay.domain.model;
 
 import com.danilodps.pay.adapters.outbound.repositories.projection.DepositProjection;
+import com.danilodps.pay.domain.model.entities.DepositEntity;
 
 import java.util.List;
 
 public interface DepositEntityRepository {
 
-    DepositEntity  save(DepositEntity depositEntity);
+    DepositEntity save(DepositEntity depositEntity);
     DepositEntity  findById(String depositId);
     List<DepositProjection> findDepositsByProfileId(String profileId);
     List<DepositEntity> findAll();

@@ -1,8 +1,9 @@
 package com.danilodps.pay.domain.service.impl;
 
-import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.ProfileEntityRepository;
-import com.danilodps.pay.domain.model.RoleEntity;
+import com.danilodps.pay.domain.model.RoleEntityRepository;
+import com.danilodps.pay.domain.model.entities.ProfileEntity;
+import com.danilodps.pay.domain.model.entities.RoleEntity;
 import com.danilodps.pay.infrastrucure.spring.UserDetailsImpl;
 import com.danilodps.pay.infrastrucure.spring.UserDetailsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,8 +19,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,20 +33,24 @@ class UserDetailsServiceImplTest {
     @Mock
     private ProfileEntityRepository profileEntityRepository;
 
+    @Mock
+    private RoleEntityRepository roleEntityRepository;
+
     @InjectMocks
     private UserDetailsServiceImpl userDetailsService;
 
     private ProfileEntity mockProfileEntity;
+    private RoleEntity mockRoleEntity;
     private final String validEmail = "user@example.com";
     private final String invalidEmail = "nonexistent@example.com";
-    private final String profileId = UUID.randomUUID().toString();
+    private final String profileId = "fd6ce5f9-0cb4-4f2b-8523-59404c65f040";
     private final String username = "Test User";
     private final String encodedPassword = "encodedPassword123";
 
     @BeforeEach
     void setUp() {
         String documentIdentifier = "CPF";
-        RoleEntity mockRoleEntity = new RoleEntity(1L, documentIdentifier, "ROLE_USER", "User role");
+        mockRoleEntity = new RoleEntity(1L, documentIdentifier, "ROLE_USER", "User role");
 
         String document = "123.456.789-00";
         mockProfileEntity = new ProfileEntity(
@@ -56,10 +61,8 @@ class UserDetailsServiceImplTest {
                 validEmail,
                 encodedPassword,
                 new BigDecimal("1200"),
-                Collections.singletonList(mockRoleEntity),
                 LocalDateTime.now(),
                 LocalDateTime.now());
-
     }
 
     @Nested
@@ -72,6 +75,8 @@ class UserDetailsServiceImplTest {
             // Given
             when(profileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
+            when(roleEntityRepository.findRolesByProfileId(profileId))
+                    .thenReturn(List.of(mockRoleEntity));
 
             // When
             UserDetails userDetails = userDetailsService.loadUserByUsername(validEmail);
@@ -88,6 +93,7 @@ class UserDetailsServiceImplTest {
                     .isEqualTo("ROLE_USER");
 
             verify(profileEntityRepository, times(1)).findByProfileEmail(validEmail);
+            verify(roleEntityRepository, times(1)).findRolesByProfileId(profileId);
         }
 
         @Test
@@ -104,6 +110,7 @@ class UserDetailsServiceImplTest {
                     .hasMessageContaining(invalidEmail);
 
             verify(profileEntityRepository, times(1)).findByProfileEmail(invalidEmail);
+            verify(roleEntityRepository, never()).findRolesByProfileId(any());
         }
 
         @Test
@@ -112,6 +119,8 @@ class UserDetailsServiceImplTest {
             // Given
             when(profileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
+            when(roleEntityRepository.findRolesByProfileId(profileId))
+                    .thenReturn(List.of(mockRoleEntity));
 
             // When
             UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(validEmail);
@@ -123,17 +132,16 @@ class UserDetailsServiceImplTest {
         }
 
         @Test
-        @DisplayName("Should include all roles from ProfileEntity")
+        @DisplayName("Should include all roles returned by RoleEntityRepository")
         void shouldIncludeAllRolesFromProfileEntity() {
             // Given
             RoleEntity roleUser = new RoleEntity(1L, "CPF", "ROLE_USER", "User role");
-
             RoleEntity roleAdmin = new RoleEntity(2L, "CPF", "ROLE_ADMIN", "User role");
-
-            mockProfileEntity.setRoles(java.util.List.of(roleUser, roleAdmin));
 
             when(profileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
+            when(roleEntityRepository.findRolesByProfileId(profileId))
+                    .thenReturn(List.of(roleUser, roleAdmin));
 
             // When
             UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(validEmail);
@@ -149,10 +157,10 @@ class UserDetailsServiceImplTest {
         @DisplayName("Should handle user with empty roles list")
         void shouldHandleUserWithEmptyRolesList() {
             // Given
-            mockProfileEntity.setRoles(Collections.emptyList());
-
             when(profileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
+            when(roleEntityRepository.findRolesByProfileId(profileId))
+                    .thenReturn(Collections.emptyList());
 
             // When
             UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(validEmail);
@@ -162,17 +170,20 @@ class UserDetailsServiceImplTest {
         }
 
         @Test
-        @DisplayName("Should call repositories with correct email parameter")
+        @DisplayName("Should call repositories with correct email/profileId parameter")
         void shouldCallRepositoryWithCorrectEmailParameter() {
             // Given
             when(profileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
+            when(roleEntityRepository.findRolesByProfileId(profileId))
+                    .thenReturn(List.of(mockRoleEntity));
 
             // When
             userDetailsService.loadUserByUsername(validEmail);
 
             // Then
             verify(profileEntityRepository, times(1)).findByProfileEmail(validEmail);
+            verify(roleEntityRepository, times(1)).findRolesByProfileId(profileId);
         }
 
         @Test
@@ -187,6 +198,7 @@ class UserDetailsServiceImplTest {
                     .isInstanceOf(RuntimeException.class);
 
             verify(profileEntityRepository, times(1)).findByProfileEmail(invalidEmail);
+            verify(roleEntityRepository, never()).findRolesByProfileId(any());
         }
     }
 
@@ -202,6 +214,8 @@ class UserDetailsServiceImplTest {
 
             when(profileEntityRepository.findByProfileEmail(emailWithSpaces))
                     .thenReturn(Optional.of(mockProfileEntity));
+            when(roleEntityRepository.findRolesByProfileId(profileId))
+                    .thenReturn(List.of(mockRoleEntity));
 
             // When
             UserDetails userDetails = userDetailsService.loadUserByUsername(emailWithSpaces);
@@ -220,6 +234,8 @@ class UserDetailsServiceImplTest {
 
             when(profileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
+            when(roleEntityRepository.findRolesByProfileId(profileId))
+                    .thenReturn(List.of(mockRoleEntity));
 
             // When
             UserDetails userDetails = userDetailsService.loadUserByUsername(validEmail);
@@ -239,6 +255,8 @@ class UserDetailsServiceImplTest {
 
             when(profileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
+            when(roleEntityRepository.findRolesByProfileId(profileId))
+                    .thenReturn(List.of(mockRoleEntity));
 
             // When
             UserDetails userDetails = userDetailsService.loadUserByUsername(validEmail);
@@ -246,7 +264,6 @@ class UserDetailsServiceImplTest {
             // Then
             assertThat(userDetails).isNotNull();
 
-            verify(profileEntityRepository, never()).save(any());
             verify(profileEntityRepository, never()).save(any());
         }
     }
@@ -282,6 +299,8 @@ class UserDetailsServiceImplTest {
             // Given
             when(profileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
+            when(roleEntityRepository.findRolesByProfileId(profileId))
+                    .thenReturn(List.of(mockRoleEntity));
 
             // When
             UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(validEmail);
@@ -300,6 +319,8 @@ class UserDetailsServiceImplTest {
             // Given
             when(profileEntityRepository.findByProfileEmail(validEmail))
                     .thenReturn(Optional.of(mockProfileEntity));
+            when(roleEntityRepository.findRolesByProfileId(profileId))
+                    .thenReturn(List.of(mockRoleEntity));
 
             // When
             UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(validEmail);

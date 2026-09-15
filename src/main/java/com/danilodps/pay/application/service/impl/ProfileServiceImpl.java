@@ -7,8 +7,8 @@ import com.danilodps.pay.adapters.inbound.controller.request.update.ProfileReque
 import com.danilodps.pay.adapters.inbound.controller.response.ProfileResponse;
 import com.danilodps.pay.application.usecases.ProfileUseCase;
 import com.danilodps.pay.domain.mappers.ProfileEntity2ProfileResponse;
-import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.ProfileEntityRepository;
+import com.danilodps.pay.domain.model.entities.ProfileEntity;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

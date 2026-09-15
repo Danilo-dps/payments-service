@@ -1,8 +1,9 @@
 package com.danilodps.pay.infrastrucure.spring;
 
-import com.danilodps.pay.domain.mappers.entities.core.ProfileEntity2JpaProfileEntity;
-import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.domain.model.ProfileEntityRepository;
+import com.danilodps.pay.domain.model.RoleEntityRepository;
+import com.danilodps.pay.domain.model.entities.ProfileEntity;
+import com.danilodps.pay.domain.model.entities.RoleEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
@@ -12,12 +13,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
+  private final RoleEntityRepository roleEntityRepository;
   private final ProfileEntityRepository profileEntityRepository;
 
   @Override
@@ -26,8 +30,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
       ProfileEntity profileEntity = profileEntityRepository.findByProfileEmail(profileEmail)
               .orElseThrow(() -> new RuntimeException("Perfil não encontrado: " + profileEmail));
 
+      List<RoleEntity> roles = roleEntityRepository.findRolesByProfileId(profileEntity.getProfileId());
+
       log.info("Usuário encontrado: {}", profileEntity.getProfileEmail());
-      return new UserDetailsImpl(ProfileEntity2JpaProfileEntity.convert(profileEntity));
+      return new UserDetailsImpl(profileEntity, roles);
   }
 
 }

@@ -1,7 +1,7 @@
 package com.danilodps.pay.domain.mappers;
 
-import com.danilodps.pay.domain.model.ProfileEntity;
 import com.danilodps.pay.adapters.inbound.controller.response.ProfileResponse;
+import com.danilodps.pay.domain.model.entities.ProfileEntity;
 
 public class ProfileEntity2ProfileResponse {
 

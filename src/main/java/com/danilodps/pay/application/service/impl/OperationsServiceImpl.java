@@ -13,6 +13,9 @@ import com.danilodps.pay.application.usecases.OperationsUseCase;
 import com.danilodps.pay.domain.mappers.DepositEntity2DepositResponse;
 import com.danilodps.pay.domain.mappers.TransactionEntity2TransactionResponse;
 import com.danilodps.pay.domain.model.*;
+import com.danilodps.pay.domain.model.entities.DepositEntity;
+import com.danilodps.pay.domain.model.entities.ProfileEntity;
+import com.danilodps.pay.domain.model.entities.TransactionEntity;
 import com.danilodps.pay.infrastrucure.config.KafkaEventProducer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +33,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OperationsServiceImpl implements OperationsUseCase {
 
+    public static final ZoneId SAO_PAULO_ZONE = ZoneId.of("America/Sao_Paulo");
     private final KafkaEventProducer kafkaEventProducer;
     private final ProfileEntityRepository profileEntityRepository;
     private final DepositEntityRepository depositEntityRepository;
@@ -46,14 +50,14 @@ public class OperationsServiceImpl implements OperationsUseCase {
         ProfileEntity profileEntity = profileEntityRepository.findByProfileEmail(requestDeposit.userEmail())
                 .orElseThrow(() -> new NotFoundException(requestDeposit.userEmail()));
 
-        DepositEntity deposit = new DepositEntity(UUID.randomUUID().toString(), LocalDateTime.now(ZoneId.systemDefault()), requestDeposit.amount(), profileEntity);
+        DepositEntity deposit = new DepositEntity(UUID.randomUUID().toString(), LocalDateTime.now(SAO_PAULO_ZONE), requestDeposit.amount(), profileEntity.getProfileId());
 
         profileEntity.setBalance(profileEntity.getBalance().add(requestDeposit.amount()));
         depositEntityRepository.save(deposit);
         profileEntityRepository.save(profileEntity);
 
-        kafkaEventProducer.publishDepositEventNotification(DepositEntity2DepositResponse.convert(deposit));
-        return DepositEntity2DepositResponse.convert(deposit);
+        kafkaEventProducer.publishDepositEventNotification(DepositEntity2DepositResponse.convert(deposit, profileEntity));
+        return DepositEntity2DepositResponse.convert(deposit, profileEntity);
     }
 
     @Override
@@ -66,24 +70,24 @@ public class OperationsServiceImpl implements OperationsUseCase {
         ProfileEntity profileSender = profileEntityRepository.findAndLockByProfileEmail(transactionRequest.senderEmail())
                 .orElseThrow(() -> new NotFoundException("Usuário remetente não encontrado para o e-mail " + transactionRequest.senderEmail()));
 
-        ProfileEntity profileDestination = profileEntityRepository.findAndLockByProfileEmail(transactionRequest.receiverEmail())
-                .orElseThrow(() -> new NotFoundException("Usuário remetente não encontrado para o e-mail " + transactionRequest.receiverEmail()));
+        ProfileEntity profileReceiver = profileEntityRepository.findAndLockByProfileEmail(transactionRequest.receiverEmail())
+                .orElseThrow(() -> new NotFoundException("Usuário destinatário não encontrado para o e-mail " + transactionRequest.receiverEmail()));
 
         if (profileSender.getBalance().compareTo(transactionRequest.amount()) < 0) {
             throw new InsufficientBalanceException();
         }
 
         profileSender.setBalance(profileSender.getBalance().subtract(transactionRequest.amount()));
-        profileDestination.setBalance(profileDestination.getBalance().add(transactionRequest.amount()));
-        TransactionEntity transaction = new TransactionEntity(UUID.randomUUID().toString(), transactionRequest.amount(), LocalDateTime.now(ZoneId.systemDefault()), profileSender, profileDestination);
+        profileReceiver.setBalance(profileReceiver.getBalance().add(transactionRequest.amount()));
+        TransactionEntity transaction = new TransactionEntity(UUID.randomUUID().toString(), transactionRequest.amount(), LocalDateTime.now(SAO_PAULO_ZONE), profileSender.getProfileId(), profileReceiver.getProfileId());
 
         profileEntityRepository.save(profileSender);
-        profileEntityRepository.save(profileDestination);
+        profileEntityRepository.save(profileReceiver);
 
         transactionEntityRepository.save(transaction);
 
-        kafkaEventProducer.publishTransferEventNotification(TransactionEntity2TransactionResponse.convert(transaction));
-        return TransactionEntity2TransactionResponse.convert(transaction);
+        kafkaEventProducer.publishTransferEventNotification(TransactionEntity2TransactionResponse.convert(transaction, profileSender.getProfileEmail(), profileReceiver.getProfileEmail()));
+        return TransactionEntity2TransactionResponse.convert(transaction, profileSender.getProfileEmail(), profileReceiver.getProfileEmail());
     }
 
     @Override

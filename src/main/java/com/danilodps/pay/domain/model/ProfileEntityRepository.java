@@ -1,5 +1,7 @@
 package com.danilodps.pay.domain.model;
 
+import com.danilodps.pay.domain.model.entities.ProfileEntity;
+
 import java.util.List;
 import java.util.Optional;
 

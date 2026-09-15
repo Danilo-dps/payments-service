@@ -1,12 +1,9 @@
 package com.danilodps.pay.adapters.outbound.repositories.impl;
 
-import com.danilodps.pay.adapters.outbound.entities.JpaTransactionEntity;
 import com.danilodps.pay.adapters.outbound.repositories.JpaTransactionEntityRepository;
 import com.danilodps.pay.adapters.outbound.repositories.projection.TransactionProjection;
-import com.danilodps.pay.domain.mappers.entities.jpa.JpaTransactionEntity2TransactionEntity;
-import com.danilodps.pay.domain.mappers.entities.core.TransactionEntity2JpaTransactionEntity;
-import com.danilodps.pay.domain.model.TransactionEntity;
 import com.danilodps.pay.domain.model.TransactionEntityRepository;
+import com.danilodps.pay.domain.model.entities.TransactionEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,15 +19,12 @@ public class TransactionEntityRepositoryImpl implements TransactionEntityReposit
 
     @Override
     public TransactionEntity save(TransactionEntity transactionEntity) {
-        JpaTransactionEntity jpaTransactionEntity = TransactionEntity2JpaTransactionEntity.convert(transactionEntity);
-        this.jpaTransactionEntityRepository.save(jpaTransactionEntity);
-        return JpaTransactionEntity2TransactionEntity.convert(jpaTransactionEntity);
+        return this.jpaTransactionEntityRepository.save(transactionEntity);
     }
 
     @Override
     public TransactionEntity findByTransactionId(String transactionId) {
-        JpaTransactionEntity jpaTransactionEntity =  this.jpaTransactionEntityRepository.findByTransactionId(transactionId);
-        return JpaTransactionEntity2TransactionEntity.convert(jpaTransactionEntity);
+        return this.jpaTransactionEntityRepository.findByTransactionId(transactionId);
     }
 
     @Override
