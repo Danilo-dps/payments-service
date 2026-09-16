@@ -30,6 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -69,7 +70,7 @@ class OperationsServiceImplTest {
     private final BigDecimal receiverInitialBalance = BigDecimal.valueOf(500.00);
     private final BigDecimal transferAmount = BigDecimal.valueOf(200.00);
     private final BigDecimal depositAmount = BigDecimal.valueOf(500.00);
-    private final LocalDateTime now = LocalDateTime.now();
+    private final LocalDateTime now = LocalDateTime.now(OperationsServiceImpl.SAO_PAULO_ZONE);
 
     @BeforeEach
     void setUp() {

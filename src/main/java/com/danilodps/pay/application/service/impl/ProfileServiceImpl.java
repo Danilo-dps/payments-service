@@ -25,7 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileUseCase {
 
-    private static final ZoneId SAO_PAULO_ZONE = ZoneId.of("America/Sao_Paulo");
+    public static final ZoneId SAO_PAULO_ZONE = ZoneId.of("America/Sao_Paulo");
     private final EmailValidator emailValidator;
     private final PasswordEncoder passwordEncoder;
     private final ProfileEntityRepository profileEntityRepository;

@@ -35,7 +35,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OperationsServiceImpl implements OperationsUseCase {
 
-    private static final ZoneId SAO_PAULO_ZONE = ZoneId.of("America/Sao_Paulo");
+    public static final ZoneId SAO_PAULO_ZONE = ZoneId.of("America/Sao_Paulo");
     private final KafkaEventProducer kafkaEventProducer;
     private final ProfileEntityRepository profileEntityRepository;
     private final DepositEntityRepository depositEntityRepository;

@@ -5,6 +5,7 @@ import com.danilodps.commons.application.exceptions.NotFoundException;
 import com.danilodps.commons.domain.validation.EmailValidator;
 import com.danilodps.pay.adapters.inbound.controller.request.update.ProfileRequestUpdate;
 import com.danilodps.pay.adapters.inbound.controller.response.ProfileResponse;
+import com.danilodps.pay.application.service.impl.ProfileAuthServiceImpl;
 import com.danilodps.pay.application.service.impl.ProfileServiceImpl;
 import com.danilodps.pay.domain.model.ProfileEntityRepository;
 import com.danilodps.pay.domain.model.entities.ProfileEntity;
@@ -50,6 +51,7 @@ class ProfileServiceImplTest {
     private final String validProfileId = "3696fa22-0d5c-43be-85ba-69709d0bb018";
     private final String validEmail = "user@example.com";
     private final String documentIdentifier = DocumentTypeEnum.CPF.getShortName();
+    private final LocalDateTime now = LocalDateTime.now(ProfileServiceImpl.SAO_PAULO_ZONE);
 
     @BeforeEach
     void setUp() {
@@ -65,7 +67,7 @@ class ProfileServiceImplTest {
                 validEmail,
                 encodedPassword,
                 new BigDecimal("1000.50"),
-                LocalDateTime.now(),
+                now,
                 null);
     }
 

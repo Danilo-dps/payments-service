@@ -83,6 +83,7 @@ class ProfileAuthServiceImplTest {
     private final String testProfileId = "f755df70-c0dc-45ea-88c4-0d2bf2d99397";
     private final String jwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
     private final String documentIdentifier = DocumentTypeEnum.CPF.getShortName();
+    private final LocalDateTime now = LocalDateTime.now(ProfileAuthServiceImpl.SAO_PAULO_ZONE);
 
     @BeforeEach
     void setUp() {
@@ -113,7 +114,7 @@ class ProfileAuthServiceImplTest {
                 validEmail,
                 encodedPassword,
                 new BigDecimal("12"),
-                LocalDateTime.now(),
+                now,
                 null);
 
         mockUserDetails = new UserDetailsImpl(mockProfileEntity, List.of(mockRoleEntity));
@@ -477,7 +478,6 @@ class ProfileAuthServiceImplTest {
             doNothing().when(kafkaEventProducer).publishSignUpNotification(any(SignUpResponse.class));
 
             ArgumentCaptor<ProfileEntity> profileCaptor = ArgumentCaptor.forClass(ProfileEntity.class);
-            LocalDateTime beforeTest = LocalDateTime.now();
 
             // When
             profileAuthService.register(validSignUpRequest);
@@ -487,7 +487,7 @@ class ProfileAuthServiceImplTest {
             ProfileEntity capturedProfile = profileCaptor.getValue();
 
             assertThat(capturedProfile.getCreatedAt()).isNotNull();
-            assertThat(capturedProfile.getCreatedAt()).isAfterOrEqualTo(beforeTest);
+            assertThat(capturedProfile.getCreatedAt()).isAfterOrEqualTo(now);
         }
     }
 
