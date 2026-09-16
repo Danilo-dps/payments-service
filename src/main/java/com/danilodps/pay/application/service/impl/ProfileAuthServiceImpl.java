@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProfileAuthServiceImpl implements ProfileAuthUseCase {
 
+    public static final ZoneId SAO_PAULO_ZONE = ZoneId.of("America/Sao_Paulo");
     private final PasswordEncoder passwordEncoder;
     private final ValidatorComponent profileValidator;
     private final JwtTokenGenerator jwtTokenGenerator;
@@ -60,7 +61,7 @@ public class ProfileAuthServiceImpl implements ProfileAuthUseCase {
         profileEntity.setDocumentIdentifier(signUpRequest.documentIdentifier());
         profileEntity.setDocument(signUpRequest.document());
         profileEntity.setProfileEmail(signUpRequest.userEmail());
-        profileEntity.setCreatedAt(LocalDateTime.now(ZoneId.systemDefault()));
+        profileEntity.setCreatedAt(LocalDateTime.now(SAO_PAULO_ZONE));
         profileEntity.setPassword(passwordEncoder.encode(signUpRequest.password()));
         profileEntity.setBalance(BigDecimal.ZERO);
 
@@ -76,12 +77,11 @@ public class ProfileAuthServiceImpl implements ProfileAuthUseCase {
 
         profileRoleEntityRepository.save(profileRole);
 
-        SignUpResponse signUpResponse = SignUpResponse.builder()
-                .id(profileEntity.getProfileId())
-                .username(profileEntity.getUsername())
-                .email(profileEntity.getProfileEmail())
-                .signupTimestamp(LocalDateTime.now(ZoneId.systemDefault())).build();
-
+        SignUpResponse signUpResponse = new SignUpResponse(
+                profileEntity.getProfileId(),
+                profileEntity.getUsername(),
+                profileEntity.getProfileEmail(),
+                profileEntity.getCreatedAt());
         kafkaEventProducer.publishSignUpNotification(signUpResponse);
 
         return signUpResponse;
@@ -103,11 +103,11 @@ public class ProfileAuthServiceImpl implements ProfileAuthUseCase {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        SignInResponse signInResponse = SignInResponse.builder()
-                .id(userDetails.getProfileId())
-                .username(userDetails.getUsername())
-                .email(userDetails.getProfileEmail())
-                .signinTimestamp(LocalDateTime.now(ZoneId.systemDefault())).build();
+        SignInResponse signInResponse = new SignInResponse(
+                userDetails.getProfileId(),
+                userDetails.getUsername(),
+                userDetails.getProfileEmail(),
+                LocalDateTime.now(SAO_PAULO_ZONE));
 
         kafkaEventProducer.publishSignInNotification(signInResponse);
 

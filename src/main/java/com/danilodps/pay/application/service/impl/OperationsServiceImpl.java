@@ -12,7 +12,9 @@ import com.danilodps.pay.adapters.outbound.repositories.projection.TransactionPr
 import com.danilodps.pay.application.usecases.OperationsUseCase;
 import com.danilodps.pay.domain.mappers.DepositEntity2DepositResponse;
 import com.danilodps.pay.domain.mappers.TransactionEntity2TransactionResponse;
-import com.danilodps.pay.domain.model.*;
+import com.danilodps.pay.domain.model.DepositEntityRepository;
+import com.danilodps.pay.domain.model.ProfileEntityRepository;
+import com.danilodps.pay.domain.model.TransactionEntityRepository;
 import com.danilodps.pay.domain.model.entities.DepositEntity;
 import com.danilodps.pay.domain.model.entities.ProfileEntity;
 import com.danilodps.pay.domain.model.entities.TransactionEntity;

@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +47,7 @@ class UserDetailsServiceImplTest {
     private final String profileId = "fd6ce5f9-0cb4-4f2b-8523-59404c65f040";
     private final String username = "Test User";
     private final String encodedPassword = "encodedPassword123";
+    public static final ZoneId SAO_PAULO_ZONE = ZoneId.of("America/Sao_Paulo");
 
     @BeforeEach
     void setUp() {
@@ -61,8 +63,8 @@ class UserDetailsServiceImplTest {
                 validEmail,
                 encodedPassword,
                 new BigDecimal("1200"),
-                LocalDateTime.now(),
-                LocalDateTime.now());
+                LocalDateTime.now(SAO_PAULO_ZONE),
+                LocalDateTime.now(SAO_PAULO_ZONE));
     }
 
     @Nested
