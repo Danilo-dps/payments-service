@@ -1,8 +1,10 @@
 # Ecossistema de Pagamentos e Notificações
 
-Este é um sistema de pagamentos simplificado orientado a eventos, construído com **Java 21** e **Spring Boot**. A arquitetura foi dividida em microsserviços e bibliotecas para garantir separação de responsabilidades, escalabilidade e reaproveitamento de código. 
+Este é uma simulação de sistema de cadastro, login e pagamentos simplificado orientado a eventos, construído com **Java 25** e **Spring Boot 4.1.1**. A arquitetura foi dividida em microsserviços e bibliotecas para garantir separação de responsabilidades, escalabilidade e reaproveitamento de código.
 
 O sistema gerencia usuários e empresas, processa transações (depósitos e transferências) e utiliza **Apache Kafka** (em modo KRaft) para mensageria assíncrona, culminando no envio de notificações por e-mail.
+
+---
 
 ## 🏗️ Arquitetura do Projeto
 
@@ -13,6 +15,8 @@ Para manter a modularidade, o ecossistema está dividido em 4 repositórios prin
 3. **[Commons Library](https://github.com/dlil-software-maker/commons)**: Uma mini-biblioteca que consolida os `records` (DTOs) e `exceptions` comuns utilizados por ambos os microsserviços, garantindo consistência e evitando duplicação de código.
 4. **[Infraestrutura (Docker Yamls)](https://github.com/Danilo-dps/docker-yamls/tree/main/payments-notification)**: Repositório centralizado com o `docker-compose.yml` para provisionar o Apache Kafka e o banco de dados.
 
+---
+
 ## 🚀 Funcionalidades Principais
 
 * **Autenticação e Autorização:** Cadastro e login para Usuários Físicos (`USER` - gerado via CPF) e Empresas (`COMPANY` - gerado via CNPJ).
@@ -20,13 +24,34 @@ Para manter a modularidade, o ecossistema está dividido em 4 repositórios prin
 * **Mensageria Assíncrona:** Comunicação não-bloqueante entre o processamento do pagamento e o envio do recibo/alerta utilizando Apache Kafka.
 * **Notificações por E-mail:** Envio de alertas configurado via Google Mail (requer Senha de App).
 
+---
+
 ## 🛠️ Stack Tecnológica
 
-* **Linguagem & Framework:** Java 21, Spring Boot 4.x, Spring Security, Spring Data JPA
-* **Banco de Dados:** MySQL (Via Docker)
-* **Mensageria:** Apache Kafka rodando em modo KRaft (Via Docker)
-* **Testes:** JUnit 5
-* **Containerização:** Docker & Docker Compose
+<p text-align="left">
+  <img src="https://img.shields.io/badge/Java%2025-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 25"/>
+  <img src="https://img.shields.io/badge/Spring%20Boot%204.1.1-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot"/>
+  <img src="https://img.shields.io/badge/Spring%20Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white" alt="Spring Security"/>
+  <img src="https://img.shields.io/badge/Spring%20Data%20JPA-6DB33F?style=for-the-badge&logo=spring&logoColor=white" alt="Spring Data JPA"/>
+  <img src="https://img.shields.io/badge/Apache%20Kafka-231F20?style=for-the-badge&logo=apachekafka&logoColor=white" alt="Apache Kafka"/>
+  <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL"/>
+  <img src="https://img.shields.io/badge/JUnit%205-25A162?style=for-the-badge&logo=junit5&logoColor=white" alt="JUnit 5"/>
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker"/>
+  <img src="https://img.shields.io/badge/Docker%20Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose"/>
+  <img src="https://img.shields.io/badge/Apache%20Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white" alt="Maven"/>
+  <img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Gmail SMTP"/>
+  <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="JWT"/>
+</p>
+
+| Categoria | Tecnologia |
+|---|---|
+| **Linguagem** | Java 25 |
+| **Framework** | Spring Boot 4.x, Spring Security, Spring Data JPA |
+| **Banco de Dados** | MySQL (Via Docker) |
+| **Mensageria** | Apache Kafka (Modo KRaft, Via Docker) |
+| **Testes** | JUnit 5 |
+| **Containerização** | Docker & Docker Compose |
+| **Build** | Apache Maven |
 
 ---
 
@@ -35,7 +60,7 @@ Para manter a modularidade, o ecossistema está dividido em 4 repositórios prin
 Como o projeto é dividido em múltiplos repositórios, a ordem de inicialização é importante. Siga o passo a passo abaixo:
 
 ### Pré-requisitos
-* Java 21 (JDK)
+* Java 25 (JDK)
 * Apache Maven
 * Docker e Docker Compose
 * Uma conta Google com **"Senhas de App"** ativada para o Notification Service (veja [como gerar](https://support.google.com/accounts/answer/185833)).
@@ -54,7 +79,7 @@ KAFKA_CONTROLLER_PORT=9093
 
 Inicie os contêineres:
 ```bash
-git clone [https://github.com/Danilo-dps/docker-yamls.git](https://github.com/Danilo-dps/docker-yamls.git)
+git clone https://github.com/Danilo-dps/docker-yamls.git
 cd docker-yamls/payments-notification
 docker compose up -d
 ```
@@ -64,7 +89,7 @@ docker compose up -d
 Para que os serviços de Pagamento e Notificação encontrem as classes compartilhadas, instale a lib *commons* no seu repositório Maven local (`.m2`):
 
 ```bash
-git clone [https://github.com/dlil-software-maker/commons.git](https://github.com/dlil-software-maker/commons.git)
+git clone https://github.com/dlil-software-maker/commons.git
 cd commons
 mvn clean install
 ```
@@ -93,7 +118,11 @@ SERVER_PORT=porta_escolhida_por_voce(o padrão é 8080)
 
 ## 🧪 Testes
 
-Este projeto utiliza **JUnit 5**. Para rodar a suíte de testes unitários do Payment Service, execute o comando abaixo no terminal ou rode diretamente pela sua IDE:
+Este projeto utiliza **JUnit 5** <img src="https://img.shields.io/badge/JUnit%205-25A162?style=flat-square&logo=junit5&logoColor=white" alt="JUnit 5" height="20"/>. Para rodar a suíte de testes unitários do Payment Service, execute o comando abaixo no terminal ou rode diretamente pela sua IDE:
+
+```bash
+mvn test
+```
 
 ---
 
@@ -117,7 +146,11 @@ Este projeto utiliza **JUnit 5**. Para rodar a suíte de testes unitários do Pa
 
 ---
 
-### Comando maven para recuperar os valores da variável de ambiente enquanto builda o código
-```mvn
+## ⚙️ Comandos Úteis
+
+### Maven — recuperar variáveis de ambiente durante o build
+```bash
 export $(xargs < .env) && mvn clean install
-``` 
+```
+
+---
