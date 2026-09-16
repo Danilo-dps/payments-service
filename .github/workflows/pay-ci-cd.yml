@@ -23,7 +23,7 @@ jobs:
 
       # ── Passo 1 ──────────────────────────────────────────
       - name: Fazer checkout do código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         # "uses" chama uma action pronta do marketplace do GitHub
         # actions/checkout baixa o código do seu repositório dentro da VM
         # sem isso, a VM não teria acesso a nenhum arquivo do projeto
@@ -32,7 +32,7 @@ jobs:
       - name: Configurar o Java
         uses: actions/setup-java@v5
         with:
-          java-version: '21'          # versão do Java que seu projeto usa
+          java-version: '25'          # versão do Java que seu projeto usa
           distribution: 'temurin'     # distribuição: temurin (Eclipse), corretto (Amazon), zulu, etc
           server-id: github           # id do servidor que bate com o <id> definido no pom.xml do pay
           server-username: MAVEN_USERNAME   # nome da variável de ambiente que terá o username
@@ -43,7 +43,7 @@ jobs:
 
       # ── Passo 3 ──────────────────────────────────────────
       - name: Cache das dependências Maven
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.m2/repository
           # ~/.m2 é onde o Maven guarda os JARs baixados localmente
@@ -99,7 +99,7 @@ jobs:
 
       # ── Passo 8 ──────────────────────────────────────────
       - name: Publicar o JAR como artefato
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: app-jar                      # nome que vai aparecer no GitHub
           path: target/*.jar             # caminho completo pois "uses" ignora o working-directory
