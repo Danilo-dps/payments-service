@@ -8,13 +8,12 @@ public class TransactionEntity2TransactionResponse {
     private TransactionEntity2TransactionResponse(){}
 
     public static TransactionResponse convert(TransactionEntity transactionEntity, String sender, String receiver){
-        return TransactionResponse.builder()
-                .transactionId(transactionEntity.getTransactionId())
-                .amount(transactionEntity.getAmount())
-                .senderEmail(sender)
-                .receiverEmail(receiver)
-                .transactionTimestamp(transactionEntity.getTransactionAt())
-                .build();
+        return new TransactionResponse(
+                transactionEntity.getTransactionId(),
+                transactionEntity.getAmount(),
+                transactionEntity.getTransactionAt(),
+                sender,
+                receiver);
     }
 
 }

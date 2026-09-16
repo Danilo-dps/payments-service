@@ -25,6 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileUseCase {
 
+    private static final ZoneId SAO_PAULO_ZONE = ZoneId.of("America/Sao_Paulo");
     private final EmailValidator emailValidator;
     private final PasswordEncoder passwordEncoder;
     private final ProfileEntityRepository profileEntityRepository;
@@ -68,14 +69,14 @@ public class ProfileServiceImpl implements ProfileUseCase {
                     throw new DuplicateEmailException(profileRequestUpdate.newEmail());
                 }
                 existingUser.setProfileEmail(profileRequestUpdate.newEmail());
-                existingUser.setLastUpdated(LocalDateTime.now(ZoneId.systemDefault()));
+                existingUser.setLastUpdated(LocalDateTime.now(SAO_PAULO_ZONE));
             }
 
 
         if (profileRequestUpdate.newPassword() != null && !profileRequestUpdate.newPassword().isBlank()) {
             log.info("Alterando senha do usuário {}", profileId);
             existingUser.setPassword(passwordEncoder.encode(profileRequestUpdate.newPassword()));
-            existingUser.setLastUpdated(LocalDateTime.now(ZoneId.systemDefault()));
+            existingUser.setLastUpdated(LocalDateTime.now(SAO_PAULO_ZONE));
         }
 
         ProfileEntity profileEntity = profileEntityRepository.save(existingUser);

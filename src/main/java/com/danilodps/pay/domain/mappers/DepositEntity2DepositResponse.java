@@ -12,13 +12,12 @@ public class DepositEntity2DepositResponse {
     private DepositEntity2DepositResponse(){}
 
     public static DepositResponse convert(DepositEntity deposit, ProfileEntity profileEntity){
-        return DepositResponse.builder()
-                .depositId(deposit.getDepositId())
-                .username(profileEntity.getUsername())
-                .userEmail(profileEntity.getProfileEmail())
-                .amount(deposit.getAmount())
-                .depositTimestamp(deposit.getDepositAt())
-                .build();
+        return new DepositResponse(
+                deposit.getDepositId(),
+                profileEntity.getUsername(),
+                profileEntity.getProfileEmail(),
+                deposit.getAmount(),
+                deposit.getDepositAt());
     }
 
 }
